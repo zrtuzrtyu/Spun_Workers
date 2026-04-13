@@ -88,6 +88,7 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
           <div className="flex flex-col gap-1 md:mb-6">
             <Logo />
             <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold ml-14">Operator Portal</div>
+            <div className="text-[8px] font-mono text-primary/40 uppercase tracking-widest ml-14 mt-1">v1.0.4 // SECURE_NODE</div>
           </div>
           <Button variant="ghost" size="icon" onClick={handleLogout} className="md:hidden text-destructive">
             <LogOut className="w-5 h-5" />

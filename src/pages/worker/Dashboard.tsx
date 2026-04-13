@@ -6,7 +6,7 @@ import { db, storage } from "../../firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { CheckCircle2, Clock, DollarSign, UploadCloud, FileUp, TrendingUp, Zap, Trophy, Users, ExternalLink, AlertCircle } from "lucide-react";
+import { CheckCircle2, Clock, DollarSign, UploadCloud, FileUp, TrendingUp, Zap, Trophy, Users, ExternalLink, AlertCircle, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
 import { Button, buttonVariants } from "../../components/ui/button";
@@ -184,189 +184,306 @@ export default function WorkerDashboard() {
 
   return (
     <WorkerLayout>
-      <div className="mb-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome, {user?.name?.split(' ')[0]}</h1>
-          <div className="flex items-center gap-3">
-            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors px-2 py-0.5">
-              <Zap className="w-3 h-3 mr-1.5 fill-current" />
-              3 Day Streak
-            </Badge>
-            <p className="text-muted-foreground text-sm font-medium">
-              ${earningsToNextLevel.toFixed(2)} until <span className="text-foreground">Level {currentLevel + 1}</span>
-            </p>
+      {/* Scanline Overlay Effect */}
+      <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.03] overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+      </div>
+
+      {/* System Metrics Bar */}
+      <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4 border border-border/50 bg-muted/5 p-2">
+        <div className="flex flex-col gap-1 border-r border-border/30 px-3">
+          <div className="text-[8px] font-mono font-bold text-muted-foreground uppercase tracking-widest">CPU_LOAD</div>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1 bg-muted rounded-none overflow-hidden">
+              <div className="h-full bg-primary w-[42%] animate-pulse" />
+            </div>
+            <span className="text-[10px] font-mono text-primary">42%</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-1 border-r border-border/30 px-3">
+          <div className="text-[8px] font-mono font-bold text-muted-foreground uppercase tracking-widest">MEM_USAGE</div>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1 bg-muted rounded-none overflow-hidden">
+              <div className="h-full bg-primary w-[68%]" />
+            </div>
+            <span className="text-[10px] font-mono text-primary">6.8GB</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-1 border-r border-border/30 px-3">
+          <div className="text-[8px] font-mono font-bold text-muted-foreground uppercase tracking-widest">NET_LATENCY</div>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1 bg-muted rounded-none overflow-hidden">
+              <div className="h-full bg-emerald-500 w-[12%]" />
+            </div>
+            <span className="text-[10px] font-mono text-emerald-500">12ms</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-1 px-3">
+          <div className="text-[8px] font-mono font-bold text-muted-foreground uppercase tracking-widest">UPLINK_STATUS</div>
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" />
+            <span className="text-[10px] font-mono text-emerald-500 uppercase">Encrypted</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 border-b border-border/50 pb-8">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-primary/60">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
+            System Status: Online
+          </div>
+          <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">
+            Console<span className="text-primary">.</span>{user?.isAnonymous ? user?.username : user?.name?.split(' ')[0]}
+          </h1>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-2 py-1 bg-muted/50 border border-border/50 rounded text-[10px] font-mono font-bold text-muted-foreground uppercase">
+              <Zap className="w-3 h-3 text-primary fill-current" />
+              Streak: 3D
+            </div>
+            <div className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
+              Next Tier: <span className="text-foreground">Level {currentLevel + 1}</span> (${earningsToNextLevel.toFixed(2)} req)
+            </div>
           </div>
         </div>
         
-        <Card className="w-full lg:w-80 bg-card/50 backdrop-blur-sm border-border/50">
-          <CardContent className="p-5">
-            <div className="flex justify-between items-end mb-2.5">
-              <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Progress</div>
-              <div className="text-xs font-mono font-bold text-primary">{levelProgress}%</div>
-            </div>
-            <Progress value={levelProgress} className="h-1.5 mb-2" />
-            <p className="text-[10px] text-muted-foreground/70 font-medium">Unlock Premium Tier at Level {currentLevel + 1}</p>
-          </CardContent>
-        </Card>
+        <div className="w-full lg:w-72 space-y-2">
+          <div className="flex justify-between items-center text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground">
+            <span>Sync Progress</span>
+            <span className="text-primary">{levelProgress}%</span>
+          </div>
+          <div className="h-2 bg-muted/50 border border-border/50 rounded-none overflow-hidden p-[1px]">
+            <div 
+              className="h-full bg-primary transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(var(--primary),0.3)]" 
+              style={{ width: `${levelProgress}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-[9px] font-mono text-muted-foreground/50 uppercase">
+            <span>Lvl {currentLevel}</span>
+            <span>Lvl {currentLevel + 1}</span>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-8 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold flex items-center gap-2.5">
-              <Clock className="w-5 h-5 text-primary" /> Active Assignments
-            </h2>
-            <Badge variant="outline" className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-              {assignments.length} Tasks
-            </Badge>
+        <div className="lg:col-span-8 space-y-8">
+          <div className="flex items-center justify-between border-l-2 border-primary pl-4">
+            <div>
+              <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-foreground flex items-center gap-2">
+                Active Assignments
+              </h2>
+              <p className="text-[10px] font-mono text-muted-foreground uppercase mt-0.5">Queue processing: {assignments.length} active nodes</p>
+            </div>
+            <div className="text-[10px] font-mono font-bold text-primary bg-primary/5 px-2 py-1 border border-primary/20">
+              {new Date().toLocaleTimeString([], { hour12: false })}
+            </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="grid gap-4">
             {assignments.length === 0 ? (
-              <Card className="border-dashed border-2 bg-transparent">
-                <CardContent className="p-12 text-center">
-                  <CheckCircle2 className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-1">All caught up!</h3>
-                  <p className="text-sm text-muted-foreground">No new tasks assigned. We'll notify you when new jobs arrive.</p>
-                </CardContent>
-              </Card>
+              <div className="border border-dashed border-border/50 p-12 text-center bg-muted/5">
+                <div className="w-12 h-12 border border-muted-foreground/20 rounded-full flex items-center justify-center mx-auto mb-4 opacity-20">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">No Active Tasks</h3>
+                <p className="text-[10px] font-mono text-muted-foreground/50 mt-2 italic">Awaiting network broadcast...</p>
+              </div>
             ) : (
               assignments.map(assign => (
-                <Card key={assign.id} className={cn(
-                  "transition-all duration-300 group overflow-hidden",
-                  assign.status === 'pending' ? 'border-primary/40 shadow-lg shadow-primary/5' : 'border-border/50'
-                )}>
-                  <CardContent className="p-0">
-                    <div className="p-6">
-                      <div className="flex justify-between items-start gap-4 mb-4">
+                <div 
+                  key={assign.id} 
+                  className={cn(
+                    "relative group border transition-all duration-200",
+                    assign.status === 'pending' 
+                      ? "bg-card border-primary/30 shadow-[4px_4px_0px_rgba(var(--primary),0.1)]" 
+                      : "bg-muted/5 border-border/50"
+                  )}
+                >
+                  <div className="flex flex-col md:flex-row">
+                    <div className="flex-1 p-5 border-r border-border/50">
+                      <div className="flex items-start justify-between mb-4">
                         <div className="space-y-1">
-                          <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">{assign.taskTitle}</h3>
-                          <div className="flex items-center gap-2.5">
-                            <Badge className={cn(
-                              "text-[10px] font-bold uppercase tracking-wider px-2 py-0",
-                              assign.status === 'pending' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-                              assign.status === 'submitted' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
-                              assign.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                              'bg-destructive/10 text-destructive border-destructive/20'
-                            )}>
-                              {assign.status}
-                            </Badge>
-                            <span className="text-primary font-mono font-bold text-sm flex items-center">
-                              <DollarSign className="w-3.5 h-3.5" />{assign.payout.toFixed(2)}
-                            </span>
+                          <div className="text-[9px] font-mono font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                            <span className={cn(
+                              "w-1.5 h-1.5 rounded-full",
+                              assign.status === 'pending' ? 'bg-amber-500 animate-pulse' :
+                              assign.status === 'submitted' ? 'bg-blue-500' :
+                              assign.status === 'approved' ? 'bg-emerald-500' : 'bg-destructive'
+                            )} />
+                            Node ID: {assign.id.slice(0, 8).toUpperCase()}
                           </div>
+                          <h3 className="text-lg font-black tracking-tight uppercase text-foreground group-hover:text-primary transition-colors">
+                            {assign.taskTitle}
+                          </h3>
                         </div>
-                        {assign.status === 'pending' && (
-                          <Button 
-                            onClick={() => setSelectedAssignment(assign)}
-                            size="sm"
-                            className="font-bold shadow-lg shadow-primary/20"
-                          >
-                            Submit Proof
-                          </Button>
-                        )}
+                        <div className="text-right">
+                          <div className="text-xl font-black text-primary font-mono tracking-tighter">
+                            ${assign.payout.toFixed(2)}
+                          </div>
+                          <div className="text-[9px] font-mono font-bold text-muted-foreground uppercase">Payout Value</div>
+                        </div>
                       </div>
                       
-                      <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
-                        <div className="text-[10px] text-muted-foreground uppercase font-bold mb-2 tracking-widest">Instructions</div>
-                        <p className="text-sm text-muted-foreground leading-relaxed mb-4 line-clamp-3 group-hover:line-clamp-none transition-all duration-500">
+                      <div className="space-y-3">
+                        <div className="bg-muted/30 p-3 border border-border/30 font-mono text-[11px] text-muted-foreground leading-relaxed">
+                          <span className="text-primary/50 mr-2"># INSTRUCTIONS:</span>
                           {assign.taskDescription}
-                        </p>
+                        </div>
                         
+                        <div className="flex flex-wrap items-center gap-4">
+                          <div className="flex items-center gap-2 px-2 py-0.5 bg-muted/50 border border-border/30 rounded text-[8px] font-mono font-bold text-muted-foreground uppercase">
+                            Priority: High
+                          </div>
+                          <div className="flex items-center gap-2 px-2 py-0.5 bg-muted/50 border border-border/30 rounded text-[8px] font-mono font-bold text-muted-foreground uppercase">
+                            Latency: 45ms
+                          </div>
+                          <div className="flex items-center gap-2 px-2 py-0.5 bg-muted/50 border border-border/30 rounded text-[8px] font-mono font-bold text-muted-foreground uppercase">
+                            Thread: 0x{assign.id.slice(-4).toUpperCase()}
+                          </div>
+                        </div>
+
                         {assign.taskLink && (
-                          <div className="pt-4 border-t border-border/50">
+                          <div className="flex items-center gap-4 pt-2">
                             <a 
                               href={getTrackedUrl(assign)} 
                               target="_blank" 
                               rel="noopener noreferrer" 
                               onClick={() => handleOfferClick(assign)}
-                              className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "h-8 font-bold")}
+                              className="flex items-center gap-2 text-[10px] font-mono font-bold uppercase text-primary hover:text-primary/80 transition-colors"
                             >
-                              Start Task <ExternalLink className="w-3 h-3 ml-2" />
+                              <ExternalLink className="w-3 h-3" /> Execute Protocol
                             </a>
+                            <div className="h-px flex-1 bg-border/30" />
                           </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="w-full md:w-48 p-5 flex flex-col justify-between bg-muted/5">
+                      <div className="space-y-4">
+                        <div>
+                          <div className="text-[9px] font-mono font-bold text-muted-foreground uppercase mb-1">Status</div>
+                          <Badge className={cn(
+                            "w-full justify-center rounded-none text-[10px] font-mono font-bold uppercase tracking-widest h-7",
+                            assign.status === 'pending' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                            assign.status === 'submitted' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                            assign.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                            'bg-destructive/10 text-destructive border-destructive/20'
+                          )}>
+                            {assign.status}
+                          </Badge>
+                        </div>
+                        {assign.status === 'pending' && (
+                          <Button 
+                            onClick={() => setSelectedAssignment(assign)}
+                            className="w-full h-10 rounded-none font-mono font-bold text-[10px] uppercase tracking-widest shadow-[4px_4px_0px_rgba(var(--primary),0.2)]"
+                          >
+                            Upload Proof
+                          </Button>
                         )}
                       </div>
 
                       {assign.status === 'rejected' && (
-                        <div className="mt-4 flex items-start gap-3 bg-destructive/5 border border-destructive/20 p-3 rounded-lg text-destructive text-xs font-medium">
-                          <AlertCircle className="w-4 h-4 shrink-0" />
-                          <span>Submission rejected. Please review instructions and try again.</span>
+                        <div className="flex items-center gap-2 text-[9px] font-mono font-bold text-destructive uppercase animate-pulse">
+                          <AlertCircle className="w-3 h-3" /> Error Detected
                         </div>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))
             )}
           </div>
         </div>
 
-        <div className="lg:col-span-4 space-y-6">
-          <Card className="bg-card/50 border-border/50">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-sm font-bold flex items-center gap-2">
-                <Users className="w-4 h-4 text-primary" /> Network Activity
-              </CardTitle>
-              <CardDescription className="text-[10px] uppercase tracking-widest">Real-time global feed</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
+        <div className="lg:col-span-4 space-y-8">
+          <div className="border border-border/50 bg-card/30 overflow-hidden">
+            <div className="bg-muted/50 px-4 py-1.5 border-b border-border/50 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-red-500/50" />
+                <div className="w-2 h-2 rounded-full bg-amber-500/50" />
+                <div className="w-2 h-2 rounded-full bg-emerald-500/50" />
+              </div>
+              <span className="text-[9px] font-mono font-bold text-muted-foreground uppercase tracking-widest">Network_Monitor.exe</span>
+            </div>
+            <div className="p-4 border-b border-border/50 flex items-center justify-between bg-muted/20">
+              <h3 className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-foreground flex items-center gap-2">
+                <Users className="w-3 h-3 text-primary" /> Live Network Feed
+              </h3>
+              <div className="flex gap-1">
+                <span className="w-1 h-1 rounded-full bg-primary/30" />
+                <span className="w-1 h-1 rounded-full bg-primary/30" />
+                <span className="w-1 h-1 rounded-full bg-primary" />
+              </div>
+            </div>
+            <div className="p-4 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar bg-black/20">
               {activities.map((activity, i) => (
                 <motion.div 
                   key={activity.id}
-                  initial={{ opacity: 0, x: 10 }}
+                  initial={{ opacity: 0, x: 5 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="flex items-start gap-3 group"
+                  transition={{ delay: i * 0.05 }}
+                  className="space-y-1 border-l border-border/50 pl-3 py-1"
                 >
-                  <div className="w-7 h-7 rounded bg-muted flex items-center justify-center text-[10px] font-mono font-bold text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                    {String(i + 1).padStart(2, '0')}
+                  <div className="flex justify-between items-center">
+                    <span className="text-[9px] font-mono text-primary/70 uppercase">Event_{activity.id.slice(0, 4)}</span>
+                    <span className="text-[8px] font-mono text-muted-foreground/50">T+{i*12}s</span>
                   </div>
-                  <div className="space-y-0.5">
-                    <div className="text-xs font-semibold text-foreground">Task Verified in US</div>
-                    <div className="text-[10px] text-muted-foreground font-medium flex items-center gap-1.5">
-                      <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                      Just now • Global Node
-                    </div>
+                  <div className="text-[11px] font-mono text-muted-foreground leading-tight">
+                    <span className="text-foreground font-bold">Node_{activity.userId?.slice(0, 4)}</span> verified submission in <span className="text-primary/80">Region_US</span>
                   </div>
                 </motion.div>
               ))}
               {activities.length === 0 && (
-                <p className="text-xs text-muted-foreground italic text-center py-4">Synchronizing with network...</p>
+                <div className="text-center py-8 space-y-2">
+                  <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
+                  <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest">Syncing Nodes...</p>
+                </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+            <div className="p-2 border-t border-border/50 bg-muted/10 text-[8px] font-mono text-muted-foreground/40 uppercase text-center">
+              End of Stream // SpunForce Protocol v1.0.4
+            </div>
+          </div>
 
           <AnimatePresence>
             {selectedAssignment ? (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
                 className="sticky top-6"
               >
-                <Card className="border-primary/50 shadow-2xl shadow-primary/10">
-                  <CardHeader>
-                    <CardTitle className="text-lg font-bold flex items-center gap-2">
-                      <UploadCloud className="w-5 h-5 text-primary" /> Submit Proof
-                    </CardTitle>
-                    <CardDescription className="text-xs font-medium">
-                      Task: <span className="text-foreground font-bold">{selectedAssignment.taskTitle}</span>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleSubmitProof} className="space-y-4">
+                <div className="border-2 border-primary bg-card shadow-[8px_8px_0px_rgba(var(--primary),0.1)] overflow-hidden">
+                  <div className="bg-primary px-4 py-1 flex items-center justify-between">
+                    <span className="text-[9px] font-mono font-bold text-primary-foreground uppercase tracking-widest">Secure_Uplink_v2.1</span>
+                    <div className="flex gap-1">
+                      <div className="w-1.5 h-1.5 bg-primary-foreground/30" />
+                      <div className="w-1.5 h-1.5 bg-primary-foreground/30" />
+                      <div className="w-1.5 h-1.5 bg-primary-foreground" />
+                    </div>
+                  </div>
+                  <div className="p-4 border-b border-primary/20 bg-primary/5 flex items-center justify-between">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                      <UploadCloud className="w-4 h-4" /> Proof Submission
+                    </h3>
+                    <button onClick={() => setSelectedAssignment(null)} className="text-primary hover:text-primary/70">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="p-5">
+                    <form onSubmit={handleSubmitProof} className="space-y-5">
                       <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Proof Details</label>
+                        <label className="text-[9px] font-mono font-bold uppercase tracking-widest text-muted-foreground">Verification Data</label>
                         <Textarea 
                           value={proofText}
                           onChange={(e) => setProofText(e.target.value)}
-                          placeholder="Enter required text, links, or comments..."
-                          className="min-h-[100px] bg-muted/50 border-border/50 focus:border-primary transition-all resize-none text-sm"
+                          placeholder="Enter protocol verification strings..."
+                          className="min-h-[120px] bg-muted/30 border-border/50 focus:border-primary rounded-none font-mono text-xs resize-none"
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Screenshot</label>
+                        <label className="text-[9px] font-mono font-bold uppercase tracking-widest text-muted-foreground">Visual Confirmation</label>
                         <div className="relative">
                           <Input 
                             type="file"
@@ -378,45 +495,44 @@ export default function WorkerDashboard() {
                           />
                           <label 
                             htmlFor="proof-upload"
-                            className="flex items-center gap-3 px-4 py-3 bg-muted/50 border border-border/50 rounded-lg cursor-pointer hover:bg-muted transition-all group"
+                            className="flex items-center justify-between px-4 py-3 bg-muted/30 border border-border/50 rounded-none cursor-pointer hover:bg-muted/50 transition-all group"
                           >
-                            <FileUp className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                            <span className="text-xs text-muted-foreground truncate font-medium">
-                              {proofFile ? proofFile.name : "Select screenshot..."}
+                            <span className="text-[10px] font-mono text-muted-foreground truncate">
+                              {proofFile ? proofFile.name : "SELECT_SCREENSHOT.IMG"}
                             </span>
+                            <FileUp className="w-4 h-4 text-primary" />
                           </label>
                         </div>
-                        <p className="text-[10px] text-muted-foreground font-medium">Max size: 5MB. Format: PNG, JPG.</p>
                       </div>
-                      <div className="flex gap-3 pt-2">
+                      <div className="grid grid-cols-2 gap-4 pt-2">
                         <Button 
                           type="button"
-                          variant="ghost"
+                          variant="outline"
                           onClick={() => setSelectedAssignment(null)}
-                          className="flex-1 font-bold text-xs"
+                          className="rounded-none font-mono font-bold text-[10px] uppercase tracking-widest h-10"
                         >
-                          Cancel
+                          Abort
                         </Button>
                         <Button 
                           type="submit"
                           disabled={submitting}
-                          className="flex-1 font-bold text-xs shadow-lg shadow-primary/20"
+                          className="rounded-none font-mono font-bold text-[10px] uppercase tracking-widest h-10 shadow-[4px_4px_0px_rgba(var(--primary),0.2)]"
                         >
-                          {submitting ? "Processing..." : "Submit Proof"}
+                          {submitting ? "Uploading..." : "Commit Data"}
                         </Button>
                       </div>
                     </form>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </motion.div>
             ) : (
-              <Card className="bg-muted/20 border-dashed border-border/50 sticky top-6">
-                <CardContent className="p-8 text-center">
-                  <Clock className="w-10 h-10 text-muted-foreground/20 mx-auto mb-3" />
-                  <h3 className="text-sm font-bold text-muted-foreground mb-1">Queue Empty</h3>
-                  <p className="text-[11px] text-muted-foreground/60">Select a task to begin the verification process.</p>
-                </CardContent>
-              </Card>
+              <div className="border border-dashed border-border/50 p-8 text-center bg-muted/5 sticky top-6">
+                <div className="w-10 h-10 border border-muted-foreground/10 rounded-full flex items-center justify-center mx-auto mb-3 opacity-20">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest">Input Required</h3>
+                <p className="text-[9px] font-mono text-muted-foreground/40 mt-2 uppercase">Select active node to begin verification</p>
+              </div>
             )}
           </AnimatePresence>
         </div>
