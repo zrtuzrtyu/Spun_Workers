@@ -1,0 +1,125 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user in the MTWS system, either an admin or a worker.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "worker"] },
+        "status": { "type": "string", "enum": ["active", "inactive", "pending"] },
+        "device": { "type": "string" },
+        "hoursPerDay": { "type": "number" },
+        "country": { "type": "string" },
+        "earnings": { "type": "number" },
+        "balance": { "type": "number" },
+        "telegram": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "name", "role", "status", "createdAt"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "A micro-task available for workers.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "link": { "type": "string", "format": "uri" },
+        "payout": { "type": "number" },
+        "limit": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "category": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["title", "description", "link", "payout", "limit", "status", "category", "createdAt", "createdBy"]
+    },
+    "Assignment": {
+      "title": "Assignment",
+      "description": "A task assigned to a specific worker.",
+      "type": "object",
+      "properties": {
+        "taskId": { "type": "string" },
+        "workerId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "submitted", "approved", "rejected"] },
+        "proofText": { "type": "string" },
+        "proofImageUrl": { "type": "string" },
+        "assignedAt": { "type": "string", "format": "date-time" },
+        "submittedAt": { "type": "string", "format": "date-time" },
+        "reviewedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["taskId", "workerId", "status", "assignedAt"]
+    },
+    "Activity": {
+      "title": "Activity",
+      "description": "A log of an action in the system.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["worker_joined", "task_assigned", "task_submitted", "task_approved", "payout"] },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" }
+      },
+      "required": ["type", "description", "createdAt"]
+    },
+    "Payout": {
+      "title": "Payout",
+      "description": "A log of a completed payout to a worker.",
+      "type": "object",
+      "properties": {
+        "taskId": { "type": "string" },
+        "taskTitle": { "type": "string" },
+        "workerId": { "type": "string" },
+        "workerName": { "type": "string" },
+        "amount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["taskId", "taskTitle", "workerId", "workerName", "amount", "createdAt"]
+    },
+    "Withdrawal": {
+      "title": "Withdrawal",
+      "description": "A withdrawal request from a worker.",
+      "type": "object",
+      "properties": {
+        "workerId": { "type": "string" },
+        "workerName": { "type": "string" },
+        "amount": { "type": "number" },
+        "method": { "type": "string", "enum": ["paypal", "crypto", "bank"] },
+        "address": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "paid", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "processedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["workerId", "workerName", "amount", "method", "address", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles."
+    },
+    "/tasks/{taskId}": {
+      "schema": { "$ref": "#/entities/Task" },
+      "description": "Stores micro-tasks."
+    },
+    "/assignments/{assignmentId}": {
+      "schema": { "$ref": "#/entities/Assignment" },
+      "description": "Stores task assignments to workers."
+    },
+    "/activities/{activityId}": {
+      "schema": { "$ref": "#/entities/Activity" },
+      "description": "Stores system activity logs."
+    },
+    "/payouts/{payoutId}": {
+      "schema": { "$ref": "#/entities/Payout" },
+      "description": "Stores completed payouts to workers."
+    },
+    "/withdrawals/{withdrawalId}": {
+      "schema": { "$ref": "#/entities/Withdrawal" },
+      "description": "Stores withdrawal requests from workers."
+    }
+  }
+}

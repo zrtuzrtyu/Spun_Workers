@@ -1,0 +1,210 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+        ('email' in request.auth.token && request.auth.token.email.lower() == "tronicflamess@gmail.com")
+      );
+    }
+    
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+    
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+    
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return hasOnlyAllowedFields(['uid', 'email', 'name', 'role', 'status', 'device', 'hoursPerDay', 'taskPreference', 'englishLevel', 'country', 'earnings', 'balance', 'telegram', 'isAdult', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier']) &&
+             data.uid is string && data.uid.size() > 0 && data.uid.size() < 100 &&
+             data.email is string && isValidEmail(data.email) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.role in ['admin', 'worker'] &&
+             data.status in ['active', 'inactive', 'pending'] &&
+             (!('device' in data) || (data.device is string && data.device.size() < 50)) &&
+             (!('hoursPerDay' in data) || (data.hoursPerDay is number && data.hoursPerDay >= 0)) &&
+             (!('taskPreference' in data) || (data.taskPreference is string && data.taskPreference.size() < 100)) &&
+             (!('englishLevel' in data) || (data.englishLevel is string && data.englishLevel.size() < 100)) &&
+             (!('country' in data) || (data.country is string && data.country.size() < 100)) &&
+             data.earnings is number && data.earnings >= 0 &&
+             (!('balance' in data) || (data.balance is number && data.balance >= 0)) &&
+             (!('telegram' in data) || (data.telegram is string && data.telegram.size() < 100)) &&
+             (!('isAdult' in data) || (data.isAdult is bool && data.isAdult == true)) &&
+             (!('ratingCount' in data) || (data.ratingCount is number && data.ratingCount >= 0)) &&
+             (!('totalRating' in data) || (data.totalRating is number && data.totalRating >= 0)) &&
+             (!('averageRating' in data) || (data.averageRating is number && data.averageRating >= 0 && data.averageRating <= 5)) &&
+             (!('trustTier' in data) || (data.trustTier in ['New', 'Trusted', 'Premium'])) &&
+             data.createdAt is timestamp;
+    }
+    
+    function isValidTask(data) {
+      return hasOnlyAllowedFields(['title', 'description', 'link', 'payout', 'limit', 'status', 'category', 'createdAt', 'createdBy', 'targetGeo', 'requiredTier']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.description is string && data.description.size() > 0 && data.description.size() < 5000 &&
+             data.link is string && data.link.size() > 0 && data.link.size() < 1000 &&
+             data.payout is number && data.payout >= 0 &&
+             data.limit is number && data.limit >= 0 &&
+             data.status in ['active', 'inactive'] &&
+             (!('category' in data) || (data.category is string && data.category.size() > 0 && data.category.size() < 100)) &&
+             (!('targetGeo' in data) || (data.targetGeo is string && data.targetGeo.size() < 100)) &&
+             (!('requiredTier' in data) || (data.requiredTier in ['New', 'Trusted', 'Premium'])) &&
+             data.createdAt is timestamp &&
+             data.createdBy is string && data.createdBy.size() > 0 && data.createdBy.size() < 100;
+    }
+    
+    function isValidAssignment(data) {
+      return hasOnlyAllowedFields(['taskId', 'workerId', 'status', 'proofText', 'proofImageUrl', 'assignedAt', 'submittedAt', 'reviewedAt', 'rejectionReason', 'rating']) &&
+             data.taskId is string && data.taskId.size() > 0 && data.taskId.size() < 100 &&
+             data.workerId is string && data.workerId.size() > 0 && data.workerId.size() < 100 &&
+             data.status in ['pending', 'submitted', 'approved', 'rejected'] &&
+             (!('proofText' in data) || (data.proofText is string && data.proofText.size() < 2000)) &&
+             (!('proofImageUrl' in data) || (data.proofImageUrl is string && data.proofImageUrl.size() < 1000)) &&
+             data.assignedAt is timestamp &&
+             (!('submittedAt' in data) || data.submittedAt is timestamp) &&
+             (!('reviewedAt' in data) || data.reviewedAt is timestamp) &&
+             (!('rejectionReason' in data) || (data.rejectionReason is string && data.rejectionReason.size() < 1000)) &&
+             (!('rating' in data) || (data.rating is number && data.rating >= 1 && data.rating <= 5));
+    }
+    
+    function isValidActivity(data) {
+      return hasOnlyAllowedFields(['type', 'description', 'createdAt', 'userId']) &&
+             data.type in ['worker_joined', 'task_assigned', 'task_submitted', 'task_approved', 'task_rejected', 'payout'] &&
+             data.description is string && data.description.size() > 0 && data.description.size() < 1000 &&
+             data.createdAt is timestamp &&
+             (!('userId' in data) || (data.userId is string && data.userId.size() < 100));
+    }
+
+    function isValidPayout(data) {
+      return hasOnlyAllowedFields(['taskId', 'taskTitle', 'workerId', 'workerName', 'amount', 'createdAt']) &&
+             data.taskId is string && data.taskId.size() > 0 && data.taskId.size() < 100 &&
+             data.taskTitle is string && data.taskTitle.size() > 0 && data.taskTitle.size() < 200 &&
+             data.workerId is string && data.workerId.size() > 0 && data.workerId.size() < 100 &&
+             data.workerName is string && data.workerName.size() > 0 && data.workerName.size() < 100 &&
+             data.amount is number && data.amount >= 0 &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidWithdrawal(data) {
+      return hasOnlyAllowedFields(['workerId', 'workerName', 'amount', 'method', 'address', 'status', 'createdAt', 'processedAt']) &&
+             data.workerId is string && data.workerId.size() > 0 && data.workerId.size() < 100 &&
+             data.workerName is string && data.workerName.size() > 0 && data.workerName.size() < 100 &&
+             data.amount is number && data.amount > 0 &&
+             data.method in ['paypal', 'crypto', 'bank'] &&
+             data.address is string && data.address.size() > 0 && data.address.size() < 200 &&
+             data.status in ['pending', 'paid', 'rejected'] &&
+             data.createdAt is timestamp &&
+             (!('processedAt' in data) || data.processedAt is timestamp);
+    }
+
+    function isValidRequest(data) {
+      return hasOnlyAllowedFields(['title', 'description', 'offerAmount', 'requesterId', 'requesterName', 'status', 'createdAt']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.description is string && data.description.size() > 0 && data.description.size() < 5000 &&
+             data.offerAmount is number && data.offerAmount > 0 &&
+             data.requesterId is string && data.requesterId.size() > 0 && data.requesterId.size() < 100 &&
+             data.requesterName is string && data.requesterName.size() > 0 && data.requesterName.size() < 100 &&
+             data.status in ['open', 'in_progress', 'completed'] &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && 
+                       isValidUser(request.resource.data) && 
+                       request.resource.data.uid == request.auth.uid &&
+                       ((request.resource.data.role == 'worker' && request.resource.data.earnings == 0 && (!('balance' in request.resource.data) || request.resource.data.balance == 0)) || isAdmin());
+      allow update: if isAuthenticated() && 
+                       isValidUser(request.resource.data) && 
+                       (
+                         (isOwner(userId) && areImmutableFieldsUnchanged(['uid', 'role', 'earnings', 'balance', 'status', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier'])) ||
+                         isAdmin()
+                       );
+      allow delete: if isAdmin();
+    }
+    
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidTask(request.resource.data);
+      allow update: if isAdmin() && isValidTask(request.resource.data) && areImmutableFieldsUnchanged(['createdAt', 'createdBy']);
+      allow delete: if isAdmin();
+    }
+    
+    match /assignments/{assignmentId} {
+      allow read: if isAuthenticated() && (isOwner(resource.data.workerId) || isAdmin());
+      allow create: if isAdmin() && isValidAssignment(request.resource.data);
+      allow update: if isAuthenticated() && 
+                       isValidAssignment(request.resource.data) &&
+                       areImmutableFieldsUnchanged(['taskId', 'workerId', 'assignedAt']) &&
+                       (
+                         (isOwner(resource.data.workerId) && request.resource.data.status == 'submitted' && resource.data.status == 'pending' && areImmutableFieldsUnchanged(['reviewedAt', 'rating'])) ||
+                         isAdmin()
+                       );
+      allow delete: if isAdmin();
+    }
+    
+    match /activities/{activityId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated() && isValidActivity(request.resource.data) && (
+                       isAdmin() || 
+                       (request.resource.data.type == 'task_submitted' && request.resource.data.userId == request.auth.uid)
+                     );
+      allow update: if false; // Activities are immutable
+      allow delete: if isAdmin();
+    }
+    
+    match /payouts/{payoutId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && isValidPayout(request.resource.data);
+      allow update: if false; // Payouts are immutable
+      allow delete: if isAdmin();
+    }
+    
+    match /withdrawals/{withdrawalId} {
+      allow read: if isAuthenticated() && (isOwner(resource.data.workerId) || isAdmin());
+      allow create: if isAuthenticated() && isOwner(request.resource.data.workerId) && isValidWithdrawal(request.resource.data) && request.resource.data.status == 'pending';
+      allow update: if isAdmin() && isValidWithdrawal(request.resource.data) && areImmutableFieldsUnchanged(['workerId', 'amount', 'method', 'address', 'createdAt']);
+      allow delete: if isAdmin();
+    }
+
+    match /requests/{requestId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.requesterId == request.auth.uid && isValidRequest(request.resource.data);
+      allow update: if isAuthenticated() && isValidRequest(request.resource.data) && areImmutableFieldsUnchanged(['requesterId', 'requesterName', 'createdAt']) && (isOwner(resource.data.requesterId) || isAdmin());
+      allow delete: if isAdmin() || isOwner(resource.data.requesterId);
+    }
+
+    match /system/config {
+      allow read: if true; // Public read for maintenance mode and registration status
+      allow write: if isAdmin();
+    }
+  }
+}
