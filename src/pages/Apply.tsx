@@ -103,7 +103,11 @@ export default function Apply() {
 
       if (userSnap.exists()) {
         toast.success("Welcome back!");
-        navigate("/worker");
+        if (userSnap.data().role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/worker");
+        }
         return;
       }
 

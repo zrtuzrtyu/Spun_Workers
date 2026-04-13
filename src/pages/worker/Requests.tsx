@@ -27,7 +27,11 @@ export default function Requests() {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      }));
+      })).filter((req: any) => {
+        // Show all to the requester, but hide pending/rejected from others
+        if (req.requesterId === firebaseUser.uid) return true;
+        return ['open', 'in_progress', 'completed'].includes(req.status);
+      });
       setRequests(data);
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, "requests");
@@ -59,7 +63,7 @@ export default function Requests() {
         offerAmount: amount,
         requesterId: firebaseUser.uid,
         requesterName: user.name,
-        status: "open",
+        status: "pending_approval",
         createdAt: serverTimestamp()
       });
       
@@ -175,9 +179,11 @@ export default function Requests() {
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                       req.status === 'open' ? 'bg-green-500/20 text-green-400' :
                       req.status === 'in_progress' ? 'bg-amber-500/20 text-amber-400' :
+                      req.status === 'pending_approval' ? 'bg-blue-500/20 text-blue-400' :
+                      req.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
                       'bg-purple-500/20 text-purple-400'
                     }`}>
-                      {req.status}
+                      {req.status.replace('_', ' ')}
                     </span>
                   </div>
                 </div>

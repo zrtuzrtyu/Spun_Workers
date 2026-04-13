@@ -37,9 +37,21 @@ export default function Login() {
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
-        toast.error("Account not found. Please create an account first.");
-        auth.signOut();
-        navigate("/apply");
+        // If they exist in Auth but not Firestore, create the Firestore document
+        await setDoc(userRef, {
+          uid: result.user.uid,
+          email: result.user.email,
+          name: result.user.displayName || "Unknown",
+          role: "worker",
+          status: "active",
+          earnings: 0,
+          balance: 0,
+          isAdult: true,
+          createdAt: serverTimestamp()
+        });
+        
+        toast.success("Account created successfully!");
+        navigate("/worker/onboarding");
         return;
       }
 
@@ -110,9 +122,21 @@ export default function Login() {
       }
 
       if (!userSnap.exists()) {
-        toast.error("Account not found. Please apply first.");
-        auth.signOut();
-        navigate("/apply");
+        // If they exist in Auth but not Firestore, create the Firestore document
+        await setDoc(userRef, {
+          uid: result.user.uid,
+          email: result.user.email,
+          name: result.user.displayName || "Unknown",
+          role: "worker",
+          status: "active",
+          earnings: 0,
+          balance: 0,
+          isAdult: true,
+          createdAt: serverTimestamp()
+        });
+        
+        toast.success("Account created successfully!");
+        navigate("/worker/onboarding");
         return;
       }
 

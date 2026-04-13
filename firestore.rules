@@ -92,11 +92,16 @@ service cloud.firestore {
     }
     
     function isValidActivity(data) {
-      return hasOnlyAllowedFields(['type', 'description', 'createdAt', 'userId']) &&
+      return hasOnlyAllowedFields(['type', 'description', 'createdAt', 'userId', 'taskId', 'taskTitle', 'workerName', 'amount', 'metadata']) &&
              data.type in ['worker_joined', 'task_assigned', 'task_submitted', 'task_approved', 'task_rejected', 'payout'] &&
              data.description is string && data.description.size() > 0 && data.description.size() < 1000 &&
              data.createdAt is timestamp &&
-             (!('userId' in data) || (data.userId is string && data.userId.size() < 100));
+             (!('userId' in data) || (data.userId is string && data.userId.size() < 100)) &&
+             (!('taskId' in data) || (data.taskId is string && data.taskId.size() < 100)) &&
+             (!('taskTitle' in data) || (data.taskTitle is string && data.taskTitle.size() < 200)) &&
+             (!('workerName' in data) || (data.workerName is string && data.workerName.size() < 100)) &&
+             (!('amount' in data) || (data.amount is number)) &&
+             (!('metadata' in data) || (data.metadata is map));
     }
 
     function isValidPayout(data) {
@@ -128,7 +133,7 @@ service cloud.firestore {
              data.offerAmount is number && data.offerAmount > 0 &&
              data.requesterId is string && data.requesterId.size() > 0 && data.requesterId.size() < 100 &&
              data.requesterName is string && data.requesterName.size() > 0 && data.requesterName.size() < 100 &&
-             data.status in ['open', 'in_progress', 'completed'] &&
+             data.status in ['open', 'in_progress', 'completed', 'pending_approval', 'rejected'] &&
              data.createdAt is timestamp;
     }
 
@@ -200,6 +205,16 @@ service cloud.firestore {
       allow create: if isAuthenticated() && request.resource.data.requesterId == request.auth.uid && isValidRequest(request.resource.data);
       allow update: if isAuthenticated() && isValidRequest(request.resource.data) && areImmutableFieldsUnchanged(['requesterId', 'requesterName', 'createdAt']) && (isOwner(resource.data.requesterId) || isAdmin());
       allow delete: if isAdmin() || isOwner(resource.data.requesterId);
+    }
+
+    match /messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                    request.resource.data.userId == request.auth.uid &&
+                    request.resource.data.text is string &&
+                    request.resource.data.text.size() > 0 &&
+                    request.resource.data.text.size() <= 1000;
+      allow update, delete: if isAdmin();
     }
 
     match /system/config {

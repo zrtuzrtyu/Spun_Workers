@@ -18,6 +18,7 @@ const WorkerDashboard = lazy(() => import("./pages/worker/Dashboard"));
 const WorkerWallet = lazy(() => import("./pages/worker/Wallet"));
 const WorkerProfile = lazy(() => import("./pages/worker/Profile"));
 const WorkerRequests = lazy(() => import("./pages/worker/Requests"));
+const WorkerChat = lazy(() => import("./pages/worker/Chat"));
 
 const WorkerQuiz = lazy(() => import("./pages/worker/Quiz"));
 
@@ -114,6 +115,11 @@ export default function App() {
               <Route path="/worker/requests" element={
                 <ProtectedRoute allowedRole="worker" requireOnboarding={true}>
                   <WorkerRequests />
+                </ProtectedRoute>
+              } />
+              <Route path="/worker/chat" element={
+                <ProtectedRoute allowedRole="worker" requireOnboarding={true}>
+                  <WorkerChat />
                 </ProtectedRoute>
               } />
               <Route path="/worker/profile" element={

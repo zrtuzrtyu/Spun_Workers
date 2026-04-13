@@ -203,9 +203,13 @@ export default function AdminTasks() {
 
           await addDoc(collection(db, "activities"), {
             type: "task_assigned",
-            description: `Task "${task?.title}" assigned to worker`,
+            description: `Task "${task?.title}" assigned to worker ${worker?.name}`,
             createdAt: serverTimestamp(),
-            userId: workerId
+            userId: workerId,
+            taskId: taskId,
+            taskTitle: task?.title,
+            workerName: worker?.name,
+            amount: task?.payout
           });
 
           successCount++;

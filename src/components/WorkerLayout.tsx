@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { auth } from "../firebase";
-import { LayoutDashboard, LogOut, DollarSign, Sparkles, Wallet, User, Bell } from "lucide-react";
+import { LayoutDashboard, LogOut, DollarSign, Sparkles, Wallet, User, Bell, MessageSquare } from "lucide-react";
 import { Logo } from "./Logo";
 import { toast } from "sonner";
 import { collection, query, where, onSnapshot, orderBy, limit } from "firebase/firestore";
@@ -44,7 +44,8 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
 
   const navItems = [
     { name: "My Tasks", path: "/worker", icon: LayoutDashboard },
-    { name: "Job Board", path: "/worker/requests", icon: Sparkles },
+    { name: "Post a Job", path: "/worker/requests", icon: Sparkles },
+    { name: "Spicy Chat", path: "/worker/chat", icon: MessageSquare },
     { name: "My Wallet", path: "/worker/wallet", icon: Wallet },
     { name: "My Profile", path: "/worker/profile", icon: User },
   ];

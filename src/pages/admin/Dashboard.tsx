@@ -17,6 +17,7 @@ export default function AdminDashboard() {
   });
   const [activities, setActivities] = useState<any[]>([]);
   const [pendingSubmissions, setPendingSubmissions] = useState<any[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<any[]>([]);
   const [payouts, setPayouts] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [systemConfig, setSystemConfig] = useState<any>(null);
@@ -156,6 +157,14 @@ export default function AdminDashboard() {
       handleFirestoreError(error, OperationType.LIST, "assignments");
     });
 
+    // Pending Requests
+    const qRequests = query(collection(db, "requests"), where("status", "==", "pending_approval"), limit(5));
+    const unsubRequests = onSnapshot(qRequests, (snap) => {
+      setPendingRequests(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, "requests");
+    });
+
     // Payouts
     const qPayouts = query(collection(db, "payouts"), orderBy("createdAt", "desc"), limit(10));
     const unsubPayouts = onSnapshot(qPayouts, (snap) => {
@@ -168,6 +177,7 @@ export default function AdminDashboard() {
       unsubConfig();
       unsubActivities();
       unsubSubmissions();
+      unsubRequests();
       unsubPayouts();
     };
   }, []);
@@ -218,7 +228,11 @@ export default function AdminDashboard() {
         type: "task_approved",
         description: `Task approved for worker ${workerName}`,
         createdAt: serverTimestamp(),
-        userId: workerId
+        userId: workerId,
+        taskId: taskId,
+        taskTitle: taskTitle,
+        workerName: workerName,
+        amount: payout
       });
 
       await addDoc(collection(db, "payouts"), {
@@ -237,7 +251,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleReject = async (assignmentId: string, workerId: string) => {
+  const handleReject = async (assignmentId: string, workerId: string, taskId: string, taskTitle: string, workerName: string) => {
     const reason = prompt("Enter reason for rejection:");
     if (reason === null) return;
 
@@ -251,9 +265,12 @@ export default function AdminDashboard() {
 
       await addDoc(collection(db, "activities"), {
         type: "task_rejected",
-        description: `Task submission rejected. Reason: ${reason}`,
+        description: `Task submission rejected for ${workerName}. Reason: ${reason}`,
         createdAt: serverTimestamp(),
-        userId: workerId
+        userId: workerId,
+        taskId: taskId,
+        taskTitle: taskTitle,
+        workerName: workerName
       });
 
       toast.success("Submission rejected.");
@@ -271,6 +288,30 @@ export default function AdminDashboard() {
     } catch (error: any) {
       console.error(error);
       toast.error("Failed to delete submission.");
+    }
+  };
+
+  const handleApproveRequest = async (requestId: string) => {
+    try {
+      await updateDoc(doc(db, "requests", requestId), {
+        status: "open"
+      });
+      toast.success("Request approved and published.");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Failed to approve request.");
+    }
+  };
+
+  const handleRejectRequest = async (requestId: string) => {
+    try {
+      await updateDoc(doc(db, "requests", requestId), {
+        status: "rejected"
+      });
+      toast.success("Request rejected.");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Failed to reject request.");
     }
   };
 
@@ -448,18 +489,20 @@ export default function AdminDashboard() {
           </div>
           <div className="h-[350px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.05)" vertical={false} />
                 <XAxis dataKey="name" stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dy={10} />
-                <YAxis domain={[1, 5]} stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={-10} />
+                <YAxis yAxisId="left" domain={[1, 5]} stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={-10} />
+                <YAxis yAxisId="right" orientation="right" domain={[0, 100]} stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={10} tickFormatter={(val) => `${val}%`} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#111111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
                   itemStyle={{ color: '#fff', fontWeight: '500', fontSize: '12px' }}
                   cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }} />
-                <Line type="monotone" dataKey="avgRating" name="Avg Rating" stroke="#f59e0b" strokeWidth={3} dot={{ r: 6, fill: '#f59e0b', strokeWidth: 2, stroke: '#0A0A0A' }} activeDot={{ r: 8 }} />
-              </LineChart>
+                <Line yAxisId="left" type="monotone" dataKey="avgRating" name="Avg Rating (1-5)" stroke="#f59e0b" strokeWidth={3} dot={{ r: 6, fill: '#f59e0b', strokeWidth: 2, stroke: '#0A0A0A' }} activeDot={{ r: 8 }} />
+                <Line yAxisId="right" type="monotone" dataKey="completionRate" name="Completion Rate" stroke="#10b981" strokeWidth={3} dot={{ r: 6, fill: '#10b981', strokeWidth: 2, stroke: '#0A0A0A' }} activeDot={{ r: 8 }} />
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
@@ -539,7 +582,7 @@ export default function AdminDashboard() {
                       Approve
                     </button>
                     <button 
-                      onClick={() => handleReject(sub.id, sub.workerId)}
+                      onClick={() => handleReject(sub.id, sub.workerId, sub.taskId, sub.taskTitle, sub.workerName)}
                       className="flex-1 bg-white/5 hover:bg-white/10 text-white font-medium py-2.5 rounded-xl transition-colors border border-white/10"
                     >
                       Decline
@@ -580,12 +623,89 @@ export default function AdminDashboard() {
                         <div className="font-sans text-zinc-300 text-xs font-medium capitalize">{act.type?.replace('_', ' ') || 'Activity'}</div>
                         <time className="text-xs text-zinc-500">{act.createdAt?.toDate ? format(act.createdAt.toDate(), "h:mm a") : ""}</time>
                       </div>
-                      <div className="text-sm text-zinc-400 font-sans leading-relaxed">{act.description}</div>
+                      <div className="text-sm text-zinc-400 font-sans leading-relaxed mb-2">{act.description}</div>
+                      {(act.taskId || act.userId || act.amount !== undefined) && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {act.userId && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] text-zinc-400 font-mono">
+                              <span className="text-zinc-500">USR:</span> {act.userId.slice(0, 8)}...
+                            </span>
+                          )}
+                          {act.taskId && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 text-[10px] text-purple-400 font-mono">
+                              <span className="text-purple-500/50">TSK:</span> {act.taskId.slice(0, 8)}...
+                            </span>
+                          )}
+                          {act.amount !== undefined && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-mono">
+                              <span className="text-green-500/50">AMT:</span> ${act.amount.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Pending Member Requests */}
+        <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-xl lg:col-span-2">
+          <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0F0F0F]">
+            <h2 className="text-xl font-sans font-bold text-white tracking-tight">Pending Member Requests</h2>
+            <span className="bg-blue-500/20 text-blue-400 text-xs font-medium px-3 py-1 rounded-full border border-blue-500/30">{pendingRequests.length} Pending</span>
+          </div>
+          <div className="divide-y divide-white/5">
+            {pendingRequests.length === 0 ? (
+              <div className="p-12 text-center text-zinc-500 text-sm">No pending member requests.</div>
+            ) : (
+              pendingRequests.map((req) => (
+                <div key={req.id} className="p-6 hover:bg-white/[0.02] transition-colors">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <div className="font-sans font-bold text-white text-xl tracking-tight mb-2">{req.title}</div>
+                      <div className="text-sm text-zinc-400 flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-xs font-bold text-blue-400">
+                            {req.requesterName?.[0]}
+                          </div>
+                          {req.requesterName}
+                        </div>
+                        <span className="text-white/20">•</span>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" /> 
+                          {req.createdAt?.toDate ? format(req.createdAt.toDate(), "MMM d, h:mm a") : "Unknown"}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-blue-400 font-sans font-bold text-xl">
+                      ${req.offerAmount.toFixed(2)}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-[#050505] border border-white/5 rounded-xl p-5 mb-6">
+                    <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">{req.description}</p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button 
+                      onClick={() => handleApproveRequest(req.id)}
+                      className="flex-1 bg-blue-500 hover:bg-blue-600 text-[#050505] font-bold py-2.5 rounded-xl transition-colors"
+                    >
+                      Approve & Publish
+                    </button>
+                    <button 
+                      onClick={() => handleRejectRequest(req.id)}
+                      className="flex-1 bg-white/5 hover:bg-white/10 text-white font-medium py-2.5 rounded-xl transition-colors border border-white/10"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
