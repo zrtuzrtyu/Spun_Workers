@@ -19,7 +19,7 @@ service cloud.firestore {
       return isAuthenticated() && (
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
-        ('email' in request.auth.token && request.auth.token.email.lower() == "tronicflamess@gmail.com")
+        ('email' in request.auth.token && request.auth.token.email != null && request.auth.token.email.lower() == "tronicflamess@gmail.com")
       );
     }
     
@@ -40,7 +40,7 @@ service cloud.firestore {
     // ===============================================================
 
     function isValidUser(data) {
-      return hasOnlyAllowedFields(['uid', 'email', 'name', 'role', 'status', 'device', 'hoursPerDay', 'taskPreference', 'englishLevel', 'country', 'earnings', 'balance', 'telegram', 'isAdult', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier']) &&
+      return hasOnlyAllowedFields(['uid', 'email', 'name', 'role', 'status', 'device', 'hoursPerDay', 'taskPreference', 'englishLevel', 'country', 'earnings', 'balance', 'telegram', 'isAdult', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier', 'quizCompleted', 'onboardingCompleted', 'paymentEmail', 'age', 'level', 'username', 'isAnonymous', 'notificationsEnabled', 'skills', 'onboardingStep']) &&
              data.uid is string && data.uid.size() > 0 && data.uid.size() < 100 &&
              data.email is string && isValidEmail(data.email) &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
@@ -59,6 +59,16 @@ service cloud.firestore {
              (!('totalRating' in data) || (data.totalRating is number && data.totalRating >= 0)) &&
              (!('averageRating' in data) || (data.averageRating is number && data.averageRating >= 0 && data.averageRating <= 5)) &&
              (!('trustTier' in data) || (data.trustTier in ['New', 'Trusted', 'Premium'])) &&
+             (!('quizCompleted' in data) || (data.quizCompleted is bool)) &&
+             (!('onboardingCompleted' in data) || (data.onboardingCompleted is bool)) &&
+             (!('paymentEmail' in data) || (data.paymentEmail is string && data.paymentEmail.size() < 100)) &&
+             (!('age' in data) || (data.age is string && data.age.size() < 50)) &&
+             (!('level' in data) || (data.level is number && data.level >= 1 && data.level <= 5)) &&
+             (!('username' in data) || (data.username is string && data.username.size() >= 3 && data.username.size() <= 20)) &&
+             (!('isAnonymous' in data) || (data.isAnonymous is bool)) &&
+             (!('notificationsEnabled' in data) || (data.notificationsEnabled is bool)) &&
+             (!('skills' in data) || (data.skills is list)) &&
+             (!('onboardingStep' in data) || (data.onboardingStep is number)) &&
              data.createdAt is timestamp;
     }
     
@@ -92,8 +102,8 @@ service cloud.firestore {
     }
     
     function isValidActivity(data) {
-      return hasOnlyAllowedFields(['type', 'description', 'createdAt', 'userId', 'taskId', 'taskTitle', 'workerName', 'amount', 'metadata']) &&
-             data.type in ['worker_joined', 'task_assigned', 'task_submitted', 'task_approved', 'task_rejected', 'payout'] &&
+      return hasOnlyAllowedFields(['type', 'description', 'createdAt', 'userId', 'taskId', 'taskTitle', 'workerName', 'amount', 'metadata', 'assignmentId', 'workerId']) &&
+             data.type in ['worker_joined', 'task_assigned', 'task_submitted', 'task_approved', 'task_rejected', 'payout', 'offer_click'] &&
              data.description is string && data.description.size() > 0 && data.description.size() < 1000 &&
              data.createdAt is timestamp &&
              (!('userId' in data) || (data.userId is string && data.userId.size() < 100)) &&
@@ -101,7 +111,9 @@ service cloud.firestore {
              (!('taskTitle' in data) || (data.taskTitle is string && data.taskTitle.size() < 200)) &&
              (!('workerName' in data) || (data.workerName is string && data.workerName.size() < 100)) &&
              (!('amount' in data) || (data.amount is number)) &&
-             (!('metadata' in data) || (data.metadata is map));
+             (!('metadata' in data) || (data.metadata is map)) &&
+             (!('assignmentId' in data) || (data.assignmentId is string && data.assignmentId.size() < 100)) &&
+             (!('workerId' in data) || (data.workerId is string && data.workerId.size() < 100));
     }
 
     function isValidPayout(data) {
@@ -127,13 +139,27 @@ service cloud.firestore {
     }
 
     function isValidRequest(data) {
-      return hasOnlyAllowedFields(['title', 'description', 'offerAmount', 'requesterId', 'requesterName', 'status', 'createdAt']) &&
+      return hasOnlyAllowedFields(['title', 'description', 'offerAmount', 'requesterId', 'requesterName', 'status', 'createdAt', 'winnerId', 'acceptedBidId', 'finalAmount']) &&
              data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
              data.description is string && data.description.size() > 0 && data.description.size() < 5000 &&
              data.offerAmount is number && data.offerAmount > 0 &&
              data.requesterId is string && data.requesterId.size() > 0 && data.requesterId.size() < 100 &&
              data.requesterName is string && data.requesterName.size() > 0 && data.requesterName.size() < 100 &&
              data.status in ['open', 'in_progress', 'completed', 'pending_approval', 'rejected'] &&
+             (!('winnerId' in data) || (data.winnerId is string && data.winnerId.size() < 100)) &&
+             (!('acceptedBidId' in data) || (data.acceptedBidId is string && data.acceptedBidId.size() < 100)) &&
+             (!('finalAmount' in data) || (data.finalAmount is number)) &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidBid(data) {
+      return hasOnlyAllowedFields(['requestId', 'workerId', 'workerName', 'amount', 'proposal', 'status', 'createdAt']) &&
+             data.requestId is string && data.requestId.size() > 0 && data.requestId.size() < 100 &&
+             data.workerId is string && data.workerId.size() > 0 && data.workerId.size() < 100 &&
+             data.workerName is string && data.workerName.size() > 0 && data.workerName.size() < 100 &&
+             data.amount is number && data.amount > 0 &&
+             data.proposal is string && data.proposal.size() > 0 && data.proposal.size() < 2000 &&
+             data.status in ['pending', 'accepted', 'rejected'] &&
              data.createdAt is timestamp;
     }
 
@@ -150,7 +176,12 @@ service cloud.firestore {
       allow update: if isAuthenticated() && 
                        isValidUser(request.resource.data) && 
                        (
-                         (isOwner(userId) && areImmutableFieldsUnchanged(['uid', 'role', 'earnings', 'balance', 'status', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier'])) ||
+                         (isOwner(userId) && (
+                           areImmutableFieldsUnchanged(['uid', 'role', 'earnings', 'balance', 'status', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier']) ||
+                           (areImmutableFieldsUnchanged(['uid', 'role', 'earnings', 'balance', 'status', 'createdAt', 'ratingCount', 'totalRating', 'averageRating']) && 
+                            request.resource.data.trustTier == 'New' && 
+                            (!('trustTier' in resource.data) || resource.data.trustTier == null))
+                         )) ||
                          isAdmin()
                        );
       allow delete: if isAdmin();
@@ -165,7 +196,7 @@ service cloud.firestore {
     
     match /assignments/{assignmentId} {
       allow read: if isAuthenticated() && (isOwner(resource.data.workerId) || isAdmin());
-      allow create: if isAdmin() && isValidAssignment(request.resource.data);
+      allow create: if (isAdmin() || (isAuthenticated() && isOwner(request.resource.data.workerId) && request.resource.data.status == 'pending')) && isValidAssignment(request.resource.data);
       allow update: if isAuthenticated() && 
                        isValidAssignment(request.resource.data) &&
                        areImmutableFieldsUnchanged(['taskId', 'workerId', 'assignedAt']) &&
@@ -177,10 +208,11 @@ service cloud.firestore {
     }
     
     match /activities/{activityId} {
-      allow read: if isAdmin();
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.type == 'task_submitted');
       allow create: if isAuthenticated() && isValidActivity(request.resource.data) && (
                        isAdmin() || 
-                       (request.resource.data.type == 'task_submitted' && request.resource.data.userId == request.auth.uid)
+                       (request.resource.data.type == 'task_submitted' && request.resource.data.userId == request.auth.uid) ||
+                       (request.resource.data.type == 'offer_click' && request.resource.data.workerId == request.auth.uid)
                      );
       allow update: if false; // Activities are immutable
       allow delete: if isAdmin();
@@ -207,13 +239,21 @@ service cloud.firestore {
       allow delete: if isAdmin() || isOwner(resource.data.requesterId);
     }
 
+    match /bids/{bidId} {
+      allow read: if isAuthenticated() && (isOwner(resource.data.workerId) || isOwner(get(/databases/$(database)/documents/requests/$(resource.data.requestId)).data.requesterId) || isAdmin());
+      allow create: if isAuthenticated() && isOwner(request.resource.data.workerId) && isValidBid(request.resource.data) && request.resource.data.status == 'pending';
+      allow update: if isAuthenticated() && isValidBid(request.resource.data) && areImmutableFieldsUnchanged(['requestId', 'workerId', 'createdAt']) && (isOwner(resource.data.workerId) || isOwner(get(/databases/$(database)/documents/requests/$(resource.data.requestId)).data.requesterId) || isAdmin());
+      allow delete: if isAdmin() || isOwner(resource.data.workerId);
+    }
+
     match /messages/{messageId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && 
                     request.resource.data.userId == request.auth.uid &&
                     request.resource.data.text is string &&
                     request.resource.data.text.size() > 0 &&
-                    request.resource.data.text.size() <= 1000;
+                    request.resource.data.text.size() <= 1000 &&
+                    (!('isAnonymous' in request.resource.data) || request.resource.data.isAnonymous is bool);
       allow update, delete: if isAdmin();
     }
 

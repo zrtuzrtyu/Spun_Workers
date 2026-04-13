@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Toaster } from "sonner";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { Analytics } from "@vercel/analytics/react";
 
 // Lazy load pages for better performance
 const Landing = lazy(() => import("./pages/Landing"));
@@ -23,6 +24,7 @@ const WorkerChat = lazy(() => import("./pages/worker/Chat"));
 const WorkerQuiz = lazy(() => import("./pages/worker/Quiz"));
 
 const WorkerOnboarding = lazy(() => import("./pages/worker/Onboarding"));
+const PendingApproval = lazy(() => import("./pages/PendingApproval"));
 
 const LoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-[#050505] text-white font-sans font-black text-2xl">
@@ -45,6 +47,11 @@ const ProtectedRoute = ({ children, allowedRole, requireOnboarding = false }: { 
     if (user.role !== allowedRole) {
       return <Navigate to={user.role === "admin" ? "/admin" : "/worker"} replace />;
     }
+
+    // Check for active status
+    if (user.role === "worker" && user.status !== "active") {
+      return <Navigate to="/pending-approval" replace />;
+    }
     
     // Enforce onboarding for workers
     if (allowedRole === "worker" && requireOnboarding && !user.onboardingCompleted) {
@@ -65,6 +72,7 @@ export default function App() {
     <ErrorBoundary>
       <AuthProvider>
         <BrowserRouter>
+          <Analytics />
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
               <Route path="/" element={<Landing />} />
@@ -139,6 +147,8 @@ export default function App() {
                   <WorkerOnboarding />
                 </ProtectedRoute>
               } />
+
+              <Route path="/pending-approval" element={<PendingApproval />} />
               
               {/* Catch-all 404 route */}
               <Route path="*" element={<Navigate to="/" replace />} />

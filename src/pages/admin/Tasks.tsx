@@ -185,6 +185,19 @@ export default function AdminTasks() {
             continue;
           }
 
+          // Check Geo
+          const taskGeo = task?.targetGeo || "Global";
+          const workerCountry = worker?.country || "Global";
+          const isGeoMatch = taskGeo === "Global" || 
+                             taskGeo.toLowerCase().includes(workerCountry.toLowerCase()) ||
+                             workerCountry.toLowerCase().includes(taskGeo.toLowerCase());
+          
+          if (!isGeoMatch) {
+            failedCount++;
+            details.push(`Task "${task?.title}" is for ${taskGeo}. ${worker?.name} is from ${workerCountry}.`);
+            continue;
+          }
+
           // Check if already assigned
           const existingQuery = query(collection(db, "assignments"), where("taskId", "==", taskId), where("workerId", "==", workerId));
           const existingSnap = await getDocs(existingQuery);

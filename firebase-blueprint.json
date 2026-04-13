@@ -94,6 +94,37 @@
         "processedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["workerId", "workerName", "amount", "method", "address", "status", "createdAt"]
+    },
+    "Request": {
+      "title": "Request",
+      "description": "A job request posted by a user.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "offerAmount": { "type": "number" },
+        "requesterId": { "type": "string" },
+        "requesterName": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending_approval", "open", "in_progress", "completed", "rejected"] },
+        "winnerId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "description", "offerAmount", "requesterId", "status", "createdAt"]
+    },
+    "Bid": {
+      "title": "Bid",
+      "description": "A bid placed by a worker on a job request.",
+      "type": "object",
+      "properties": {
+        "requestId": { "type": "string" },
+        "workerId": { "type": "string" },
+        "workerName": { "type": "string" },
+        "amount": { "type": "number" },
+        "proposal": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "accepted", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["requestId", "workerId", "amount", "proposal", "status", "createdAt"]
     }
   },
   "firestore": {
@@ -120,6 +151,14 @@
     "/withdrawals/{withdrawalId}": {
       "schema": { "$ref": "#/entities/Withdrawal" },
       "description": "Stores withdrawal requests from workers."
+    },
+    "/requests/{requestId}": {
+      "schema": { "$ref": "#/entities/Request" },
+      "description": "Stores job requests."
+    },
+    "/bids/{bidId}": {
+      "schema": { "$ref": "#/entities/Bid" },
+      "description": "Stores bids on job requests."
     }
   }
 }

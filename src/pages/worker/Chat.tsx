@@ -2,20 +2,50 @@ import React, { useState, useEffect, useRef } from "react";
 import WorkerLayout from "../../components/WorkerLayout";
 import { useAuth } from "../../contexts/AuthContext";
 import { db } from "../../firebase";
-import { collection, query, orderBy, limit, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, query, orderBy, limit, onSnapshot, addDoc, serverTimestamp, where, getCountFromServer } from "firebase/firestore";
 import { toast } from "sonner";
-import { Send, MessageSquare, ShieldCheck, Zap } from "lucide-react";
-import { motion } from "framer-motion";
+import { Send, MessageSquare, ShieldCheck, Zap, Lock, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { format } from "date-fns";
+import { Button, buttonVariants } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { Progress } from "../../components/ui/progress";
+import { Input } from "../../components/ui/input";
+import { Link } from "react-router-dom";
+import { cn } from "../../lib/utils";
 
 export default function WorkerChat() {
   const { user, firebaseUser } = useAuth();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [completedTasks, setCompletedTasks] = useState(0);
+  const [isAuthReady, setIsAuthReady] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const isLocked = completedTasks < 5;
+
   useEffect(() => {
+    if (!user) return;
+
+    const fetchCompletedCount = async () => {
+      const q = query(
+        collection(db, "assignments"),
+        where("workerId", "==", user.uid),
+        where("status", "==", "approved")
+      );
+      const snapshot = await getCountFromServer(q);
+      setCompletedTasks(snapshot.data().count);
+      setIsAuthReady(true);
+    };
+
+    fetchCompletedCount();
+  }, [user]);
+
+  useEffect(() => {
+    if (isLocked || !isAuthReady) return;
+    
     const q = query(
       collection(db, "messages"),
       orderBy("createdAt", "asc"),
@@ -37,7 +67,7 @@ export default function WorkerChat() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [isLocked, isAuthReady]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,8 +78,9 @@ export default function WorkerChat() {
       await addDoc(collection(db, "messages"), {
         text: newMessage.trim(),
         userId: firebaseUser.uid,
-        userName: user.name,
+        userName: user.isAnonymous ? (user.username || "Anonymous") : user.name,
         userRole: user.role,
+        isAnonymous: user.isAnonymous,
         createdAt: serverTimestamp()
       });
       setNewMessage("");
@@ -61,32 +92,80 @@ export default function WorkerChat() {
     }
   };
 
+  if (!isAuthReady) return <WorkerLayout><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div></WorkerLayout>;
+
   return (
     <WorkerLayout>
-      <div className="max-w-5xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
+      <div className="max-w-5xl mx-auto h-[calc(100vh-10rem)] flex flex-col relative">
+        <AnimatePresence>
+          {isLocked && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-50 flex items-center justify-center p-6"
+            >
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-xl rounded-3xl border border-border/50" />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="relative z-10 w-full max-w-md"
+              >
+                <Card className="border-primary/20 bg-card/50 shadow-2xl shadow-primary/10">
+                  <CardContent className="p-10 text-center space-y-6">
+                    <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto text-primary shadow-lg shadow-primary/5">
+                      <Lock className="w-8 h-8" />
+                    </div>
+                    <div className="space-y-2">
+                      <h2 className="text-2xl font-bold tracking-tight text-foreground">Communication Locked</h2>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Spicy Chat is reserved for verified operators. Complete <span className="text-primary font-bold">5 approved tasks</span> to unlock the global network.
+                      </p>
+                    </div>
+                    
+                    <div className="bg-muted/30 rounded-xl p-5 border border-border/50">
+                      <div className="flex justify-between items-end mb-2.5">
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Verification Progress</div>
+                        <div className="text-xs font-mono font-bold text-primary">{completedTasks}/5</div>
+                      </div>
+                      <Progress value={(completedTasks / 5) * 100} className="h-1.5" />
+                      <p className="text-[10px] text-muted-foreground/60 mt-3 font-medium">
+                        {5 - completedTasks} more approved tasks required
+                      </p>
+                    </div>
+
+                    <Link to="/worker" className={cn(buttonVariants(), "w-full font-bold shadow-lg shadow-primary/20")}>
+                      Go to Tasks <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-display font-medium text-white flex items-center gap-3">
-              <Zap className="w-8 h-8 text-pink-500" /> Spicy Chat
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-3">
+              <MessageSquare className="w-6 h-6 text-primary" /> Spicy Chat
             </h1>
-            <p className="text-zinc-400 mt-1">Connect with other workers and admins in real-time.</p>
+            <p className="text-sm text-muted-foreground">Real-time collaboration with the SpunForce network.</p>
           </div>
-          <div className="hidden sm:flex items-center gap-2 bg-pink-500/10 border border-pink-500/20 px-4 py-2 rounded-xl">
-            <div className="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></div>
-            <span className="text-pink-400 text-sm font-medium">Live Global Chat</span>
-          </div>
+          <Badge variant="outline" className="hidden sm:flex items-center gap-2 bg-emerald-500/5 border-emerald-500/20 text-emerald-500 px-3 py-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[10px] font-bold uppercase tracking-wider">Network Online</span>
+          </Badge>
         </div>
 
-        <div className="flex-1 bg-[#0A0A0A] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col relative">
-          {/* Ambient Glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-32 bg-pink-500/10 blur-[80px] rounded-full pointer-events-none"></div>
-
+        <div className="flex-1 bg-card border border-border rounded-2xl overflow-hidden shadow-xl flex flex-col relative">
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 hide-scrollbar">
             {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-zinc-500">
-                <MessageSquare className="w-12 h-12 mb-4 opacity-20" />
-                <p>No messages yet. Be the first to say hello!</p>
+              <div className="h-full flex flex-col items-center justify-center text-muted-foreground/40 space-y-4">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                  <MessageSquare className="w-6 h-6" />
+                </div>
+                <p className="text-xs font-medium">No transmissions detected.</p>
               </div>
             ) : (
               messages.map((msg, index) => {
@@ -96,30 +175,34 @@ export default function WorkerChat() {
 
                 return (
                   <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     key={msg.id} 
-                    className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
+                    className={cn("flex flex-col", isMe ? 'items-end' : 'items-start')}
                   >
                     {showHeader && (
-                      <div className={`flex items-center gap-2 mb-1.5 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                        <span className={`text-xs font-bold ${isAdmin ? 'text-purple-400' : isMe ? 'text-pink-400' : 'text-zinc-400'}`}>
+                      <div className={cn("flex items-center gap-2 mb-1.5 px-1", isMe ? 'flex-row-reverse' : 'flex-row')}>
+                        <span className={cn(
+                          "text-[10px] font-bold uppercase tracking-wider",
+                          isAdmin ? 'text-primary' : isMe ? 'text-primary/70' : 'text-muted-foreground'
+                        )}>
                           {msg.userName}
                         </span>
-                        {isAdmin && <ShieldCheck className="w-3 h-3 text-purple-500" />}
-                        <span className="text-[10px] text-zinc-600">
-                          {msg.createdAt?.toDate ? format(msg.createdAt.toDate(), "h:mm a") : "Just now"}
+                        {isAdmin && <ShieldCheck className="w-3 h-3 text-primary" />}
+                        <span className="text-[9px] font-mono text-muted-foreground/50">
+                          {msg.createdAt?.toDate ? format(msg.createdAt.toDate(), "HH:mm") : "--:--"}
                         </span>
                       </div>
                     )}
                     <div 
-                      className={`max-w-[80%] md:max-w-[70%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                      className={cn(
+                        "max-w-[85%] md:max-w-[70%] px-4 py-2.5 rounded-xl text-sm leading-relaxed shadow-sm",
                         isMe 
-                          ? 'bg-gradient-to-br from-pink-600 to-pink-500 text-white rounded-tr-sm shadow-[0_0_15px_rgba(236,72,153,0.3)]' 
+                          ? 'bg-primary text-primary-foreground rounded-tr-none' 
                           : isAdmin
-                            ? 'bg-gradient-to-br from-purple-900/50 to-purple-800/50 border border-purple-500/30 text-purple-100 rounded-tl-sm shadow-[0_0_15px_rgba(168,85,247,0.15)]'
-                            : 'bg-[#111111] border border-white/5 text-zinc-200 rounded-tl-sm'
-                      }`}
+                            ? 'bg-primary/10 border border-primary/20 text-foreground rounded-tl-none'
+                            : 'bg-muted/50 border border-border/50 text-foreground rounded-tl-none'
+                      )}
                     >
                       {msg.text}
                     </div>
@@ -131,24 +214,24 @@ export default function WorkerChat() {
           </div>
 
           {/* Input Area */}
-          <div className="p-4 bg-[#0F0F0F] border-t border-white/5">
+          <div className="p-4 bg-muted/30 border-t border-border">
             <form onSubmit={handleSendMessage} className="flex gap-3">
-              <input
-                type="text"
+              <Input
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type a spicy message..."
-                className="flex-1 bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-pink-500 outline-none transition-all placeholder:text-zinc-600"
+                placeholder="Type a message..."
+                className="flex-1 bg-background border-border/50 focus:border-primary transition-all h-11 text-sm"
                 maxLength={1000}
+                disabled={isLocked}
               />
-              <button
+              <Button
                 type="submit"
-                disabled={!newMessage.trim() || sending}
-                className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-[0_0_20px_rgba(236,72,153,0.3)] hover:shadow-[0_0_30px_rgba(236,72,153,0.5)]"
+                disabled={!newMessage.trim() || sending || isLocked}
+                className="h-11 px-6 font-bold shadow-lg shadow-primary/20"
               >
-                <Send className="w-5 h-5" />
-                <span className="hidden sm:inline">Send</span>
-              </button>
+                <Send className="w-4 h-4 mr-2" />
+                Send
+              </Button>
             </form>
           </div>
         </div>

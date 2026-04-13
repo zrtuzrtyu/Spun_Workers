@@ -5,8 +5,17 @@ import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "motion/react";
-import { Smartphone, Monitor, CheckCircle2, ArrowRight, Loader2, DollarSign, ArrowLeft, Globe, MessageCircle, Sparkles } from "lucide-react";
+import { Smartphone, Monitor, CheckCircle2, ArrowRight, Loader2, DollarSign, ArrowLeft, Globe, MessageCircle, Sparkles, User, Mail, Lock, Chrome } from "lucide-react";
 import { Logo } from "../components/Logo";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Progress } from "../components/ui/progress";
+import { Checkbox } from "../components/ui/checkbox";
+import { Separator } from "../components/ui/separator";
+import { cn } from "../lib/utils";
+import { useAuth } from "../contexts/AuthContext";
 
 type Device = "iPhone" | "Android" | "Laptop/Desktop" | "All" | "";
 type Hours = "1-2" | "3-4" | "5+" | "";
@@ -17,7 +26,6 @@ function NumberTicker({ value, prefix = "", suffix = "" }: { value: number, pref
   const springValue = useSpring(motionValue, { damping: 30, stiffness: 100 });
 
   useEffect(() => {
-    // Slight delay for dopamine anticipation
     const timer = setTimeout(() => {
       motionValue.set(value);
     }, 400);
@@ -32,7 +40,7 @@ function NumberTicker({ value, prefix = "", suffix = "" }: { value: number, pref
     });
   }, [springValue, prefix, suffix]);
 
-  return <span ref={ref}>{prefix}0{suffix}</span>;
+  return <span ref={ref} className="font-mono">{prefix}0{suffix}</span>;
 }
 
 export default function Apply() {
@@ -50,8 +58,14 @@ export default function Apply() {
   const [progress, setProgress] = useState(0);
   
   const navigate = useNavigate();
+  const { user: loggedInUser } = useAuth();
 
-  // Calculate potential earnings based on hours
+  useEffect(() => {
+    if (loggedInUser) {
+      navigate(loggedInUser.role === "admin" ? "/admin" : "/worker");
+    }
+  }, [loggedInUser, navigate]);
+
   const getEarnings = () => {
     if (hours === "1-2") return { min: 150, max: 300 };
     if (hours === "3-4") return { min: 450, max: 800 };
@@ -65,7 +79,6 @@ export default function Apply() {
     if (step === 3 && (!country || !telegram)) return toast.error("Please fill in all fields");
     
     if (step === 3) {
-      // Start analyzing phase
       setStep(4);
       setAnalyzing(true);
       let p = 0;
@@ -120,7 +133,7 @@ export default function Apply() {
         email: user.email,
         name: user.displayName || "Unknown",
         role: "worker",
-        status: "active",
+        status: "pending",
         device: device,
         hoursPerDay: hoursNum,
         country: country,
@@ -131,16 +144,12 @@ export default function Apply() {
         createdAt: serverTimestamp()
       });
 
-      toast.success("Account created successfully! Welcome to SpunForce.");
+      toast.success("Account created successfully!");
       navigate("/worker");
     } catch (error: any) {
       console.error(error);
       if (error.code === 'auth/account-exists-with-different-credential') {
-        toast.error("An account already exists with this email. Please sign in using your original method (e.g., Email/Password).");
-      } else if (error.code === 'auth/popup-closed-by-user') {
-        toast.error("Sign-in popup was closed before completing.");
-      } else if (error.code === 'auth/unauthorized-domain') {
-        toast.error("This domain is not authorized for Google Sign-In. Please contact support.");
+        toast.error("An account already exists with this email.");
       } else {
         toast.error(error.message || "An error occurred during application.");
       }
@@ -174,7 +183,7 @@ export default function Apply() {
         email: user.email,
         name: name,
         role: "worker",
-        status: "active",
+        status: "pending",
         device: device,
         hoursPerDay: hoursNum,
         country: country,
@@ -185,17 +194,12 @@ export default function Apply() {
         createdAt: serverTimestamp()
       });
 
-      toast.success("Account created successfully! Welcome to SpunForce.");
+      toast.success("Account created successfully!");
       navigate("/worker");
     } catch (error: any) {
       console.error(error);
       if (error.code === 'auth/email-already-in-use') {
-        toast.error("This email address is already registered. Redirecting to login...");
-        setTimeout(() => navigate("/login"), 2000);
-      } else if (error.code === 'auth/invalid-email') {
-        toast.error("Please enter a valid email address.");
-      } else if (error.code === 'auth/weak-password') {
-        toast.error("Password is too weak. Please use at least 6 characters.");
+        toast.error("This email address is already registered.");
       } else {
         toast.error(error.message || "An error occurred during application.");
       }
@@ -205,51 +209,46 @@ export default function Apply() {
   };
 
   const slideVariants = {
-    initial: { opacity: 0, x: 20 },
-    animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -20 }
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -10 }
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-300 font-sans selection:bg-purple-500/30 flex flex-col">
-      {/* Simple Header */}
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 flex flex-col relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(var(--primary-rgb),0.05),transparent)] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full translate-y-1/2 translate-x-1/2 pointer-events-none" />
+
       <header className="p-6 flex justify-between items-center relative z-10">
         <Link to="/" className="flex items-center gap-2 group hover:opacity-80 transition-opacity">
-          <Logo />
+          <Logo className="scale-90" />
         </Link>
-        <Link to="/login" className="text-sm text-zinc-400 hover:text-white transition-colors">
+        <Link to="/login" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
           Already a member? Login
         </Link>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center p-6 relative">
-        {/* Ambient Glow */}
-        <motion.div 
-          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 blur-[120px] rounded-full pointer-events-none"
-        />
-
-        <div className="w-full max-w-xl relative z-10">
+      <main className="flex-1 flex items-center justify-center p-6 relative z-10">
+        <div className="w-full max-w-xl">
           
           {/* Progress Bar */}
-          {step > 0 && step < 4 && (
-            <div className="mb-8">
-              <div className="flex justify-between text-xs text-zinc-500 mb-2 font-medium uppercase tracking-wider">
-                <span>Step {step} of 3</span>
-                <span>{Math.round((step / 3) * 100)}%</span>
-              </div>
-              <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden relative">
-                <motion.div 
-                  className="absolute top-0 left-0 h-full bg-purple-500 shadow-[0_0_10px_rgba(139,92,246,0.8)]"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(step / 3) * 100}%` }}
-                  transition={{ duration: 0.4, type: "spring", bounce: 0.2 }}
-                />
-              </div>
-            </div>
-          )}
+          <AnimatePresence>
+            {step > 0 && step < 4 && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-10"
+              >
+                <div className="flex justify-between text-[10px] text-muted-foreground mb-3 font-bold uppercase tracking-[0.2em]">
+                  <span>Step {step} of 3</span>
+                  <span className="text-primary">{Math.round((step / 3) * 100)}%</span>
+                </div>
+                <Progress value={(step / 3) * 100} className="h-1.5" />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <AnimatePresence mode="wait">
             {/* STEP 0: Hook */}
@@ -260,43 +259,22 @@ export default function Apply() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="text-center"
+                className="text-center space-y-8"
               >
-                <motion.div 
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", bounce: 0.5, delay: 0.1 }}
-                  className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 mb-6 text-purple-400 shadow-[0_0_30px_rgba(139,92,246,0.2)]"
-                >
+                <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto text-primary shadow-lg shadow-primary/5">
                   <DollarSign className="w-8 h-8" />
-                </motion.div>
-                <motion.h1 
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-4xl md:text-5xl font-display font-medium text-white mb-4"
-                >
-                  Discover Your Earning Potential
-                </motion.h1>
-                <motion.p 
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-zinc-400 text-lg mb-10 max-w-md mx-auto"
-                >
-                  Take our 30-second survey to see how much you could earn completing simple digital tasks.
-                </motion.p>
-                <motion.button 
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  whileHover={{ scale: 1.05, boxShadow: "0 0 40px -10px rgba(255,255,255,0.5)" }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleNext}
-                  className="w-full sm:w-auto bg-white text-[#050505] px-8 py-4 rounded-full font-bold transition-colors shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)] flex items-center justify-center gap-2 mx-auto"
-                >
-                  Start Survey <ArrowRight className="w-5 h-5" />
-                </motion.button>
+                </div>
+                <div className="space-y-4">
+                  <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-foreground">
+                    Discover Your <br />Earning Potential
+                  </h1>
+                  <p className="text-muted-foreground text-lg max-w-md mx-auto leading-relaxed">
+                    Take our 30-second survey to see how much you could earn completing simple digital tasks.
+                  </p>
+                </div>
+                <Button size="lg" onClick={handleNext} className="h-14 px-10 font-bold shadow-xl shadow-primary/20 group">
+                  Start Survey <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
               </motion.div>
             )}
 
@@ -308,12 +286,15 @@ export default function Apply() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
+                className="space-y-8"
               >
-                <button onClick={handleBack} className="text-zinc-500 hover:text-white mb-6 flex items-center gap-1 text-sm transition-colors">
-                  <ArrowLeft className="w-4 h-4" /> Back
-                </button>
-                <h2 className="text-3xl font-display font-medium text-white mb-2">What device will you use?</h2>
-                <p className="text-zinc-400 mb-8">This helps us match you with compatible tasks.</p>
+                <div className="space-y-2">
+                  <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground -ml-2">
+                    <ArrowLeft className="w-4 h-4 mr-2" /> Back
+                  </Button>
+                  <h2 className="text-3xl font-bold tracking-tight text-foreground">What device will you use?</h2>
+                  <p className="text-muted-foreground">This helps us match you with compatible tasks.</p>
+                </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {[
@@ -321,24 +302,22 @@ export default function Apply() {
                     { id: "Android", icon: Smartphone, label: "Android Device" },
                     { id: "Laptop/Desktop", icon: Monitor, label: "Laptop / Desktop" },
                     { id: "All", icon: CheckCircle2, label: "All of the above" }
-                  ].map((item, i) => (
-                    <motion.button
+                  ].map((item) => (
+                    <Card 
                       key={item.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      whileHover={{ scale: 1.02, backgroundColor: "rgba(16, 185, 129, 0.05)" }}
-                      whileTap={{ scale: 0.97 }}
+                      className={cn(
+                        "cursor-pointer transition-all border-border/50 hover:bg-muted/50",
+                        device === item.id && "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                      )}
                       onClick={() => { setDevice(item.id as Device); setTimeout(handleNext, 300); }}
-                      className={`p-6 rounded-2xl border flex flex-col items-center text-center gap-4 transition-colors ${
-                        device === item.id 
-                          ? "bg-purple-500/10 border-purple-500 text-purple-400 shadow-[0_0_20px_rgba(139,92,246,0.2)]" 
-                          : "bg-[#0A0A0A] border-white/5 text-zinc-400 hover:border-white/20"
-                      }`}
                     >
-                      <item.icon className="w-8 h-8" />
-                      <span className="font-medium">{item.label}</span>
-                    </motion.button>
+                      <CardContent className="p-6 flex flex-col items-center text-center gap-4">
+                        <div className={cn("w-12 h-12 rounded-xl bg-muted flex items-center justify-center transition-colors", device === item.id && "bg-primary/20 text-primary")}>
+                          <item.icon className="w-6 h-6" />
+                        </div>
+                        <span className="text-sm font-bold tracking-tight">{item.label}</span>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               </motion.div>
@@ -352,41 +331,40 @@ export default function Apply() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
+                className="space-y-8"
               >
-                <button onClick={handleBack} className="text-zinc-500 hover:text-white mb-6 flex items-center gap-1 text-sm transition-colors">
-                  <ArrowLeft className="w-4 h-4" /> Back
-                </button>
-                <h2 className="text-3xl font-display font-medium text-white mb-2">How much time can you commit?</h2>
-                <p className="text-zinc-400 mb-8">Consistent workers receive higher-paying tasks.</p>
+                <div className="space-y-2">
+                  <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground -ml-2">
+                    <ArrowLeft className="w-4 h-4 mr-2" /> Back
+                  </Button>
+                  <h2 className="text-3xl font-bold tracking-tight text-foreground">How much time can you commit?</h2>
+                  <p className="text-muted-foreground">Consistent workers receive higher-paying tasks.</p>
+                </div>
                 
                 <div className="space-y-4">
                   {[
                     { id: "1-2", label: "1 - 2 hours per day", desc: "Casual earning" },
                     { id: "3-4", label: "3 - 4 hours per day", desc: "Part-time income" },
                     { id: "5+", label: "5+ hours per day", desc: "Maximum earnings" }
-                  ].map((item, i) => (
-                    <motion.button
+                  ].map((item) => (
+                    <Card 
                       key={item.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      whileHover={{ scale: 1.02, backgroundColor: "rgba(16, 185, 129, 0.05)" }}
-                      whileTap={{ scale: 0.97 }}
+                      className={cn(
+                        "cursor-pointer transition-all border-border/50 hover:bg-muted/50",
+                        hours === item.id && "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                      )}
                       onClick={() => { setHours(item.id as Hours); setTimeout(handleNext, 300); }}
-                      className={`w-full p-6 rounded-2xl border flex items-center justify-between transition-colors ${
-                        hours === item.id 
-                          ? "bg-purple-500/10 border-purple-500 text-purple-400 shadow-[0_0_20px_rgba(139,92,246,0.2)]" 
-                          : "bg-[#0A0A0A] border-white/5 text-zinc-400 hover:border-white/20"
-                      }`}
                     >
-                      <div className="text-left">
-                        <div className="font-medium text-lg text-white">{item.label}</div>
-                        <div className="text-sm opacity-80">{item.desc}</div>
-                      </div>
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${hours === item.id ? "border-purple-500" : "border-zinc-600"}`}>
-                        {hours === item.id && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-3 h-3 bg-purple-500 rounded-full" />}
-                      </div>
-                    </motion.button>
+                      <CardContent className="p-6 flex items-center justify-between">
+                        <div className="space-y-1">
+                          <div className="font-bold text-foreground">{item.label}</div>
+                          <div className="text-xs text-muted-foreground">{item.desc}</div>
+                        </div>
+                        <div className={cn("w-5 h-5 rounded-full border-2 border-muted transition-colors flex items-center justify-center", hours === item.id && "border-primary")}>
+                          {hours === item.id && <div className="w-2.5 h-2.5 bg-primary rounded-full" />}
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               </motion.div>
@@ -400,50 +378,52 @@ export default function Apply() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
+                className="space-y-8"
               >
-                <button onClick={handleBack} className="text-zinc-500 hover:text-white mb-6 flex items-center gap-1 text-sm transition-colors">
-                  <ArrowLeft className="w-4 h-4" /> Back
-                </button>
-                <h2 className="text-3xl font-display font-medium text-white mb-2">Final Details</h2>
-                <p className="text-zinc-400 mb-8">Where should we send your tasks and payouts?</p>
-                
-                <div className="space-y-6">
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                    <label className="block text-sm font-medium mb-2 text-zinc-400 flex items-center gap-2">
-                      <Globe className="w-4 h-4" /> Country of Residence
-                    </label>
-                    <input 
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      placeholder="e.g. United States, UK, India"
-                      className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl p-4 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder:text-zinc-600 hover:border-white/20"
-                    />
-                  </motion.div>
-
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                    <label className="block text-sm font-medium mb-2 text-zinc-400 flex items-center gap-2">
-                      <MessageCircle className="w-4 h-4" /> Telegram Username
-                    </label>
-                    <input 
-                      value={telegram}
-                      onChange={(e) => setTelegram(e.target.value)}
-                      placeholder="@username"
-                      className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl p-4 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder:text-zinc-600 hover:border-white/20"
-                    />
-                    <p className="text-xs text-zinc-500 mt-2">We use Telegram to send urgent task notifications.</p>
-                  </motion.div>
-
-                  <motion.button 
-                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                    whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(255,255,255,0.2)" }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleNext}
-                    disabled={!country || !telegram}
-                    className="w-full bg-white text-[#050505] px-8 py-4 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
-                  >
-                    Calculate My Earnings <ArrowRight className="w-5 h-5" />
-                  </motion.button>
+                <div className="space-y-2">
+                  <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground -ml-2">
+                    <ArrowLeft className="w-4 h-4 mr-2" /> Back
+                  </Button>
+                  <h2 className="text-3xl font-bold tracking-tight text-foreground">Final Details</h2>
+                  <p className="text-muted-foreground">Where should we send your tasks and payouts?</p>
                 </div>
+                
+                <Card className="border-border/50 bg-card/50">
+                  <CardContent className="p-8 space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2">
+                        <Globe className="w-3 h-3" /> Country of Residence
+                      </label>
+                      <Input 
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        placeholder="e.g. United States"
+                        className="h-12 bg-background/50 border-border/50 focus:border-primary transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2">
+                        <MessageCircle className="w-3 h-3" /> Telegram Username
+                      </label>
+                      <Input 
+                        value={telegram}
+                        onChange={(e) => setTelegram(e.target.value)}
+                        placeholder="@username"
+                        className="h-12 bg-background/50 border-border/50 focus:border-primary transition-all"
+                      />
+                      <p className="text-[10px] text-muted-foreground/60 font-medium">Urgent task notifications are sent via Telegram.</p>
+                    </div>
+
+                    <Button 
+                      onClick={handleNext}
+                      disabled={!country || !telegram}
+                      className="w-full h-12 font-bold shadow-lg shadow-primary/20 group"
+                    >
+                      Calculate My Earnings <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </CardContent>
+                </Card>
               </motion.div>
             )}
 
@@ -455,27 +435,25 @@ export default function Apply() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="text-center py-12"
+                className="text-center space-y-8 py-10"
               >
-                <div className="relative w-32 h-32 mx-auto mb-8">
-                  {/* High-tech scanning ring */}
-                  <svg className="animate-[spin_3s_linear_infinite] w-full h-full text-white/5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"></circle>
-                    <path className="opacity-75 text-purple-500" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
+                <div className="relative w-24 h-24 mx-auto">
+                  <div className="absolute inset-0 border-4 border-primary/10 rounded-full" />
                   <motion.div 
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="absolute inset-0 rounded-full border-2 border-purple-500/30"
+                    className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                   />
-                  <div className="absolute inset-0 flex items-center justify-center text-white font-display font-bold text-2xl drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
+                  <div className="absolute inset-0 flex items-center justify-center font-mono font-bold text-xl">
                     {progress}%
                   </div>
                 </div>
-                <h2 className="text-2xl font-display font-medium text-white mb-2">
-                  {progress < 40 ? "Analyzing profile..." : progress < 80 ? "Checking task availability..." : "Calculating potential..."}
-                </h2>
-                <p className="text-zinc-500">Please wait while we process your information.</p>
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-bold tracking-tight text-foreground">
+                    {progress < 40 ? "Analyzing profile..." : progress < 80 ? "Checking availability..." : "Finalizing potential..."}
+                  </h2>
+                  <p className="text-muted-foreground text-sm">Please wait while we process your operator profile.</p>
+                </div>
               </motion.div>
             )}
 
@@ -487,125 +465,95 @@ export default function Apply() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="text-center"
+                className="space-y-8"
               >
-                <motion.div 
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", bounce: 0.6, duration: 0.8 }}
-                  className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-purple-500/20 border border-purple-500/40 mb-6 text-purple-400 shadow-[0_0_50px_rgba(139,92,246,0.4)]"
-                >
-                  <Sparkles className="w-10 h-10" />
-                </motion.div>
-                
-                <motion.h2 
-                  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                  className="text-4xl font-display font-medium text-white mb-2"
-                >
-                  You're a Great Fit!
-                </motion.h2>
-                <motion.p 
-                  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                  className="text-zinc-400 mb-8"
-                >
-                  Based on your {hours} hours/day availability, here is your potential earning range:
-                </motion.p>
-                
-                <motion.div 
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", bounce: 0.5, delay: 0.4 }}
-                  className="bg-gradient-to-br from-[#111] to-[#0A0A0A] border border-purple-500/30 rounded-3xl p-8 mb-8 relative overflow-hidden shadow-[0_0_40px_rgba(139,92,246,0.15)]"
-                >
-                  <motion.div 
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                    transition={{ duration: 4, repeat: Infinity }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-500/20 blur-[60px] rounded-full"
-                  />
-                  
-                  <div className="text-zinc-400 text-sm font-medium uppercase tracking-wider mb-2 relative z-10">Estimated Monthly Earnings</div>
-                  <div className="text-5xl md:text-6xl font-display font-bold text-white mb-4 relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-                    <span className="text-purple-400">$</span><NumberTicker value={getEarnings().min} /> <span className="text-zinc-600">-</span> <span className="text-purple-400">$</span><NumberTicker value={getEarnings().max} />
+                <div className="text-center space-y-4">
+                  <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto text-primary shadow-lg shadow-primary/5">
+                    <Sparkles className="w-8 h-8" />
                   </div>
-                  <div className="inline-flex items-center gap-2 bg-purple-500/20 border border-purple-500/30 text-purple-400 px-4 py-2 rounded-lg text-sm font-medium relative z-10 shadow-[0_0_15px_rgba(139,92,246,0.2)]">
-                    <div className="w-2 h-2 rounded-full bg-purple-400 animate-ping absolute"></div>
-                    <div className="w-2 h-2 rounded-full bg-purple-500 relative"></div>
-                    Tasks available right now
-                  </div>
-                </motion.div>
+                  <h2 className="text-3xl font-bold tracking-tight text-foreground">You're a Great Fit!</h2>
+                  <p className="text-muted-foreground text-sm">Based on your availability, here is your potential earning range:</p>
+                </div>
+                
+                <Card className="border-primary/20 bg-primary/5 shadow-2xl shadow-primary/10 overflow-hidden relative">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.1),transparent)] pointer-events-none" />
+                  <CardContent className="p-10 text-center space-y-6 relative z-10">
+                    <div className="space-y-1">
+                      <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Estimated Monthly Earnings</div>
+                      <div className="text-5xl md:text-6xl font-bold tracking-tighter text-foreground">
+                        <span className="text-primary">$</span><NumberTicker value={getEarnings().min} /> <span className="text-muted-foreground/30">-</span> <span className="text-primary">$</span><NumberTicker value={getEarnings().max} />
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary px-4 py-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse mr-2" />
+                      Tasks available right now
+                    </Badge>
+                  </CardContent>
+                </Card>
 
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-                  className="space-y-4"
-                >
-                  <div className="space-y-4 text-left mb-6 bg-[#111111] p-6 rounded-2xl border border-white/5">
-                    <h3 className="text-white font-medium mb-4">Create your account</h3>
-                    <div>
-                      <label className="block text-sm font-medium text-zinc-400 mb-1">Full Name</label>
-                      <input value={name} onChange={e => setName(e.target.value)} className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none" placeholder="John Doe" />
+                <Card className="border-border/50 bg-card/50">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg font-bold">Create Your Account</CardTitle>
+                    <CardDescription>Finalize your profile to start receiving tasks.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Full Name</label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input value={name} onChange={e => setName(e.target.value)} placeholder="John Doe" className="pl-10 h-11 bg-background/50 border-border/50 focus:border-primary transition-all" />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-zinc-400 mb-1">Email Address</label>
-                      <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none" placeholder="john@example.com" />
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Email Address</label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@example.com" className="pl-10 h-11 bg-background/50 border-border/50 focus:border-primary transition-all" />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-zinc-400 mb-1">Password</label>
-                      <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none" placeholder="••••••••" />
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Password</label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="pl-10 h-11 bg-background/50 border-border/50 focus:border-primary transition-all" />
+                      </div>
                     </div>
-                    <div className="flex items-start gap-3 mt-4 mb-2">
-                      <input 
-                        type="checkbox" 
-                        id="isAdult" 
-                        checked={isAdult}
-                        onChange={(e) => setIsAdult(e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-white/10 bg-[#0A0A0A] text-purple-500 focus:ring-purple-500 focus:ring-offset-[#111111]"
-                      />
-                      <label htmlFor="isAdult" className="text-sm text-zinc-400 leading-tight">
-                        I confirm that I am 18 years of age or older.
+                    
+                    <div className="flex items-start space-x-3 pt-2">
+                      <Checkbox id="isAdult" checked={isAdult} onCheckedChange={(checked) => setIsAdult(checked as boolean)} className="mt-1" />
+                      <label htmlFor="isAdult" className="text-xs text-muted-foreground leading-relaxed font-medium">
+                        I confirm that I am 18 years of age or older and agree to the terms.
                       </label>
                     </div>
-                    <motion.button 
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+
+                    <Button 
                       onClick={onSubmitEmail}
                       disabled={loading || !isAdult}
-                      className="w-full bg-purple-500 text-white px-8 py-3.5 rounded-xl font-bold transition-all disabled:opacity-50 mt-2"
+                      className="w-full h-11 font-bold shadow-lg shadow-primary/20 mt-2"
                     >
-                      {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Create Account & Start Earning"}
-                    </motion.button>
-                  </div>
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Complete Application"}
+                    </Button>
 
-                  <div className="relative flex items-center py-2">
-                    <div className="flex-grow border-t border-white/10"></div>
-                    <span className="flex-shrink-0 mx-4 text-zinc-500 text-sm">Or continue with</span>
-                    <div className="flex-grow border-t border-white/10"></div>
-                  </div>
+                    <div className="relative py-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <Separator className="w-full" />
+                      </div>
+                      <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold">
+                        <span className="bg-card px-3 text-muted-foreground">Or</span>
+                      </div>
+                    </div>
 
-                  <motion.button 
-                    whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(255,255,255,0.1)" }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={onSubmitGoogle}
-                    disabled={loading || !isAdult}
-                    className="w-full bg-white text-[#050505] px-8 py-3.5 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-                  >
-                    {loading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <>
-                        <svg className="w-5 h-5" viewBox="0 0 24 24">
-                          <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                        </svg>
-                        Google
-                      </>
-                    )}
-                  </motion.button>
-                  <p className="text-xs text-zinc-500 mt-4">
-                    By signing up, you agree to our Terms of Service and Privacy Policy.
-                  </p>
-                </motion.div>
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-11 border-border/50 bg-background/50 hover:bg-muted/50 font-bold"
+                      onClick={onSubmitGoogle}
+                      disabled={loading || !isAdult}
+                    >
+                      <Chrome className="w-4 h-4 mr-2" />
+                      Google
+                    </Button>
+                  </CardContent>
+                </Card>
               </motion.div>
             )}
           </AnimatePresence>

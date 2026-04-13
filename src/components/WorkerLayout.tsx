@@ -1,20 +1,49 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { auth } from "../firebase";
-import { LayoutDashboard, LogOut, DollarSign, Sparkles, Wallet, User, Bell, MessageSquare } from "lucide-react";
+import { 
+  LayoutDashboard, LogOut, DollarSign, Sparkles, Wallet, 
+  User, Bell, MessageSquare, Lock, ShieldCheck, ShieldAlert,
+  ArrowRight
+} from "lucide-react";
 import { Logo } from "./Logo";
 import { toast } from "sonner";
-import { collection, query, where, onSnapshot, orderBy, limit } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy, limit, getCountFromServer } from "firebase/firestore";
 import { db } from "../firebase";
+import { Button } from "./ui/button";
+import { Progress } from "./ui/progress";
+import { Badge } from "./ui/badge";
+import { cn } from "../lib/utils";
 
 export default function WorkerLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [completedTasks, setCompletedTasks] = useState(0);
+
+  const currentLevel = Math.floor((user?.earnings || 0) / 15) + 1;
+  const isChatLocked = completedTasks < 5;
+  const isOnboardingIncomplete = user && !user.onboardingCompleted;
+  
+  const nextLevelGoal = currentLevel * 15;
+  const levelProgress = (((user?.earnings || 0) % 15) / 15) * 100;
 
   useEffect(() => {
     if (!user) return;
+
+    // Fetch completed tasks count
+    const fetchCompletedCount = async () => {
+      const q = query(
+        collection(db, "assignments"),
+        where("workerId", "==", user.uid),
+        where("status", "==", "approved")
+      );
+      const snapshot = await getCountFromServer(q);
+      setCompletedTasks(snapshot.data().count);
+    };
+
+    fetchCompletedCount();
 
     const q = query(
       collection(db, "assignments"),
@@ -26,12 +55,13 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
     const unsub = onSnapshot(q, (snap) => {
       if (snap.docs.length > 0) {
         const assignment = snap.docs[0].data();
-        // Check if assigned recently (within 5 seconds)
         const assignedAt = assignment.assignedAt?.toDate();
         if (assignedAt && (new Date().getTime() - assignedAt.getTime() < 5000)) {
           toast.success("New task assigned!");
         }
       }
+    }, (error) => {
+      console.error("WorkerLayout assignments listener error:", error);
     });
 
     return () => unsub();
@@ -44,93 +74,99 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
 
   const navItems = [
     { name: "My Tasks", path: "/worker", icon: LayoutDashboard },
-    { name: "Post a Job", path: "/worker/requests", icon: Sparkles },
-    { name: "Spicy Chat", path: "/worker/chat", icon: MessageSquare },
+    { name: "Marketplace", path: "/worker/requests", icon: Sparkles, locked: isOnboardingIncomplete },
+    { name: "Spicy Chat", path: "/worker/chat", icon: MessageSquare, locked: isChatLocked },
     { name: "My Wallet", path: "/worker/wallet", icon: Wallet },
     { name: "My Profile", path: "/worker/profile", icon: User },
   ];
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-300 font-sans flex flex-col md:flex-row selection:bg-purple-500/30">
+    <div className="min-h-screen bg-background text-foreground font-sans flex flex-col md:flex-row">
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-[#0A0A0A] border-r border-white/5 flex flex-col md:h-screen md:sticky top-0 relative z-20">
-        <div className="p-6 border-b border-white/5 flex justify-between items-center md:block">
-          <div className="flex flex-col gap-1 md:mb-4">
+      <aside className="w-full md:w-64 bg-card border-r border-border flex flex-col md:h-screen md:sticky top-0 relative z-20">
+        <div className="p-6 border-b border-border flex justify-between items-center md:block">
+          <div className="flex flex-col gap-1 md:mb-6">
             <Logo />
-            <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold font-sans ml-14">Worker Portal</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold ml-14">Operator Portal</div>
           </div>
-          <button onClick={handleLogout} className="md:hidden text-red-400 p-2"><LogOut className="w-5 h-5" /></button>
+          <Button variant="ghost" size="icon" onClick={handleLogout} className="md:hidden text-destructive">
+            <LogOut className="w-5 h-5" />
+          </Button>
         </div>
         
-        <div className="p-6 border-b border-white/5 bg-white/[0.02]">
-          <div className="flex justify-between items-center mb-2">
-            <div className="text-xs text-zinc-500 uppercase tracking-widest font-bold font-sans">Level {user?.level || 1}</div>
-            <div className="text-xs text-zinc-500 font-sans">${(user?.earnings || 0).toFixed(2)} / $25.00</div>
+        <div className="p-6 border-b border-border bg-muted/30">
+          <div className="flex justify-between items-center mb-3">
+            <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Level {currentLevel}</div>
+            <div className="text-[10px] font-mono text-muted-foreground">${(user?.earnings || 0).toFixed(2)} / ${nextLevelGoal.toFixed(2)}</div>
           </div>
-          <div className="w-full bg-white/10 rounded-full h-2 mb-2">
-            <div 
-              className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min((user?.earnings || 0) / 25 * 100, 100)}%` }}
-            ></div>
-          </div>
+          <Progress value={levelProgress} className="h-1.5 mb-2" />
+          <div className="text-[9px] text-muted-foreground/60 font-medium">Next tier unlock at Level {currentLevel + 1}</div>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1 flex flex-row md:flex-col overflow-x-auto md:overflow-visible font-sans hide-scrollbar">
+        <nav className="flex-1 p-4 space-y-1.5 flex flex-row md:flex-col overflow-x-auto md:overflow-visible hide-scrollbar">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
+
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${
+                className={cn(
+                  "flex items-center justify-between px-4 py-2.5 rounded-lg transition-all text-sm group",
                   isActive 
-                    ? "bg-purple-500/10 text-purple-400 font-medium shadow-[inset_0_0_20px_rgba(168,85,247,0.05)]" 
-                    : "text-zinc-400 hover:bg-white/5 hover:text-white"
-                }`}
+                    ? "bg-primary/10 text-primary font-medium" 
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                )}
               >
-                <Icon className="w-5 h-5" />
-                {item.name}
+                <div className="flex items-center gap-3">
+                  <Icon className={cn("w-4 h-4", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
+                  {item.name}
+                </div>
+                {item.locked && <Lock className="w-3 h-3 text-muted-foreground/40" />}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/5 hidden md:block font-sans">
-          <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-white/5 rounded-xl border border-white/5">
-            <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold border border-purple-500/30">
-              {user?.name?.charAt(0) || "W"}
+        <div className="p-4 border-t border-border hidden md:block">
+          <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-muted/50 rounded-xl border border-border">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold border border-primary/20">
+              {(user?.isAnonymous ? user?.username : user?.name)?.charAt(0) || "W"}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white truncate flex items-center gap-2">
-                {user?.name}
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${
-                  user?.trustTier === 'Premium' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
-                  user?.trustTier === 'Trusted' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                  'bg-zinc-500/20 text-zinc-400 border border-zinc-500/30'
-                }`}>
-                  {user?.trustTier || 'New'}
-                </span>
+              <div className="text-xs font-semibold text-foreground truncate flex items-center gap-1.5">
+                {user?.isAnonymous ? user?.username : user?.name}
+                {user?.trustTier === 'Premium' && <ShieldCheck className="w-3 h-3 text-amber-500" />}
               </div>
-              <div className="text-xs text-zinc-500 truncate">{user?.email}</div>
+              <Badge variant="outline" className="text-[9px] h-4 px-1.5 font-bold uppercase tracking-tighter border-muted-foreground/20 text-muted-foreground">
+                {user?.trustTier || 'New'}
+              </Badge>
             </div>
           </div>
-          <button 
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-10 px-3"
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors"
           >
-            <LogOut className="w-5 h-5" />
-            Logout
-          </button>
+            <LogOut className="w-4 h-4" />
+            <span className="text-sm">Logout</span>
+          </Button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto relative">
-        {/* Ambient Glow */}
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-purple-500/5 blur-[150px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/3" />
-        
-        <div className="p-4 md:p-8 max-w-5xl mx-auto relative z-10">
+      <main className="flex-1 overflow-auto relative bg-background">
+        {isOnboardingIncomplete && location.pathname !== '/worker/onboarding' && (
+          <div className="bg-primary/10 border-b border-primary/20 p-3 flex items-center justify-center gap-4 text-xs font-bold sticky top-0 z-30 backdrop-blur-md">
+            <ShieldAlert className="w-4 h-4 text-primary" />
+            <span className="text-primary uppercase tracking-widest">Onboarding Incomplete: Marketplace Access Restricted</span>
+            <Link to="/worker/onboarding" className="flex items-center gap-1 text-white hover:underline">
+              Complete Setup <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+        )}
+        <div className="p-6 md:p-10 max-w-6xl mx-auto relative z-10">
           {children}
         </div>
       </main>

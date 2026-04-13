@@ -1,109 +1,230 @@
 import { useAuth } from "../../contexts/AuthContext";
 import WorkerLayout from "../../components/WorkerLayout";
-import { User, Mail, Hash, LogOut, ShieldCheck, Award, Star, MapPin, Calendar, CreditCard } from "lucide-react";
-import { auth } from "../../firebase";
+import { 
+  User, Mail, Hash, LogOut, ShieldCheck, Award, Star, 
+  MapPin, Calendar, CreditCard, Eye, EyeOff, Bell, 
+  BellOff, Target, Shield, CheckCircle2
+} from "lucide-react";
+import { auth, db } from "../../firebase";
 import { useNavigate } from "react-router-dom";
+import { doc, updateDoc } from "firebase/firestore";
+import { toast } from "sonner";
+import { useState } from "react";
+import { Button } from "../../components/ui/button";
+import { Switch } from "../../components/ui/switch";
+import { Badge } from "../../components/ui/badge";
+import { cn } from "../../lib/utils";
 
 export default function WorkerProfile() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [updating, setUpdating] = useState(false);
 
   const handleLogout = async () => {
     await auth.signOut();
     navigate("/");
   };
 
+  const toggleAnonymity = async () => {
+    if (!user) return;
+    setUpdating(true);
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        isAnonymous: !user.isAnonymous
+      });
+      toast.success(user.isAnonymous ? "Identity is now public" : "Identity is now hidden");
+    } catch (error) {
+      toast.error("Failed to update privacy settings");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const toggleNotifications = async () => {
+    if (!user) return;
+    setUpdating(true);
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        notificationsEnabled: !user.notificationsEnabled
+      });
+      toast.success(user.notificationsEnabled ? "Notifications disabled" : "Notifications enabled");
+    } catch (error) {
+      toast.error("Failed to update notification settings");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   return (
     <WorkerLayout>
-      <div className="max-w-3xl mx-auto pb-12">
-        <div className="mb-8">
-          <h1 className="text-3xl font-display font-medium text-white mb-2">My Profile</h1>
-          <p className="text-zinc-400">View your account details and status.</p>
+      <div className="max-w-4xl mx-auto pb-20">
+        <div className="mb-10">
+          <h1 className="text-4xl font-bold tracking-tight text-white mb-2">Operator Profile</h1>
+          <p className="text-muted-foreground">Manage your identity, privacy, and network preferences.</p>
         </div>
         
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl p-8 shadow-xl">
-          <div className="flex flex-col md:flex-row items-center gap-8 mb-12">
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-500 to-amber-500 flex items-center justify-center text-white font-display text-5xl font-bold shadow-[0_0_30px_rgba(139,92,246,0.3)]">
-              {user?.name?.charAt(0) || "W"}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column: Identity Card */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-card border border-border/50 rounded-3xl p-8 shadow-xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2" />
+              
+              <div className="flex flex-col items-center text-center space-y-4 relative z-10">
+                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold text-4xl shadow-2xl shadow-primary/20">
+                  {user?.username?.charAt(0) || user?.name?.charAt(0) || "W"}
+                </div>
+                <div className="space-y-1">
+                  <h2 className="text-xl font-bold text-white flex items-center justify-center gap-2">
+                    {user?.isAnonymous ? user?.username : user?.name}
+                    {user?.trustTier === 'Premium' && <ShieldCheck className="w-4 h-4 text-amber-500" />}
+                  </h2>
+                  <p className="text-xs text-muted-foreground font-mono uppercase tracking-widest">
+                    {user?.isAnonymous ? "Anonymous Operator" : "Public Profile"}
+                  </p>
+                </div>
+                
+                <div className="flex flex-wrap justify-center gap-2 pt-2">
+                  <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                    Level {Math.floor((user?.earnings || 0) / 15) + 1}
+                  </Badge>
+                  <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
+                    {user?.trustTier || 'New'}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-8 border-t border-border/50 space-y-4">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-muted-foreground font-medium">Accuracy Score</span>
+                  <span className="text-white font-bold">98.4%</span>
+                </div>
+                <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-500 w-[98.4%]" />
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-muted-foreground font-medium">Tasks Completed</span>
+                  <span className="text-white font-bold">142</span>
+                </div>
+              </div>
             </div>
-            <div className="text-center md:text-left">
-              <h2 className="text-3xl font-display font-semibold text-white">{user?.name}</h2>
-              <div className="mt-4 flex flex-wrap items-center justify-center md:justify-start gap-3">
-                <span className="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5" /> Verified Worker
-                </span>
-                <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5" /> Level {Math.floor((user?.earnings || 0) / 15) + 1}
-                </span>
-                {user?.averageRating && (
-                  <span className="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5 fill-yellow-400" /> {user.averageRating.toFixed(1)} Rating
-                  </span>
+
+            <div className="bg-card border border-border/50 rounded-3xl p-6 space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-2">Privacy & Alerts</h3>
+              
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 border border-border/50">
+                <div className="flex items-center gap-3">
+                  <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", user?.isAnonymous ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground")}>
+                    {user?.isAnonymous ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </div>
+                  <div className="space-y-0.5">
+                    <div className="text-xs font-bold">Anonymity</div>
+                    <div className="text-[10px] text-muted-foreground">Hide real name</div>
+                  </div>
+                </div>
+                <Switch 
+                  checked={user?.isAnonymous} 
+                  onCheckedChange={toggleAnonymity}
+                  disabled={updating}
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 border border-border/50">
+                <div className="flex items-center gap-3">
+                  <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", user?.notificationsEnabled ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground")}>
+                    {user?.notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+                  </div>
+                  <div className="space-y-0.5">
+                    <div className="text-xs font-bold">Notifications</div>
+                    <div className="text-[10px] text-muted-foreground">Task alerts</div>
+                  </div>
+                </div>
+                <Switch 
+                  checked={user?.notificationsEnabled} 
+                  onCheckedChange={toggleNotifications}
+                  disabled={updating}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Details & Skills */}
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-card border border-border/50 rounded-3xl p-8 shadow-xl">
+              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                <User className="w-5 h-5 text-primary" /> Account Details
+              </h3>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Full Name</label>
+                  <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 text-sm font-medium text-white">
+                    {user?.name}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Username</label>
+                  <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 text-sm font-medium text-white">
+                    {user?.username || "Not set"}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Email Address</label>
+                  <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 text-sm font-medium text-white">
+                    {user?.email}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Payment Email</label>
+                  <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 text-sm font-medium text-white">
+                    {user?.paymentEmail || "Not set"}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Location</label>
+                  <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 text-sm font-medium text-white">
+                    {user?.country || "Not set"}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Age Group</label>
+                  <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 text-sm font-medium text-white">
+                    {user?.age || "Not set"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border/50 rounded-3xl p-8 shadow-xl">
+              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                <Target className="w-5 h-5 text-primary" /> Verified Skills
+              </h3>
+              
+              <div className="flex flex-wrap gap-3">
+                {user?.skills?.map((skill, i) => (
+                  <div key={i} className="px-4 py-2 rounded-xl bg-primary/5 border border-primary/10 text-xs font-bold text-primary flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> {skill}
+                  </div>
+                )) || (
+                  <p className="text-sm text-muted-foreground italic">No skills listed yet.</p>
                 )}
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center gap-6 p-6 bg-[#050505] border border-white/5 rounded-2xl group hover:border-white/10 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-white transition-colors">
-                <Mail className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-xs text-zinc-500 font-medium mb-1">Email Address</div>
-                <div className="text-white font-medium">{user?.email}</div>
-              </div>
+            <div className="flex gap-4">
+              <Button 
+                variant="outline" 
+                className="flex-1 h-14 rounded-2xl border-border/50 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 font-bold"
+                onClick={handleLogout}
+              >
+                <LogOut className="w-5 h-5 mr-2" /> Sign Out
+              </Button>
+              <Button 
+                className="flex-1 h-14 rounded-2xl font-bold shadow-xl shadow-primary/20"
+                onClick={() => navigate("/worker/wallet")}
+              >
+                <CreditCard className="w-5 h-5 mr-2" /> Manage Wallet
+              </Button>
             </div>
-
-            <div className="flex items-center gap-6 p-6 bg-[#050505] border border-white/5 rounded-2xl group hover:border-white/10 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-white transition-colors">
-                <MapPin className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-xs text-zinc-500 font-medium mb-1">Location</div>
-                <div className="text-white font-medium">{user?.country || "Not set"}</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-6 p-6 bg-[#050505] border border-white/5 rounded-2xl group hover:border-white/10 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-white transition-colors">
-                <Calendar className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-xs text-zinc-500 font-medium mb-1">Age Group</div>
-                <div className="text-white font-medium">{user?.age || "Not set"}</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-6 p-6 bg-[#050505] border border-white/5 rounded-2xl group hover:border-white/10 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-white transition-colors">
-                <CreditCard className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-xs text-zinc-500 font-medium mb-1">Payment Email</div>
-                <div className="text-white font-medium break-all">{user?.paymentEmail || "Not set"}</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-6 p-6 bg-[#050505] border border-white/5 rounded-2xl group hover:border-white/10 transition-colors md:col-span-2">
-              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-white transition-colors">
-                <Hash className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-xs text-zinc-500 font-medium mb-1">Account ID</div>
-                <div className="text-zinc-300 font-mono text-sm break-all">{user?.uid}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-12 pt-8 border-t border-white/5">
-            <button 
-              onClick={handleLogout}
-              className="w-full bg-white/5 hover:bg-red-500/10 text-white hover:text-red-400 border border-white/10 hover:border-red-500/20 font-semibold py-4 rounded-xl transition-all flex items-center justify-center gap-2"
-            >
-              <LogOut className="w-5 h-5" />
-              Sign Out
-            </button>
           </div>
         </div>
       </div>

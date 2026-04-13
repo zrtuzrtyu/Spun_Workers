@@ -20,6 +20,13 @@ interface AppUser {
   country?: string;
   paymentEmail?: string;
   age?: string;
+  telegram?: string;
+  username?: string;
+  isAnonymous?: boolean;
+  onboardingStep?: number;
+  notificationsEnabled?: boolean;
+  skills?: string[];
+  createdAt?: any;
 }
 
 interface AuthContextType {

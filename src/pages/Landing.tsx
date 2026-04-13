@@ -1,20 +1,27 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Lock, ArrowUpRight, CheckCircle2, DollarSign, Clock, ShieldCheck, CheckSquare, Sparkles, ArrowRight } from "lucide-react";
-import { motion, useInView, useMotionValue, useSpring } from "motion/react";
+import { motion, useMotionValue, useSpring, AnimatePresence } from "motion/react";
+import { ArrowRight, CheckCircle2, DollarSign, Zap, Shield, Globe, Sparkles, Users, TrendingUp, ChevronRight, Play, Star, Clock, Target } from "lucide-react";
 import { Logo } from "../components/Logo";
+import { Button, buttonVariants } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Slider } from "../components/ui/slider";
+import { Separator } from "../components/ui/separator";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../components/ui/accordion";
+import { cn } from "../lib/utils";
 
 function NumberTicker({ value, prefix = "", suffix = "" }: { value: number, prefix?: string, suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
   const motionValue = useMotionValue(0);
-  const springValue = useSpring(motionValue, { damping: 40, stiffness: 100 });
+  const springValue = useSpring(motionValue, { damping: 30, stiffness: 100 });
 
   useEffect(() => {
-    if (isInView) {
+    const timer = setTimeout(() => {
       motionValue.set(value);
-    }
-  }, [isInView, value, motionValue]);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [value, motionValue]);
 
   useEffect(() => {
     return springValue.on("change", (latest) => {
@@ -24,468 +31,360 @@ function NumberTicker({ value, prefix = "", suffix = "" }: { value: number, pref
     });
   }, [springValue, prefix, suffix]);
 
-  return <span ref={ref}>{prefix}0{suffix}</span>;
+  return <span ref={ref} className="font-mono">{prefix}0{suffix}</span>;
 }
 
-const FadeIn = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-50px" }}
-    transition={{ duration: 0.6, delay, type: "spring", bounce: 0.4 }}
-    className={className}
-  >
-    {children}
-  </motion.div>
-);
-
 export default function Landing() {
-  return (
-    <div className="min-h-screen bg-[#050505] text-zinc-300 font-sans selection:bg-purple-500/30 overflow-hidden">
-      {/* Navbar */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-[#050505]/80 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link to="/" className="flex items-center justify-center gap-3 group hover:opacity-80 transition-opacity">
-            <Logo />
-          </Link>
+  const [hours, setHours] = useState([4]);
+  const hourlyRate = 12.50;
+  const potentialDaily = hours[0] * hourlyRate;
 
-          <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-zinc-400">
-            <Link to="#how-it-works" className="hover:text-white transition-colors">How It Works</Link>
-            <Link to="#requirements" className="hover:text-white transition-colors">Requirements</Link>
-            <Link to="/login" className="hover:text-white transition-colors">Worker Login</Link>
-            <Link to="/apply" className="text-[#050505] bg-white hover:bg-zinc-200 px-6 py-2.5 rounded-full transition-all flex items-center gap-2 font-semibold hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 active:scale-95">
-              Apply Now
-            </Link>
+  return (
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 overflow-x-hidden font-sans">
+      {/* Navbar */}
+      <nav className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 group hover:opacity-80 transition-opacity">
+            <Logo className="scale-90" />
+          </Link>
+          <div className="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            <a href="#features" className="hover:text-foreground transition-colors">Features</a>
+            <a href="#how-it-works" className="hover:text-foreground transition-colors">Network</a>
+            <a href="#calculator" className="hover:text-foreground transition-colors">Earnings</a>
           </div>
-          
-          {/* Mobile Nav Toggle */}
-          <div className="md:hidden flex items-center gap-4">
-            <Link to="/login" className="text-sm text-zinc-400 hover:text-white">Login</Link>
-            <Link to="/apply" className="text-[#050505] bg-white px-4 py-2 rounded-full text-sm font-semibold active:scale-95 transition-transform">Apply</Link>
+            <div className="flex items-center gap-4">
+            <Link to="/login" className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors px-4">Log in</Link>
+            <Link to="/apply" className={cn(buttonVariants({ size: "sm" }), "font-bold uppercase tracking-wider h-9 px-6 shadow-lg shadow-primary/20")}>
+              Join Now
+            </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-40 pb-20 flex flex-col items-center text-center px-6">
-        {/* Ambient Glow */}
-        <motion.div 
-          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-purple-500/10 blur-[120px] rounded-[100%] pointer-events-none"
-        />
-
-        <FadeIn delay={0.1}>
-          <div className="flex items-center space-x-4 mb-12 relative z-10">
-            <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-purple-500/50"></div>
-            <span className="text-purple-400 uppercase tracking-[0.2em] text-xs font-semibold flex items-center gap-2">
-              <Sparkles className="w-3 h-3" /> Now Hiring
-            </span>
-            <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-purple-500/50"></div>
-          </div>
-        </FadeIn>
-
-        <FadeIn delay={0.2}>
-          <div className="relative inline-block mb-8 z-10">
-            <div className="absolute -inset-8 border border-white/10 hidden md:block">
-              <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#050505] border border-white/20 rounded-sm"></div>
-              <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#050505] border border-white/20 rounded-sm"></div>
-              <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#050505] border border-white/20 rounded-sm"></div>
-              <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#050505] border border-white/20 rounded-sm"></div>
-            </div>
-            <h1 className="text-6xl md:text-[8rem] font-display font-medium tracking-tight leading-none">
-              <span className="text-[#FDFBF7]">Spun</span><span className="text-zinc-500">Force</span>
-            </h1>
-          </div>
-        </FadeIn>
-
-        <FadeIn delay={0.3}>
-          <p className="text-zinc-400 text-lg md:text-xl max-w-2xl mt-12 mb-12 relative z-10 font-medium">
-            Get paid for simple online tasks.<br className="hidden md:block" />
-            Join a private, global team completing short digital actions. Consistent work, fast payouts.
-          </p>
-        </FadeIn>
-
-        <FadeIn delay={0.4}>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 relative z-10">
-            <Link to="/apply">
-              <motion.button 
-                whileHover={{ scale: 1.05, boxShadow: "0 0 40px -10px rgba(255,255,255,0.5)" }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full sm:w-auto text-[#050505] bg-white px-8 py-4 rounded-full font-bold transition-colors shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)] flex items-center gap-2"
-              >
-                Apply to Join the Team <ArrowRight className="w-5 h-5" />
-              </motion.button>
-            </Link>
-            <Link to="/login">
-              <motion.button 
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full sm:w-auto text-white border border-white/10 bg-white/5 px-8 py-4 rounded-full font-semibold transition-colors"
-              >
-                Worker Login
-              </motion.button>
-            </Link>
-          </div>
-        </FadeIn>
-      </section>
-
-      {/* Stats / Social Proof */}
-      <div className="max-w-5xl mx-auto px-6 relative z-20 mb-20">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 border-y border-white/5 py-10">
-          <FadeIn delay={0.1} className="flex flex-col items-center">
-            <div className="text-3xl font-display font-bold text-white mb-1">
-              <NumberTicker value={500} suffix="+" />
-            </div>
-            <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Tasks Completed</div>
-          </FadeIn>
-          <FadeIn delay={0.2} className="flex flex-col items-center">
-            <div className="text-3xl font-display font-bold text-white mb-1">2-3 Days</div>
-            <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Fast Payouts</div>
-          </FadeIn>
-          <FadeIn delay={0.3} className="flex flex-col items-center">
-            <div className="text-3xl font-display font-bold text-white mb-1">
-              <NumberTicker value={25} prefix="$" />
-            </div>
-            <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Min Payout</div>
-          </FadeIn>
-          <FadeIn delay={0.4} className="flex flex-col items-center">
-            <div className="text-3xl font-display font-bold text-purple-400 mb-1 flex items-center gap-2">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-              </span>
-              Active
-            </div>
-            <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Hiring Status</div>
-          </FadeIn>
-        </div>
-      </div>
-
-      {/* Dashboard Mockup */}
-      <FadeIn delay={0.2}>
-        <section className="max-w-5xl mx-auto px-6 relative z-20 mb-32">
-          <motion.div 
-            whileHover={{ y: -5 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="rounded-2xl border border-white/10 bg-[#0A0A0A] shadow-2xl overflow-hidden ring-1 ring-white/5 group"
+      {/* Hero Section - Editorial Split Layout */}
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden border-b border-border/50">
+        {/* Ambient Background */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="space-y-8"
           >
-            {/* Browser Header */}
-            <div className="flex items-center px-4 py-3 border-b border-white/5 bg-[#0F0F0F]">
-              <div className="flex space-x-2">
-                <div className="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
-                <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
-                <div className="w-3 h-3 rounded-full bg-[#27C93F]"></div>
-              </div>
-              <div className="mx-auto bg-[#1A1A1A] rounded-md px-32 py-1.5 text-xs text-zinc-500 flex items-center border border-white/5">
-                <Lock className="w-3 h-3 mr-2" /> taskforce.app/worker
-              </div>
-            </div>
+            <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em]">
+              <Sparkles className="w-3 h-3 mr-2" /> Vetted Network Open
+            </Badge>
             
-            {/* Dashboard Content */}
-            <div className="p-8 bg-gradient-to-b from-[#0A0A0A] to-[#050505] relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-              
-              <div className="flex justify-between items-center mb-8 relative z-10">
-                <div>
-                  <h2 className="text-white text-xl font-display font-semibold">Welcome back, Worker!</h2>
-                  <p className="text-zinc-500 text-sm">Here's a quick peek at your tasks and earnings.</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="hidden md:flex items-center space-x-6 text-sm text-zinc-400">
-                    <span className="text-white">Dashboard</span>
-                    <span>Available Tasks</span>
-                    <span>Earnings</span>
-                    <span>Settings</span>
+            <h1 className="text-6xl md:text-8xl font-bold tracking-tighter leading-[0.9] text-foreground">
+              Precision <br />
+              <span className="text-primary italic">Workforce</span> <br />
+              at Scale.
+            </h1>
+            
+            <p className="text-lg text-muted-foreground max-w-lg leading-relaxed font-medium">
+              SpunForce is the premier distributed network for high-accuracy micro-tasks. Join 12,000+ verified operators turning precision into profit.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
+              <Link to="/apply" className={cn(buttonVariants({ size: "lg" }), "h-14 px-10 text-base font-bold shadow-xl shadow-primary/20 group")}>
+                Start Earning <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <a href="#calculator" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-14 px-10 text-base font-bold border-border/50 hover:bg-muted/50")}>
+                <TrendingUp className="w-4 h-4 mr-2" /> Earnings Calculator
+              </a>
+            </div>
+
+            <div className="flex items-center gap-6 pt-8">
+              <div className="flex -space-x-3">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="w-10 h-10 rounded-full border-2 border-background bg-muted overflow-hidden ring-1 ring-border">
+                    <img src={`https://picsum.photos/seed/user${i}/100/100`} alt="User" referrerPolicy="no-referrer" />
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-amber-500 ml-8 shadow-[0_0_15px_rgba(139,92,246,0.5)]"></div>
-                </div>
+                ))}
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                {/* Earnings Overview */}
-                <div className="col-span-1 md:col-span-1 bg-[#111111] border border-white/5 rounded-2xl p-6 hover:border-purple-500/30 transition-colors">
-                  <h3 className="text-white text-sm font-medium mb-6">Earnings overview</h3>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-4xl font-display font-bold text-white mb-1">$145.50</div>
-                      <div className="text-xs text-zinc-500">Total earned</div>
-                      <div className="text-xs text-purple-400 mt-1 flex items-center"><ArrowUpRight className="w-3 h-3 mr-1" /> $12.50 pending</div>
-                    </div>
-                    {/* Donut Chart Mock */}
-                    <div className="relative w-24 h-24 rounded-full border-[8px] border-zinc-800 border-t-purple-500 border-r-purple-500 border-b-amber-500">
-                      <div className="absolute inset-0 flex items-center justify-center text-xs text-white font-medium"></div>
-                    </div>
-                  </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map(i => <Star key={i} className="w-3 h-3 fill-primary text-primary" />)}
                 </div>
-
-                {/* Tasks / Bar Chart */}
-                <div className="col-span-1 md:col-span-1 bg-[#111111] border border-white/5 rounded-2xl p-6 hover:border-purple-500/30 transition-colors">
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-white text-sm font-medium">Tasks</h3>
-                    <div className="flex gap-3 text-xs">
-                      <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-purple-500"></div> Approved</span>
-                      <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-zinc-600"></div> Pending</span>
-                    </div>
-                  </div>
-                  <div className="flex items-end gap-2 h-24">
-                    {[40, 70, 45, 90, 65, 85, 50, 75, 60, 80, 55, 95].map((h, i) => (
-                      <motion.div 
-                        initial={{ height: 0 }}
-                        whileInView={{ height: `${h}%` }}
-                        transition={{ duration: 0.5, delay: i * 0.05 }}
-                        viewport={{ once: true }}
-                        key={i} 
-                        className="flex-1 bg-purple-500 rounded-t-sm opacity-80 hover:opacity-100 transition-opacity" 
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Payouts / Bar Chart */}
-                <div className="col-span-1 md:col-span-1 bg-[#111111] border border-white/5 rounded-2xl p-6 hover:border-amber-500/30 transition-colors">
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-white text-sm font-medium">Payouts</h3>
-                    <div className="flex gap-3 text-xs">
-                      <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-amber-500"></div> Paid</span>
-                      <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-zinc-600"></div> Processing</span>
-                    </div>
-                  </div>
-                  <div className="flex items-end gap-2 h-24">
-                    {[60, 80, 55, 95, 40, 70, 45, 90, 65, 85, 50, 75].map((h, i) => (
-                      <motion.div 
-                        initial={{ height: 0 }}
-                        whileInView={{ height: `${h}%` }}
-                        transition={{ duration: 0.5, delay: i * 0.05 }}
-                        viewport={{ once: true }}
-                        key={i} 
-                        className="flex-1 bg-amber-500 rounded-t-sm opacity-80 hover:opacity-100 transition-opacity" 
-                      />
-                    ))}
-                  </div>
-                </div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Trusted by 12k+ Operators</p>
               </div>
             </div>
           </motion.div>
-        </section>
-      </FadeIn>
 
-      {/* Bento Grid Features (How It Works) */}
-      <section id="how-it-works" className="max-w-5xl mx-auto px-6 py-20">
-        <FadeIn className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-display font-medium text-white mb-4">How It Works</h2>
-          <p className="text-zinc-400">Four simple steps to start earning.</p>
-        </FadeIn>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          {/* Card 1: Apply */}
-          <FadeIn delay={0.1}>
-            <motion.div whileHover={{ y: -5, scale: 1.02 }} className="bg-[#0A0A0A] border border-white/5 rounded-3xl p-8 flex flex-col items-center text-center group hover:border-purple-500/30 transition-all duration-300 h-full">
-              <div className="w-full bg-[#111111] rounded-2xl p-6 mb-8 border border-white/5 relative overflow-hidden">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-purple-500/20 blur-[50px] rounded-full group-hover:bg-purple-500/40 transition-colors duration-500"></div>
-                <div className="flex justify-between items-center mb-6 relative z-10">
-                  <span className="text-white text-sm font-medium">Application Status</span>
-                  <span className="text-xs text-zinc-500 bg-white/5 px-2 py-1 rounded-md">Step 1</span>
-                </div>
-                <div className="flex justify-center items-center relative z-10 py-4">
-                  <div className="relative w-32 h-32 rounded-full border-[12px] border-zinc-800 border-t-purple-500 border-r-purple-500 border-b-purple-500"></div>
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-xs text-zinc-400">Review</div>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-purple-400 font-bold drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]">Approved</div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="relative"
+          >
+            <div className="absolute inset-0 bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
+            <Card className="border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden shadow-2xl relative z-10">
+              <div className="p-1 bg-border/50">
+                <div className="flex items-center gap-1.5 px-3 py-2">
+                  <div className="w-2 h-2 rounded-full bg-red-500/50" />
+                  <div className="w-2 h-2 rounded-full bg-amber-500/50" />
+                  <div className="w-2 h-2 rounded-full bg-emerald-500/50" />
+                  <div className="ml-4 text-[10px] font-mono text-muted-foreground/50 uppercase tracking-widest">Live_Network_Status.sh</div>
                 </div>
               </div>
-              <h3 className="text-white text-xl font-display font-semibold mb-3">1. Apply to Join</h3>
-              <p className="text-zinc-500 text-sm max-w-sm">Fill out our quick application to join the private roster. We review applications daily.</p>
-            </motion.div>
-          </FadeIn>
-
-          {/* Card 2: Get Tasks */}
-          <FadeIn delay={0.2}>
-            <motion.div whileHover={{ y: -5, scale: 1.02 }} className="bg-[#0A0A0A] border border-white/5 rounded-3xl p-8 flex flex-col items-center text-center group hover:border-amber-500/30 transition-all duration-300 h-full">
-              <div className="w-full bg-[#111111] rounded-2xl p-6 mb-8 border border-white/5 relative overflow-hidden">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-amber-500/20 blur-[50px] rounded-full group-hover:bg-amber-500/40 transition-colors duration-500"></div>
-                <div className="flex justify-between items-center mb-2 relative z-10">
-                  <span className="text-zinc-500 text-sm font-medium">Available Tasks</span>
-                  <span className="text-xs text-zinc-500 bg-white/5 px-2 py-1 rounded-md">Step 2</span>
-                </div>
-                <div className="flex items-center gap-3 mb-6 relative z-10">
-                  <span className="text-3xl font-display font-bold text-white">14 New</span>
-                  <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-md flex items-center"><ArrowUpRight className="w-3 h-3 mr-1" /> Daily</span>
-                </div>
-                {/* Line Chart Mock */}
-                <div className="relative h-24 w-full z-10">
-                  <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible preserve-aspect-ratio-none">
-                    <path d="M0,30 L15,15 L30,25 L45,5 L60,20 L75,10 L90,30 L100,15" fill="none" stroke="#f59e0b" strokeWidth="1.5" className="drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]" />
-                    <circle cx="15" cy="15" r="2" fill="#0A0A0A" stroke="#f59e0b" strokeWidth="1" />
-                    <circle cx="30" cy="25" r="2" fill="#0A0A0A" stroke="#f59e0b" strokeWidth="1" />
-                    <circle cx="45" cy="5" r="2" fill="#0A0A0A" stroke="#f59e0b" strokeWidth="1" />
-                    <circle cx="60" cy="20" r="2" fill="#0A0A0A" stroke="#f59e0b" strokeWidth="1" />
-                    <circle cx="75" cy="10" r="2" fill="#0A0A0A" stroke="#f59e0b" strokeWidth="1" />
-                  </svg>
-                  <div className="flex justify-between text-[8px] text-zinc-600 mt-2 uppercase">
-                    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-                  </div>
-                </div>
-              </div>
-              <h3 className="text-white text-xl font-display font-semibold mb-3">2. Get Tasks</h3>
-              <p className="text-zinc-500 text-sm max-w-sm">Receive daily micro-tasks directly in your dashboard. Work whenever you have free time.</p>
-            </motion.div>
-          </FadeIn>
-
-          {/* Card 3: Complete */}
-          <FadeIn delay={0.3}>
-            <motion.div whileHover={{ y: -5, scale: 1.02 }} className="bg-[#0A0A0A] border border-white/5 rounded-3xl p-8 flex flex-col items-center text-center group hover:border-purple-500/30 transition-all duration-300 h-full">
-              <div className="w-full bg-[#111111] rounded-2xl p-6 mb-8 border border-white/5 relative overflow-hidden flex flex-col justify-between min-h-[220px]">
-                <div className="absolute bottom-0 right-0 w-40 h-40 bg-purple-500/10 blur-[40px] rounded-full group-hover:bg-purple-500/30 transition-colors duration-500"></div>
-                <div className="flex justify-between items-start relative z-10">
-                  <div className="text-left">
-                    <div className="text-zinc-400 text-sm font-bold tracking-wider uppercase mb-2">Time per task</div>
-                    <div className="text-4xl font-display font-bold text-white">5-20 <span className="text-xl text-zinc-500 font-sans">mins</span></div>
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-purple-500/20 transition-colors">
-                    <CheckSquare className="w-5 h-5 text-white group-hover:text-purple-400 transition-colors" />
-                  </div>
-                </div>
-                <div className="flex justify-between items-end relative z-10 mt-8">
-                  <div className="text-sm text-zinc-500 flex items-center">
-                    <span className="text-purple-400 flex items-center mr-2"><ArrowUpRight className="w-4 h-4 mr-1" /> $0.30 - $5.00</span> per completion
-                  </div>
-                  {/* Small Trend Line */}
-                  <div className="w-24 h-12">
-                    <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible">
-                      <path d="M0,35 L20,30 L40,35 L60,20 L80,25 L100,5" fill="none" stroke="#8b5cf6" strokeWidth="2" className="drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]" />
-                      <path d="M0,35 L20,30 L40,35 L60,20 L80,25 L100,5 L100,40 L0,40 Z" fill="url(#purpleGradient)" opacity="0.2" />
-                      <defs>
-                        <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#8b5cf6" />
-                          <stop offset="100%" stopColor="transparent" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              <h3 className="text-white text-xl font-display font-semibold mb-3">3. Complete Actions</h3>
-              <p className="text-zinc-500 text-sm max-w-sm">Spend a few minutes completing simple actions like app testing, surveys, and data entry.</p>
-            </motion.div>
-          </FadeIn>
-
-          {/* Card 4: Get Paid */}
-          <FadeIn delay={0.4}>
-            <motion.div whileHover={{ y: -5, scale: 1.02 }} className="bg-[#0A0A0A] border border-white/5 rounded-3xl p-8 flex flex-col items-center text-center group hover:border-white/20 transition-all duration-300 h-full">
-              <div className="w-full bg-[#111111] rounded-2xl p-6 mb-8 border border-white/5 relative overflow-hidden min-h-[220px]">
-                <div className="flex justify-between items-center mb-6 relative z-10">
-                  <span className="text-white text-sm font-medium">Recent Payouts</span>
-                  <span className="text-xs text-zinc-500 bg-white/5 px-2 py-1 rounded-md">Step 4</span>
-                </div>
-                <div className="space-y-4 relative z-10 text-left">
-                  <div className="flex items-center justify-between group/item">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-amber-500 flex items-center justify-center text-white text-xs font-bold shadow-[0_0_10px_rgba(139,92,246,0.5)] group-hover/item:scale-110 transition-transform">$</div>
-                      <div>
-                        <div className="text-white text-sm font-medium">PayPal Transfer</div>
-                        <div className="text-xs text-zinc-500">Paid $25.50 to your account</div>
-                      </div>
+              <CardContent className="p-0">
+                <div className="aspect-[4/3] bg-muted/20 relative overflow-hidden">
+                  <div className="absolute inset-0 p-8 font-mono text-[10px] space-y-4">
+                    <div className="flex items-center gap-4 text-primary">
+                      <span className="opacity-50">01</span>
+                      <span>Initializing SpunForce Protocol...</span>
                     </div>
-                    <div className="text-[10px] text-purple-400 font-medium bg-purple-400/10 px-2 py-1 rounded">Completed</div>
-                  </div>
-                  <div className="flex items-center justify-between group/item">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-amber-500 flex items-center justify-center text-white text-xs font-bold shadow-[0_0_10px_rgba(139,92,246,0.5)] group-hover/item:scale-110 transition-transform">$</div>
-                      <div>
-                        <div className="text-white text-sm font-medium">Crypto (USDT)</div>
-                        <div className="text-xs text-zinc-500">Paid $42.00 to your wallet</div>
-                      </div>
+                    <div className="flex items-center gap-4 text-foreground/80">
+                      <span className="opacity-50">02</span>
+                      <span>Connecting to Global Nodes [12,402 Active]</span>
                     </div>
-                    <div className="text-[10px] text-purple-400 font-medium bg-purple-400/10 px-2 py-1 rounded">Completed</div>
-                  </div>
-                  <div className="flex items-center justify-between group/item">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-zinc-600 to-zinc-700 flex items-center justify-center text-white text-xs font-bold group-hover/item:scale-110 transition-transform">$</div>
-                      <div>
-                        <div className="text-white text-sm font-medium">CashApp</div>
-                        <div className="text-xs text-zinc-500">Processing $15.00</div>
-                      </div>
+                    <div className="flex items-center gap-4 text-foreground/80">
+                      <span className="opacity-50">03</span>
+                      <span>Syncing Task Queue: 8,291 Available</span>
                     </div>
-                    <div className="text-[10px] text-zinc-400 font-medium bg-zinc-800 px-2 py-1 rounded">Pending</div>
+                    <div className="pt-4 space-y-2">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-background/50 border border-border/50">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-foreground/60">Task #{8290 + i} Verified</span>
+                          </div>
+                          <span className="text-primary font-bold">+$12.50</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="pt-4 flex items-center gap-2 text-primary animate-pulse">
+                      <span>_</span>
+                      <span className="h-4 w-1 bg-primary" />
+                    </div>
                   </div>
+                  {/* Grid Overlay */}
+                  <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
                 </div>
-              </div>
-              <h3 className="text-white text-xl font-display font-semibold mb-3">4. Get Paid</h3>
-              <p className="text-zinc-500 text-sm max-w-sm">Submit proof and get paid via PayPal, CashApp, or Crypto. Minimum payout is just $25.</p>
-            </motion.div>
-          </FadeIn>
-
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
       </section>
 
-      {/* Requirements Section */}
-      <section id="requirements" className="max-w-5xl mx-auto px-6 pb-32">
-        <FadeIn>
-          <div className="bg-[#0A0A0A] p-12 rounded-3xl border border-white/5 text-left relative overflow-hidden group hover:border-purple-500/20 transition-colors duration-500">
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500/5 blur-[100px] rounded-full pointer-events-none group-hover:bg-purple-500/10 transition-colors duration-700"></div>
-            
-            <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
-              <div className="flex-1">
-                <h2 className="text-3xl md:text-4xl font-display font-medium text-white mb-6">Requirements</h2>
-                <p className="text-zinc-400 mb-8 max-w-md">We maintain a high-quality workforce. To join the private roster, you must meet these criteria:</p>
-                <ul className="space-y-5">
-                  {[
-                    "Must be based in an eligible country",
-                    "Own a smartphone or laptop",
-                    "Available for at least 2 hours per day",
-                    "Commitment to consistent, daily work"
-                  ].map((req, i) => (
-                    <motion.li 
-                      key={i}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      viewport={{ once: true }}
-                      className="flex items-center gap-4 group/li"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover/li:bg-purple-500/20 group-hover/li:scale-110 transition-all">
-                        <CheckCircle2 className="text-purple-400 w-4 h-4" />
-                      </div>
-                      <span className="text-zinc-300">{req}</span>
-                    </motion.li>
-                  ))}
-                </ul>
+      {/* Stats Section - Minimalist */}
+      <section className="bg-muted/30 border-b border-border/50">
+        <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-2 lg:grid-cols-4 gap-12">
+          {[
+            { label: "Tasks Completed", value: 500, suffix: "k+" },
+            { label: "Avg. Payout Time", value: 48, suffix: "h" },
+            { label: "Min. Withdrawal", value: 25, prefix: "$" },
+            { label: "Network Status", value: 100, suffix: "%", custom: "Active" }
+          ].map((stat, i) => (
+            <div key={i} className="space-y-1">
+              <div className="text-3xl font-bold tracking-tighter text-foreground">
+                {stat.custom ? <span className="text-primary">{stat.custom}</span> : <NumberTicker value={stat.value} prefix={stat.prefix} suffix={stat.suffix} />}
               </div>
-              
-              <div className="flex-1 bg-[#111111] p-8 rounded-2xl border border-white/5 w-full">
-                <div className="flex items-center gap-5 mb-8 group/feat">
-                  <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover/feat:bg-purple-500/10 group-hover/feat:border-purple-500/30 transition-colors">
-                    <ShieldCheck className="w-6 h-6 text-white group-hover/feat:text-purple-400 transition-colors" />
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Earnings Calculator - SaaS Split */}
+      <section id="calculator" className="py-32 px-6 border-b border-border/50">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-24 items-center">
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 font-bold uppercase tracking-widest text-[9px]">Potential</Badge>
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-foreground">Calculate Your <br />Earnings Potential</h2>
+              <p className="text-muted-foreground leading-relaxed max-w-md">Our top operators earn significantly more by maintaining high accuracy and unlocking Premium tier tasks.</p>
+            </div>
+            
+            <div className="space-y-10 bg-muted/30 p-8 rounded-3xl border border-border/50">
+              <div className="space-y-6">
+                <div className="flex justify-between items-end">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Daily Commitment</label>
+                    <div className="text-2xl font-bold text-foreground">{hours[0]} Hours</div>
                   </div>
-                  <div>
-                    <div className="font-semibold text-white text-lg">Strict Fraud Control</div>
-                    <div className="text-sm text-zinc-500">No VPNs or duplicate accounts</div>
-                  </div>
+                  <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors">
+                    Standard Rate: $12.50/hr
+                  </Badge>
                 </div>
-                <div className="flex items-center gap-5 mb-8 group/feat">
-                  <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover/feat:bg-purple-500/10 group-hover/feat:border-purple-500/30 transition-colors">
-                    <DollarSign className="w-6 h-6 text-white group-hover/feat:text-purple-400 transition-colors" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-white text-lg">$0.30 - $5.00 per task</div>
-                    <div className="text-sm text-zinc-500">Higher payouts for consistent workers</div>
-                  </div>
+                <Slider 
+                  value={hours} 
+                  onValueChange={(val) => setHours(Array.isArray(val) ? [...val] : [val])} 
+                  max={12} 
+                  min={1} 
+                  step={1} 
+                  className="py-4"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Daily Potential</div>
+                  <div className="text-3xl font-bold tracking-tighter text-foreground">${potentialDaily.toFixed(2)}</div>
                 </div>
-                <div className="flex items-center gap-5 group/feat">
-                  <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover/feat:bg-purple-500/10 group-hover/feat:border-purple-500/30 transition-colors">
-                    <Clock className="w-6 h-6 text-white group-hover/feat:text-purple-400 transition-colors" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-white text-lg">Flexible Hours</div>
-                    <div className="text-sm text-zinc-500">Work whenever you have free time</div>
-                  </div>
+                <div className="space-y-1">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-primary">Monthly Potential</div>
+                  <div className="text-3xl font-bold tracking-tighter text-primary">${(potentialDaily * 30).toFixed(0)}</div>
                 </div>
               </div>
             </div>
           </div>
-        </FadeIn>
+
+          <div className="space-y-6">
+            {[
+              { icon: Target, title: "Vetted Opportunities", desc: "No low-quality tasks. Only high-value operations from verified partners." },
+              { icon: TrendingUp, title: "Career Progression", desc: "Grow from a New operator to a Premium strategist with higher rates." },
+              { icon: Shield, title: "Guaranteed Payouts", desc: "Our smart-contract escrow ensures you get paid for every verified task." }
+            ].map((item, i) => (
+              <Card key={i} className="border-border/50 bg-card/50 hover:bg-muted/30 transition-colors group">
+                <CardContent className="p-6 flex gap-6 items-start">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0 group-hover:scale-110 transition-transform">
+                    <item.icon className="w-6 h-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="text-base font-bold text-foreground">{item.title}</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </section>
+
+      {/* Features - Bento Grid */}
+      <section id="features" className="py-32 px-6 bg-muted/10">
+        <div className="max-w-7xl mx-auto space-y-20">
+          <div className="text-center space-y-4">
+            <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 font-bold uppercase tracking-widest text-[9px]">Infrastructure</Badge>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-foreground">Built for Performance</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">Our platform is designed to reward accuracy and consistency with higher-tier opportunities.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { icon: Zap, title: "Instant Access", desc: "Get assigned tasks matching your device and location automatically." },
+              { icon: Shield, title: "Secure Payouts", desc: "Reliable withdrawals via PayPal or Crypto once you hit the threshold." },
+              { icon: Globe, title: "Global Reach", desc: "Work from anywhere in the world with just a smartphone or laptop." }
+            ].map((feature, i) => (
+              <Card key={i} className="border-border/50 bg-card/50 hover:border-primary/30 transition-all group overflow-hidden">
+                <CardContent className="p-10 space-y-6">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <feature.icon className="w-7 h-7" />
+                  </div>
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-bold tracking-tight text-foreground">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ / How it Works - Accordion */}
+      <section id="how-it-works" className="py-32 px-6 border-y border-border/50">
+        <div className="max-w-3xl mx-auto space-y-16">
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl font-bold tracking-tighter text-foreground">The Path to Success</h2>
+            <p className="text-muted-foreground">Everything you need to know about joining the SpunForce network.</p>
+          </div>
+
+          <Accordion className="w-full">
+            {[
+              { q: "How do I get started?", a: "Complete our 30-second application and verify your identity. Once approved, you'll gain access to the dashboard where tasks are automatically assigned based on your profile." },
+              { q: "When do I get paid?", a: "Payouts are processed within 48 hours of reaching the $25 withdrawal threshold. We support PayPal, Bank Transfer, and major Cryptocurrencies." },
+              { q: "What are the requirements?", a: "You need a reliable internet connection, a modern smartphone or laptop, and the ability to follow detailed instructions with high precision." },
+              { q: "How do I unlock higher rates?", a: "Maintain a quality score above 95% and complete at least 50 tasks to unlock 'Trusted' status. Premium status is granted to our top 5% of operators." }
+            ].map((faq, i) => (
+              <AccordionItem key={i} value={`item-${i}`} className="border-border/50">
+                <AccordionTrigger className="text-base font-bold hover:text-primary transition-colors text-left">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground leading-relaxed">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-32 px-6">
+        <div className="max-w-5xl mx-auto">
+          <Card className="bg-primary border-none overflow-hidden relative shadow-2xl shadow-primary/20">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent)] pointer-events-none" />
+            <CardContent className="p-12 md:p-20 text-center space-y-8 relative z-10">
+              <h2 className="text-4xl md:text-6xl font-bold tracking-tighter text-primary-foreground">Ready to join the <br />distributed future?</h2>
+              <p className="text-primary-foreground/80 max-w-xl mx-auto text-lg font-medium">
+                Applications are currently open for all regions. Start your journey as a SpunForce operator today.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                <Link to="/apply" className={cn(buttonVariants({ size: "lg", variant: "secondary" }), "h-16 px-12 text-lg font-bold shadow-xl")}>
+                  Apply Now
+                </Link>
+                <div className="flex items-center gap-3 text-primary-foreground/60 text-sm font-bold uppercase tracking-widest">
+                  <Clock className="w-4 h-4" /> 30-Second Setup
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-20 px-6 border-t border-border/50 bg-muted/20">
+        <div className="max-w-7xl mx-auto space-y-12">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-12">
+            <div className="space-y-6">
+              <Logo showText={true} />
+              <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
+                The premier distributed workforce for high-accuracy micro-tasks and digital asset generation.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-12 sm:gap-24">
+              <div className="space-y-4">
+                <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground">Platform</h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li><a href="#" className="hover:text-primary transition-colors">Features</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Earnings</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Network</a></li>
+                </ul>
+              </div>
+              <div className="space-y-4">
+                <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground">Company</h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li><a href="#" className="hover:text-primary transition-colors">About</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Privacy</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Terms</a></li>
+                </ul>
+              </div>
+              <div className="space-y-4">
+                <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground">Support</h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li><a href="#" className="hover:text-primary transition-colors">Help Center</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Contact</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Status</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <Separator className="bg-border/50" />
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+            <p>© 2026 SpunForce Network. All rights reserved.</p>
+            <div className="flex gap-8">
+              <a href="#" className="hover:text-foreground transition-colors">Twitter</a>
+              <a href="#" className="hover:text-foreground transition-colors">Discord</a>
+              <a href="#" className="hover:text-foreground transition-colors">GitHub</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
+
