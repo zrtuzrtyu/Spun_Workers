@@ -28,12 +28,10 @@ const STEPS = [
   { id: 4, title: "Notifications", icon: Bell, description: "Never miss a high-value task." },
   { id: 5, title: "Skill Inventory", icon: Target, description: "Tell us what you're good at." },
   { id: 6, title: "Platform Rules", icon: Lock, description: "Our community standards." },
-  { id: 7, title: "Identity Verification", icon: UserCircle, description: "Verify your identity for higher payouts." },
-  { id: 8, title: "Wallet Setup", icon: Zap, description: "Configure your payout destination." },
-  { id: 9, title: "Demographics", icon: Globe, description: "Help us match local tasks." },
-  { id: 10, title: "Interactive Tutorial", icon: Sparkles, description: "Learn the Spunn Force protocol." },
-  { id: 11, title: "Certification", icon: Award, description: "Final quality assessment." },
-  { id: 12, title: "Activation", icon: Zap, description: "You're ready to start earning." }
+  { id: 7, title: "Wallet Setup", icon: Zap, description: "Configure your payout destination." },
+  { id: 8, title: "Demographics", icon: Globe, description: "Help us match local tasks." },
+  { id: 9, title: "Certification", icon: Award, description: "Final quality assessment." },
+  { id: 10, title: "Activation", icon: Zap, description: "You're ready to start earning." }
 ];
 
 const SKILL_CATEGORIES = [
@@ -87,7 +85,7 @@ export default function WorkerOnboarding() {
         ...formData,
         onboardingCompleted: true,
         quizCompleted: true,
-        onboardingStep: 12,
+        onboardingStep: 10,
         trustTier: "New",
         level: 1,
         status: "active"
@@ -249,30 +247,6 @@ export default function WorkerOnboarding() {
         );
       case 7:
         return (
-          <div className="space-y-6 py-4 text-center">
-            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-primary">
-              <UserCircle className="w-10 h-10" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-bold">Verify Identity</h3>
-              <p className="text-sm text-muted-foreground">
-                Upload a government-issued ID to unlock higher-paying tasks and faster payouts.
-              </p>
-            </div>
-            <Button 
-              variant={formData.identityVerified ? "outline" : "default"}
-              className="w-full h-12 font-bold"
-              onClick={() => {
-                setFormData(prev => ({ ...prev, identityVerified: true }));
-                toast.success("Identity verified!");
-              }}
-            >
-              {formData.identityVerified ? "Identity Verified" : "Upload ID"}
-            </Button>
-          </div>
-        );
-      case 8:
-        return (
           <div className="space-y-6 py-4">
             <div className="space-y-4">
               <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
@@ -291,7 +265,7 @@ export default function WorkerOnboarding() {
             </div>
           </div>
         );
-      case 9:
+      case 8:
         return (
           <div className="space-y-6 py-4">
             <div className="space-y-4">
@@ -331,26 +305,7 @@ export default function WorkerOnboarding() {
             </div>
           </div>
         );
-      case 10:
-        return (
-          <div className="space-y-6 py-4">
-            <div className="aspect-video bg-muted/50 rounded-2xl border border-border/50 flex flex-col items-center justify-center p-8 text-center space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                <Play className="w-6 h-6 fill-current" />
-              </div>
-              <div className="space-y-2">
-                <h4 className="text-sm font-bold">Interactive Protocol Walkthrough</h4>
-                <p className="text-[11px] text-muted-foreground">Learn how to claim, execute, and submit tasks for verification.</p>
-              </div>
-              <Button variant="secondary" size="sm" className="font-bold">Start Tutorial</Button>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10 text-emerald-500">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <p className="text-[10px] font-medium">Tutorial completion grants +5 Trust Points.</p>
-            </div>
-          </div>
-        );
-      case 11:
+      case 9:
         return (
           <div className="space-y-6 py-4">
             <div className="space-y-4">
@@ -376,7 +331,7 @@ export default function WorkerOnboarding() {
             </div>
           </div>
         );
-      case 12:
+      case 10:
         return (
           <div className="space-y-8 py-10 text-center">
             <div className="relative inline-block">
@@ -409,10 +364,9 @@ export default function WorkerOnboarding() {
       case 3: return formData.languages.length >= 1;
       case 5: return formData.skills.length >= 3;
       case 6: return formData.agreedToRules;
-      case 7: return formData.identityVerified;
-      case 8: return formData.paymentEmail.includes("@");
-      case 9: return formData.country && formData.age;
-      case 11: return formData.quizScore === 100;
+      case 7: return formData.paymentEmail.includes("@");
+      case 8: return formData.country && formData.age;
+      case 10: return formData.quizScore === 100;
       default: return true;
     }
   };

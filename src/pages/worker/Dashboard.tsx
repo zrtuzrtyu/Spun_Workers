@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { isGeoMatch } from "@/lib/geoUtils";
 
 export default function WorkerDashboard() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
@@ -68,12 +68,13 @@ export default function WorkerDashboard() {
   };
 
   useEffect(() => {
+    if (loading) return;
     if (user && user.role !== 'admin' && !user.quizCompleted) {
       navigate("/worker/quiz");
     } else if (user) {
       autoAssignTasks(user.uid, user.trustTier || 'New', user.country || "Global");
     }
-  }, [user, navigate]);
+  }, [user, navigate, loading]);
 
 
   useEffect(() => {
@@ -138,21 +139,24 @@ export default function WorkerDashboard() {
       const snapshot = await uploadBytes(storageRef, proofFile);
       const downloadUrl = await getDownloadURL(snapshot.ref);
 
+      const isAutoApproved = (user?.level || 0) <= 3;
+
       await updateDoc(doc(db, "assignments", selectedAssignment.id), {
-        status: "submitted",
+        status: isAutoApproved ? "approved" : "submitted",
         proofText,
         proofImageUrl: downloadUrl,
-        submittedAt: serverTimestamp()
+        submittedAt: serverTimestamp(),
+        approvedAt: isAutoApproved ? serverTimestamp() : null
       });
 
       await addDoc(collection(db, "activities"), {
         type: "task_submitted",
-        description: `Worker submitted proof for task`,
+        description: `Worker submitted proof for task${isAutoApproved ? ' (Auto-approved)' : ''}`,
         createdAt: serverTimestamp(),
         userId: user?.uid
       });
 
-      toast.success("Proof submitted successfully!");
+      toast.success(isAutoApproved ? "Proof submitted and auto-approved!" : "Proof submitted successfully!");
       setSelectedAssignment(null);
       setProofText("");
       setProofFile(null);
