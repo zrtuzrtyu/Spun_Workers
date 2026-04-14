@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import WorkerLayout from "../../components/WorkerLayout";
 import { collection, query, onSnapshot, where, doc, updateDoc, getDoc, serverTimestamp, addDoc, getDocs } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "../../firebase";
+import { db, storage, handleFirestoreError, OperationType } from "../../firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -92,15 +92,15 @@ export default function WorkerDashboard() {
         const order: any = { pending: 0, submitted: 1, rejected: 2, approved: 3 };
         return order[a.status] - order[b.status];
       }));
-    }, (error) => {
-      console.error("Assignments listener error:", error);
+    }, (error: any) => {
+      handleFirestoreError(error, OperationType.LIST, "assignments");
     });
 
     const qActivities = query(collection(db, "activities"), where("type", "==", "task_submitted"));
     const unsubActivities = onSnapshot(qActivities, (snap) => {
       setActivities(snap.docs.map(d => ({ id: d.id, ...d.data() })).slice(0, 5));
-    }, (error) => {
-      console.error("Activities listener error:", error);
+    }, (error: any) => {
+      handleFirestoreError(error, OperationType.LIST, "activities");
     });
 
     return () => {
@@ -150,9 +150,8 @@ export default function WorkerDashboard() {
       setSelectedAssignment(null);
       setProofText("");
       setProofFile(null);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to submit proof.");
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.WRITE, `assignments/${selectedAssignment.id}`);
     } finally {
       setSubmitting(false);
     }

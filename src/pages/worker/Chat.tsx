@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import WorkerLayout from "../../components/WorkerLayout";
 import { useAuth } from "../../contexts/AuthContext";
-import { db } from "../../firebase";
+import { db, handleFirestoreError, OperationType } from "../../firebase";
 import { collection, query, orderBy, limit, onSnapshot, addDoc, serverTimestamp, where, getCountFromServer } from "firebase/firestore";
 import { toast } from "sonner";
 import { Send, MessageSquare, ShieldCheck, Zap, Lock, ArrowRight } from "lucide-react";
@@ -61,9 +61,8 @@ export default function WorkerChat() {
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100);
-    }, (error) => {
-      console.error("Chat error:", error);
-      toast.error("Failed to load chat messages.");
+    }, (error: any) => {
+      handleFirestoreError(error, OperationType.LIST, "messages");
     });
 
     return () => unsubscribe();
@@ -85,8 +84,7 @@ export default function WorkerChat() {
       });
       setNewMessage("");
     } catch (error: any) {
-      console.error("Error sending message:", error);
-      toast.error("Failed to send message.");
+      handleFirestoreError(error, OperationType.CREATE, "messages");
     } finally {
       setSending(false);
     }

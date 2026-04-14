@@ -70,9 +70,8 @@ export default function AdminSettings() {
         updatedAt: serverTimestamp()
       });
       toast.success("System configuration updated!");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update configuration");
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.UPDATE, "system/config");
     } finally {
       setSaving(false);
     }
@@ -88,9 +87,8 @@ export default function AdminSettings() {
       snap.docs.forEach(d => batch.delete(d.ref));
       await batch.commit();
       toast.success("All logs cleared!");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to clear logs");
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.DELETE, "activities");
     }
   };
 
@@ -105,9 +103,8 @@ export default function AdminSettings() {
       const userDoc = snap.docs[0];
       await updateDoc(userDoc.ref, { role: "admin" });
       toast.success(`${email} promoted to Admin!`);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to promote user");
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.UPDATE, "users");
     }
   };
 

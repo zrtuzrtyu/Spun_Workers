@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db, handleFirestoreError, OperationType } from "../../firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import { toast } from "sonner";
 import WorkerLayout from "../../components/WorkerLayout";
@@ -36,12 +36,16 @@ export default function WorkerQuiz() {
       // Quiz finished
       if (score + (index === quizQuestions[currentQuestion].correct ? 1 : 0) === quizQuestions.length) {
         if (user) {
-          await updateDoc(doc(db, "users", user.uid), {
-            quizCompleted: true,
-            trustTier: "New"
-          });
-          toast.success("Quiz passed! You can now start tasks.");
-          navigate("/worker");
+          try {
+            await updateDoc(doc(db, "users", user.uid), {
+              quizCompleted: true,
+              trustTier: "New"
+            });
+            toast.success("Quiz passed! You can now start tasks.");
+            navigate("/worker");
+          } catch (error: any) {
+            handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
+          }
         }
       } else {
         toast.error("Quiz failed. Please try again.");

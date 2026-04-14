@@ -110,9 +110,8 @@ export default function AdminTasks() {
       setEditingTaskId(null);
       setCurrentStep(1);
       reset();
-    } catch (error) {
-      console.error(error);
-      toast.error(editingTaskId ? "Failed to update task" : "Failed to create task");
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.WRITE, editingTaskId ? `tasks/${editingTaskId}` : "tasks");
     }
   };
 
@@ -152,9 +151,8 @@ export default function AdminTasks() {
     try {
       await updateDoc(doc(db, "tasks", taskId), { status: newStatus });
       toast.success(`Task status updated to ${newStatus}`);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update status");
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.UPDATE, `tasks/${taskId}`);
     }
   };
 

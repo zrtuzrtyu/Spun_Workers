@@ -58,7 +58,7 @@ export default function Requests() {
         return ['open', 'in_progress', 'completed'].includes(req.status);
       });
       setRequests(data);
-    }, (error) => {
+    }, (error: any) => {
       handleFirestoreError(error, OperationType.LIST, "requests");
     });
 
@@ -79,7 +79,7 @@ export default function Requests() {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setBids(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (error) => {
+    }, (error: any) => {
       handleFirestoreError(error, OperationType.LIST, "bids");
     });
 

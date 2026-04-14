@@ -5,7 +5,7 @@ import {
   MapPin, Calendar, CreditCard, Eye, EyeOff, Bell, 
   BellOff, Target, Shield, CheckCircle2
 } from "lucide-react";
-import { auth, db } from "../../firebase";
+import { auth, db, handleFirestoreError, OperationType } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 import { doc, updateDoc } from "firebase/firestore";
 import { toast } from "sonner";
@@ -33,8 +33,8 @@ export default function WorkerProfile() {
         isAnonymous: !user.isAnonymous
       });
       toast.success(user.isAnonymous ? "Identity is now public" : "Identity is now hidden");
-    } catch (error) {
-      toast.error("Failed to update privacy settings");
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
     } finally {
       setUpdating(false);
     }
@@ -48,8 +48,8 @@ export default function WorkerProfile() {
         notificationsEnabled: !user.notificationsEnabled
       });
       toast.success(user.notificationsEnabled ? "Notifications disabled" : "Notifications enabled");
-    } catch (error) {
-      toast.error("Failed to update notification settings");
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
     } finally {
       setUpdating(false);
     }

@@ -4,9 +4,9 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Toaster } from "sonner";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Analytics } from "@vercel/analytics/react";
+import Landing from "./pages/Landing";
 
 // Lazy load pages for better performance
-const Landing = lazy(() => import("./pages/Landing"));
 const Apply = lazy(() => import("./pages/Apply"));
 const Login = lazy(() => import("./pages/Login"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));

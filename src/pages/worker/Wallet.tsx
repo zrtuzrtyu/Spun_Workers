@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { db } from "../../firebase";
+import { db, handleFirestoreError, OperationType } from "../../firebase";
 import { collection, addDoc, query, where, onSnapshot, orderBy, serverTimestamp } from "firebase/firestore";
 import { Wallet as WalletIcon, ArrowUpRight, Clock, CheckCircle2, XCircle, DollarSign } from "lucide-react";
 import { toast } from "sonner";
@@ -29,6 +29,8 @@ export default function Wallet() {
         ...doc.data()
       }));
       setWithdrawals(data);
+    }, (error: any) => {
+      handleFirestoreError(error, OperationType.LIST, "withdrawals");
     });
 
     return () => unsubscribe();
@@ -76,7 +78,7 @@ export default function Wallet() {
       setAmount("");
       setAddress("");
     } catch (error: any) {
-      toast.error(error.message || "Failed to submit withdrawal request");
+      handleFirestoreError(error, OperationType.CREATE, "withdrawals");
     } finally {
       setLoading(false);
     }

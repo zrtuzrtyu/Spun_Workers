@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, db } from "../firebase";
+import { auth, db, handleFirestoreError, OperationType } from "../firebase";
 import { signInWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup } from "firebase/auth";
 import { googleProvider } from "../firebase";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
@@ -84,14 +84,7 @@ export default function Login() {
         navigate("/worker");
       }
     } catch (error: any) {
-      console.error(error);
-      if (error.code === 'auth/account-exists-with-different-credential') {
-        toast.error("An account already exists with this email. Please sign in using your original method.");
-      } else if (error.code === 'auth/popup-closed-by-user') {
-        toast.error("Sign-in popup was closed before completing.");
-      } else {
-        toast.error(error.message || "Failed to login with Google.");
-      }
+      handleFirestoreError(error, OperationType.GET, "users");
     } finally {
       setLoading(false);
     }
@@ -165,12 +158,7 @@ export default function Login() {
         navigate("/worker");
       }
     } catch (error: any) {
-      console.error(error);
-      if (error.code === 'auth/invalid-credential') {
-        toast.error("Invalid email or password.");
-      } else {
-        toast.error(error.message || "Failed to login.");
-      }
+      handleFirestoreError(error, OperationType.GET, "users");
     } finally {
       setLoading(false);
     }

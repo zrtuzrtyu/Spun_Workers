@@ -105,8 +105,10 @@
         "offerAmount": { "type": "number" },
         "requesterId": { "type": "string" },
         "requesterName": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending_approval", "open", "in_progress", "completed", "rejected"] },
+        "status": { "type": "string", "enum": ["open", "in_progress", "completed", "pending_approval", "rejected"] },
         "winnerId": { "type": "string" },
+        "acceptedBidId": { "type": "string" },
+        "finalAmount": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["title", "description", "offerAmount", "requesterId", "status", "createdAt"]
@@ -125,6 +127,20 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["requestId", "workerId", "amount", "proposal", "status", "createdAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A chat message in the global network.",
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userRole": { "type": "string" },
+        "isAnonymous": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["text", "userId", "userName", "userRole", "createdAt"]
     }
   },
   "firestore": {
@@ -159,6 +175,10 @@
     "/bids/{bidId}": {
       "schema": { "$ref": "#/entities/Bid" },
       "description": "Stores bids on job requests."
+    },
+    "/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/Message" },
+      "description": "Stores chat messages."
     }
   }
 }

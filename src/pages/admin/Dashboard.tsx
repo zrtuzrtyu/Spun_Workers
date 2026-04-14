@@ -246,8 +246,7 @@ export default function AdminDashboard() {
 
       toast.success("Submission approved!");
     } catch (error: any) {
-      console.error(error);
-      toast.error("Failed to approve submission.");
+      handleFirestoreError(error, OperationType.WRITE, `assignments/${assignmentId}`);
     }
   };
 
@@ -275,8 +274,7 @@ export default function AdminDashboard() {
 
       toast.success("Submission rejected.");
     } catch (error: any) {
-      console.error(error);
-      toast.error("Failed to reject submission.");
+      handleFirestoreError(error, OperationType.UPDATE, `assignments/${assignmentId}`);
     }
   };
 
@@ -286,8 +284,7 @@ export default function AdminDashboard() {
       await deleteDoc(doc(db, "assignments", assignmentId));
       toast.success("Submission deleted.");
     } catch (error: any) {
-      console.error(error);
-      toast.error("Failed to delete submission.");
+      handleFirestoreError(error, OperationType.DELETE, `assignments/${assignmentId}`);
     }
   };
 
@@ -298,8 +295,7 @@ export default function AdminDashboard() {
       });
       toast.success("Request approved and published.");
     } catch (error: any) {
-      console.error(error);
-      toast.error("Failed to approve request.");
+      handleFirestoreError(error, OperationType.UPDATE, `requests/${requestId}`);
     }
   };
 
@@ -310,8 +306,7 @@ export default function AdminDashboard() {
       });
       toast.success("Request rejected.");
     } catch (error: any) {
-      console.error(error);
-      toast.error("Failed to reject request.");
+      handleFirestoreError(error, OperationType.UPDATE, `requests/${requestId}`);
     }
   };
 

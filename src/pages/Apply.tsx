@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { auth, db, googleProvider } from "../firebase";
+import { auth, db, googleProvider, handleFirestoreError, OperationType } from "../firebase";
 import { signInWithPopup, createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate, Link } from "react-router-dom";
@@ -147,12 +147,7 @@ export default function Apply() {
       toast.success("Account created successfully!");
       navigate("/worker");
     } catch (error: any) {
-      console.error(error);
-      if (error.code === 'auth/account-exists-with-different-credential') {
-        toast.error("An account already exists with this email.");
-      } else {
-        toast.error(error.message || "An error occurred during application.");
-      }
+      handleFirestoreError(error, OperationType.WRITE, "users");
     } finally {
       setLoading(false);
     }
@@ -197,12 +192,7 @@ export default function Apply() {
       toast.success("Account created successfully!");
       navigate("/worker");
     } catch (error: any) {
-      console.error(error);
-      if (error.code === 'auth/email-already-in-use') {
-        toast.error("This email address is already registered.");
-      } else {
-        toast.error(error.message || "An error occurred during application.");
-      }
+      handleFirestoreError(error, OperationType.WRITE, "users");
     } finally {
       setLoading(false);
     }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db, handleFirestoreError, OperationType } from "../../firebase";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { 
@@ -89,9 +89,8 @@ export default function WorkerOnboarding() {
       });
       toast.success("Onboarding complete! Welcome to SpunForce.");
       navigate("/worker");
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      toast.error("Failed to save your information.");
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
     } finally {
       setLoading(false);
     }
