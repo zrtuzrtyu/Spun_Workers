@@ -51,12 +51,18 @@ export default function WorkerDashboard() {
       const geoMatch = isGeoMatch(taskGeo, userCountry);
 
       if (!assignedTaskIds.includes(taskDoc.id) && geoMatch) {
-        await addDoc(collection(db, "assignments"), {
-          taskId: taskDoc.id,
-          workerId: workerId,
-          status: "pending",
-          assignedAt: serverTimestamp()
-        });
+        // Check if task limit has been reached
+        const taskAssignmentsQuery = query(collection(db, "assignments"), where("taskId", "==", taskDoc.id));
+        const taskAssignmentsSnap = await getDocs(taskAssignmentsQuery);
+        
+        if (taskAssignmentsSnap.size < (taskData.limit || Infinity)) {
+          await addDoc(collection(db, "assignments"), {
+            taskId: taskDoc.id,
+            workerId: workerId,
+            status: "pending",
+            assignedAt: serverTimestamp()
+          });
+        }
       }
     }
   };

@@ -205,6 +205,15 @@ export default function AdminTasks() {
             continue;
           }
 
+          // Check task limit
+          const taskAssignmentsQuery = query(collection(db, "assignments"), where("taskId", "==", taskId));
+          const taskAssignmentsSnap = await getDocs(taskAssignmentsQuery);
+          if (!overrideRestrictions && taskAssignmentsSnap.size >= (task?.limit || Infinity)) {
+            failedCount++;
+            details.push(`Task "${task?.title}" has reached its limit of ${task?.limit} assignments.`);
+            continue;
+          }
+
           await addDoc(collection(db, "assignments"), {
             taskId: taskId,
             workerId: workerId,
