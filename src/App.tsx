@@ -58,6 +58,11 @@ const ProtectedRoute = ({ children, allowedRoles, requireOnboarding = false }: {
       return <Navigate to="/worker/onboarding" replace />;
     }
     
+    // Enforce quiz for workers who completed onboarding but haven't completed quiz
+    if (user.role === "worker" && requireOnboarding && user.onboardingCompleted && !user.quizCompleted && window.location.pathname !== "/worker/quiz") {
+      return <Navigate to="/worker/quiz" replace />;
+    }
+
     // Prevent workers who completed onboarding from accessing it again
     if (user.role === "worker" && !requireOnboarding && user.onboardingCompleted && window.location.pathname === "/worker/onboarding") {
       return <Navigate to="/worker" replace />;

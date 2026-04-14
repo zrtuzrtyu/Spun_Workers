@@ -26,6 +26,8 @@ interface AppUser {
   onboardingStep?: number;
   notificationsEnabled?: boolean;
   skills?: string[];
+  languages?: string[];
+  identityVerified?: boolean;
   createdAt?: any;
 }
 

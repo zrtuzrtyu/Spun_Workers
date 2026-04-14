@@ -24,14 +24,16 @@ import { cn } from "@/lib/utils";
 const STEPS = [
   { id: 1, title: "Account Created", icon: CheckCircle2, description: "Your secure workspace is ready." },
   { id: 2, title: "Privacy Profile", icon: Shield, description: "Choose how you appear to the network." },
-  { id: 3, title: "Notifications", icon: Bell, description: "Never miss a high-value task." },
-  { id: 4, title: "Skill Inventory", icon: Target, description: "Tell us what you're good at." },
-  { id: 5, title: "Platform Rules", icon: Lock, description: "Our community standards." },
-  { id: 6, title: "Wallet Setup", icon: Zap, description: "Configure your payout destination." },
-  { id: 7, title: "Demographics", icon: Globe, description: "Help us match local tasks." },
-  { id: 8, title: "Interactive Tutorial", icon: Sparkles, description: "Learn the Spunn Force protocol." },
-  { id: 9, title: "Certification", icon: Award, description: "Final quality assessment." },
-  { id: 10, title: "Activation", icon: Zap, description: "You're ready to start earning." }
+  { id: 3, title: "Language Preferences", icon: Globe, description: "Select languages you are fluent in." },
+  { id: 4, title: "Notifications", icon: Bell, description: "Never miss a high-value task." },
+  { id: 5, title: "Skill Inventory", icon: Target, description: "Tell us what you're good at." },
+  { id: 6, title: "Platform Rules", icon: Lock, description: "Our community standards." },
+  { id: 7, title: "Identity Verification", icon: UserCircle, description: "Verify your identity for higher payouts." },
+  { id: 8, title: "Wallet Setup", icon: Zap, description: "Configure your payout destination." },
+  { id: 9, title: "Demographics", icon: Globe, description: "Help us match local tasks." },
+  { id: 10, title: "Interactive Tutorial", icon: Sparkles, description: "Learn the Spunn Force protocol." },
+  { id: 11, title: "Certification", icon: Award, description: "Final quality assessment." },
+  { id: 12, title: "Activation", icon: Zap, description: "You're ready to start earning." }
 ];
 
 const SKILL_CATEGORIES = [
@@ -49,9 +51,11 @@ export default function WorkerOnboarding() {
   const [formData, setFormData] = useState({
     username: user?.username || "",
     isAnonymous: user?.isAnonymous ?? true,
+    languages: user?.languages || [] as string[],
     notificationsEnabled: user?.notificationsEnabled ?? false,
     skills: user?.skills || [] as string[],
     agreedToRules: false,
+    identityVerified: false,
     paymentEmail: user?.paymentEmail || "",
     country: user?.country || "",
     age: user?.age || "",
@@ -83,7 +87,7 @@ export default function WorkerOnboarding() {
         ...formData,
         onboardingCompleted: true,
         quizCompleted: true,
-        onboardingStep: 10,
+        onboardingStep: 12,
         trustTier: "New",
         level: 1,
         status: "active"
@@ -143,6 +147,33 @@ export default function WorkerOnboarding() {
         );
       case 3:
         return (
+          <div className="space-y-6 py-4">
+            <p className="text-sm text-muted-foreground">Select languages you are fluent in.</p>
+            <div className="grid grid-cols-2 gap-3">
+              {["English", "Spanish", "French", "German", "Chinese", "Japanese", "Hindi", "Arabic"].map(lang => (
+                <button
+                  key={lang}
+                  onClick={() => setFormData(prev => ({ 
+                    ...prev, 
+                    languages: prev.languages.includes(lang) 
+                      ? prev.languages.filter(l => l !== lang) 
+                      : [...prev.languages, lang] 
+                  }))}
+                  className={cn(
+                    "px-4 py-3 rounded-xl border text-[11px] font-bold transition-all text-left",
+                    formData.languages.includes(lang)
+                      ? "bg-primary/10 border-primary text-primary"
+                      : "bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30"
+                  )}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      case 4:
+        return (
           <div className="space-y-8 py-6 text-center">
             <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-primary animate-pulse">
               <Bell className="w-10 h-10" />
@@ -165,7 +196,7 @@ export default function WorkerOnboarding() {
             </Button>
           </div>
         );
-      case 4:
+      case 5:
         return (
           <div className="space-y-6 py-4">
             <p className="text-sm text-muted-foreground">Select at least 3 categories you have experience in.</p>
@@ -187,7 +218,7 @@ export default function WorkerOnboarding() {
             </div>
           </div>
         );
-      case 5:
+      case 6:
         return (
           <div className="space-y-6 py-4">
             <div className="bg-muted/30 p-6 rounded-2xl border border-border/50 space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar">
@@ -216,7 +247,31 @@ export default function WorkerOnboarding() {
             </div>
           </div>
         );
-      case 6:
+      case 7:
+        return (
+          <div className="space-y-6 py-4 text-center">
+            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-primary">
+              <UserCircle className="w-10 h-10" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold">Verify Identity</h3>
+              <p className="text-sm text-muted-foreground">
+                Upload a government-issued ID to unlock higher-paying tasks and faster payouts.
+              </p>
+            </div>
+            <Button 
+              variant={formData.identityVerified ? "outline" : "default"}
+              className="w-full h-12 font-bold"
+              onClick={() => {
+                setFormData(prev => ({ ...prev, identityVerified: true }));
+                toast.success("Identity verified!");
+              }}
+            >
+              {formData.identityVerified ? "Identity Verified" : "Upload ID"}
+            </Button>
+          </div>
+        );
+      case 8:
         return (
           <div className="space-y-6 py-4">
             <div className="space-y-4">
@@ -236,7 +291,7 @@ export default function WorkerOnboarding() {
             </div>
           </div>
         );
-      case 7:
+      case 9:
         return (
           <div className="space-y-6 py-4">
             <div className="space-y-4">
@@ -276,7 +331,7 @@ export default function WorkerOnboarding() {
             </div>
           </div>
         );
-      case 8:
+      case 10:
         return (
           <div className="space-y-6 py-4">
             <div className="aspect-video bg-muted/50 rounded-2xl border border-border/50 flex flex-col items-center justify-center p-8 text-center space-y-4">
@@ -295,7 +350,7 @@ export default function WorkerOnboarding() {
             </div>
           </div>
         );
-      case 9:
+      case 11:
         return (
           <div className="space-y-6 py-4">
             <div className="space-y-4">
@@ -321,7 +376,7 @@ export default function WorkerOnboarding() {
             </div>
           </div>
         );
-      case 10:
+      case 12:
         return (
           <div className="space-y-8 py-10 text-center">
             <div className="relative inline-block">
@@ -351,11 +406,13 @@ export default function WorkerOnboarding() {
   const isStepValid = () => {
     switch (currentStep) {
       case 2: return formData.username.length >= 3;
-      case 4: return formData.skills.length >= 3;
-      case 5: return formData.agreedToRules;
-      case 6: return formData.paymentEmail.includes("@");
-      case 7: return formData.country && formData.age;
-      case 9: return formData.quizScore === 100;
+      case 3: return formData.languages.length >= 1;
+      case 5: return formData.skills.length >= 3;
+      case 6: return formData.agreedToRules;
+      case 7: return formData.identityVerified;
+      case 8: return formData.paymentEmail.includes("@");
+      case 9: return formData.country && formData.age;
+      case 11: return formData.quizScore === 100;
       default: return true;
     }
   };
