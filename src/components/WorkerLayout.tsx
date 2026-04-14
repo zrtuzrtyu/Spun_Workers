@@ -7,7 +7,7 @@ import {
   User, Bell, MessageSquare, Lock, ShieldCheck, ShieldAlert,
   ArrowRight
 } from "lucide-react";
-import { Logo } from "./Logo";
+import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 import { collection, query, where, onSnapshot, orderBy, limit, getCountFromServer } from "firebase/firestore";
 import { db } from "@/firebase";

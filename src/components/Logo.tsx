@@ -48,8 +48,8 @@ export function Logo({ className = "", showText = true }: LogoProps) {
       </div>
       {showText && (
         <span className="font-display font-bold text-xl tracking-tight">
-          <span className="text-white">Spun</span>
-          <span className="text-zinc-500">Force</span>
+          <span className="text-white">Spunn</span>
+          <span className="text-zinc-500"> Force</span>
         </span>
       )}
     </div>

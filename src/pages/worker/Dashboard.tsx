@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { isGeoMatch } from "@/lib/geoUtils";
 
 export default function WorkerDashboard() {
   const { user } = useAuth();
@@ -46,11 +47,9 @@ export default function WorkerDashboard() {
       const taskData = taskDoc.data();
       const taskGeo = taskData.targetGeo || "Global";
       
-      const isGeoMatch = taskGeo === "Global" || 
-                         taskGeo.toLowerCase().includes(userCountry.toLowerCase()) ||
-                         userCountry.toLowerCase().includes(taskGeo.toLowerCase());
+      const geoMatch = isGeoMatch(taskGeo, userCountry);
 
-      if (!assignedTaskIds.includes(taskDoc.id) && isGeoMatch) {
+      if (!assignedTaskIds.includes(taskDoc.id) && geoMatch) {
         await addDoc(collection(db, "assignments"), {
           taskId: taskDoc.id,
           workerId: workerId,
@@ -62,7 +61,7 @@ export default function WorkerDashboard() {
   };
 
   useEffect(() => {
-    if (user && !user.quizCompleted) {
+    if (user && user.role !== 'admin' && !user.quizCompleted) {
       navigate("/worker/quiz");
     } else if (user) {
       autoAssignTasks(user.uid, user.trustTier || 'New', user.country || "Global");
@@ -441,7 +440,7 @@ export default function WorkerDashboard() {
               )}
             </div>
             <div className="p-2 border-t border-border/50 bg-muted/10 text-[8px] font-mono text-muted-foreground/40 uppercase text-center">
-              End of Stream // SpunForce Protocol v1.0.4
+              End of Stream // Spunn Force Protocol v1.0.4
             </div>
           </div>
 

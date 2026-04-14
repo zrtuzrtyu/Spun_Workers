@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import WorkerLayout from "@/components/WorkerLayout";
+import AdminLayout from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { collection, query, orderBy, limit, onSnapshot, addDoc, serverTimestamp, where, getCountFromServer } from "firebase/firestore";
@@ -24,7 +25,7 @@ export default function WorkerChat() {
   const [isAuthReady, setIsAuthReady] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const isLocked = completedTasks < 5;
+  const isLocked = user?.role !== 'admin' && completedTasks < 5;
 
   useEffect(() => {
     if (!user) return;
@@ -90,10 +91,12 @@ export default function WorkerChat() {
     }
   };
 
-  if (!isAuthReady) return <WorkerLayout><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div></WorkerLayout>;
+  const Layout = user?.role === 'admin' ? AdminLayout : WorkerLayout;
+
+  if (!isAuthReady) return <Layout><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div></Layout>;
 
   return (
-    <WorkerLayout>
+    <Layout>
       <div className="max-w-5xl mx-auto h-[calc(100vh-10rem)] flex flex-col relative">
         <AnimatePresence>
           {isLocked && (
@@ -147,7 +150,7 @@ export default function WorkerChat() {
             <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-3">
               <MessageSquare className="w-6 h-6 text-primary" /> Spicy Chat
             </h1>
-            <p className="text-sm text-muted-foreground">Real-time collaboration with the SpunForce network.</p>
+            <p className="text-sm text-muted-foreground">Real-time collaboration with the Spunn Force network.</p>
           </div>
           <Badge variant="outline" className="hidden sm:flex items-center gap-2 bg-emerald-500/5 border-emerald-500/20 text-emerald-500 px-3 py-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -234,6 +237,6 @@ export default function WorkerChat() {
           </div>
         </div>
       </div>
-    </WorkerLayout>
+    </Layout>
   );
 }

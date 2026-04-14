@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "@/components/AdminLayout";
-import { collection, query, onSnapshot, orderBy, doc, updateDoc, getDocs, where } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy, doc, updateDoc, getDocs, where, deleteDoc } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { motion } from "framer-motion";
-import { Eye } from "lucide-react";
+import { motion } from "motion/react";
+import { Eye, Trash2 } from "lucide-react";
 import WorkerDetailsModal from "@/components/WorkerDetailsModal";
 
 export default function AdminWorkers() {
@@ -52,6 +52,15 @@ export default function AdminWorkers() {
       toast.success(`Worker status updated to ${newStatus}`);
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, "users");
+    }
+  };
+
+  const handleDeleteWorker = async (workerId: string) => {
+    try {
+      await deleteDoc(doc(db, "users", workerId));
+      toast.success("Worker deleted successfully");
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, "users");
     }
   };
 
@@ -146,6 +155,17 @@ export default function AdminWorkers() {
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(`Are you sure you want to delete worker ${worker.name}? This action is irreversible.`)) {
+                              handleDeleteWorker(worker.id);
+                            }
+                          }}
+                          className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors"
+                          title="Delete Worker"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
                         <select 
                           value={worker.status}

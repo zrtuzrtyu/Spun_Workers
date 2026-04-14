@@ -215,7 +215,7 @@ export default function Requests() {
     }
   };
 
-  if (user && !user.onboardingCompleted) {
+  if (user && user.role !== 'admin' && !user.onboardingCompleted) {
     return (
       <WorkerLayout>
         <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-8 max-w-2xl mx-auto">
@@ -228,7 +228,7 @@ export default function Requests() {
           <div className="space-y-4">
             <h1 className="text-4xl font-bold tracking-tight text-white">Marketplace Locked</h1>
             <p className="text-muted-foreground leading-relaxed">
-              To maintain the integrity of the SpunForce network, all operators must complete the 10-step precision onboarding protocol before posting or bidding on jobs.
+              To maintain the integrity of the Spunn Force network, all operators must complete the 10-step precision onboarding protocol before posting or bidding on jobs.
             </p>
           </div>
           <Link to="/worker/onboarding">

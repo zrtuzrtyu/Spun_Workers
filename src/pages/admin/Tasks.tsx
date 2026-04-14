@@ -5,11 +5,12 @@ import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, Check, X, Edit2, Upload, Download, Database, Copy, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { Plus, Check, X, Edit2, Upload, Download, Database, Copy, CheckCircle2, Clock, XCircle, ShieldAlert } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
+import { isGeoMatch } from "@/lib/geoUtils";
 import Papa from "papaparse";
 
 const taskSchema = z.object({
@@ -34,6 +35,7 @@ export default function AdminTasks() {
   const [selectedAssignTasks, setSelectedAssignTasks] = useState<string[]>([]);
   const [selectedAssignWorkers, setSelectedAssignWorkers] = useState<string[]>([]);
   const [isAssigning, setIsAssigning] = useState(false);
+  const [overrideRestrictions, setOverrideRestrictions] = useState(false);
   const [assignResults, setAssignResults] = useState<{success: number, failed: number, details: string[]} | null>(null);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -177,7 +179,7 @@ export default function AdminTasks() {
           const workerTier = worker?.trustTier || "New";
           
           const tierValues: Record<string, number> = { "New": 1, "Trusted": 2, "Premium": 3 };
-          if (tierValues[workerTier] < tierValues[taskTier]) {
+          if (!overrideRestrictions && tierValues[workerTier] < tierValues[taskTier]) {
             failedCount++;
             details.push(`Task "${task?.title}" requires ${taskTier} tier. ${worker?.name} is ${workerTier}.`);
             continue;
@@ -186,11 +188,9 @@ export default function AdminTasks() {
           // Check Geo
           const taskGeo = task?.targetGeo || "Global";
           const workerCountry = worker?.country || "Global";
-          const isGeoMatch = taskGeo === "Global" || 
-                             taskGeo.toLowerCase().includes(workerCountry.toLowerCase()) ||
-                             workerCountry.toLowerCase().includes(taskGeo.toLowerCase());
+          const geoMatch = isGeoMatch(taskGeo, workerCountry);
           
-          if (!isGeoMatch) {
+          if (!overrideRestrictions && !geoMatch) {
             failedCount++;
             details.push(`Task "${task?.title}" is for ${taskGeo}. ${worker?.name} is from ${workerCountry}.`);
             continue;
@@ -708,7 +708,19 @@ export default function AdminTasks() {
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            <input 
+              type="checkbox" 
+              id="override" 
+              checked={overrideRestrictions} 
+              onChange={(e) => setOverrideRestrictions(e.target.checked)}
+              className="w-4 h-4 rounded border-white/20 bg-transparent text-purple-500 focus:ring-purple-500 focus:ring-offset-0 cursor-pointer"
+            />
+            <label htmlFor="override" className="text-sm font-medium text-amber-500 cursor-pointer flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4" /> Override Tier/Geo Restrictions
+            </label>
+          </div>
           <button 
             onClick={handleAssign}
             disabled={isAssigning || selectedAssignTasks.length === 0 || selectedAssignWorkers.length === 0}

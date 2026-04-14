@@ -78,13 +78,12 @@ export default function Landing() {
             </Badge>
             
             <h1 className="text-6xl md:text-8xl font-bold tracking-tighter leading-[0.9] text-foreground">
-              Precision <br />
-              <span className="text-primary italic">Workforce</span> <br />
-              at Scale.
+              Spunn <br />
+              <span className="text-primary italic">Force</span>
             </h1>
             
             <p className="text-lg text-muted-foreground max-w-lg leading-relaxed font-medium">
-              SpunForce is the premier distributed network for high-accuracy micro-tasks. Join 12,000+ verified operators turning precision into profit.
+              Spunn Force is the premier distributed network for high-accuracy micro-tasks. Join 12,000+ verified operators turning precision into profit.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
@@ -134,7 +133,7 @@ export default function Landing() {
                   <div className="absolute inset-0 p-8 font-mono text-[10px] space-y-4">
                     <div className="flex items-center gap-4 text-primary">
                       <span className="opacity-50">01</span>
-                      <span>Initializing SpunForce Protocol...</span>
+                      <span>Initializing Spunn Force Protocol...</span>
                     </div>
                     <div className="flex items-center gap-4 text-foreground/80">
                       <span className="opacity-50">02</span>
@@ -290,7 +289,7 @@ export default function Landing() {
         <div className="max-w-3xl mx-auto space-y-16">
           <div className="text-center space-y-4">
             <h2 className="text-4xl font-bold tracking-tighter text-foreground">The Path to Success</h2>
-            <p className="text-muted-foreground">Everything you need to know about joining the SpunForce network.</p>
+            <p className="text-muted-foreground">Everything you need to know about joining the Spunn Force network.</p>
           </div>
 
           <Accordion className="w-full">
@@ -321,7 +320,7 @@ export default function Landing() {
             <CardContent className="p-12 md:p-20 text-center space-y-8 relative z-10">
               <h2 className="text-4xl md:text-6xl font-bold tracking-tighter text-primary-foreground">Ready to join the <br />distributed future?</h2>
               <p className="text-primary-foreground/80 max-w-xl mx-auto text-lg font-medium">
-                Applications are currently open for all regions. Start your journey as a SpunForce operator today.
+                Applications are currently open for all regions. Start your journey as a Spunn Force operator today.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                 <Link to="/apply" className={cn(buttonVariants({ size: "lg", variant: "secondary" }), "h-16 px-12 text-lg font-bold shadow-xl")}>
@@ -375,7 +374,7 @@ export default function Landing() {
           </div>
           <Separator className="bg-border/50" />
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
-            <p>© 2026 SpunForce Network. All rights reserved.</p>
+            <p>© 2026 Spunn Force Network. All rights reserved.</p>
             <div className="flex gap-8">
               <a href="#" className="hover:text-foreground transition-colors">Twitter</a>
               <a href="#" className="hover:text-foreground transition-colors">Discord</a>

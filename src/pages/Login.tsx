@@ -189,7 +189,7 @@ export default function Login() {
             </div>
             <CardTitle className="text-2xl font-bold tracking-tight">Welcome Back</CardTitle>
             <CardDescription className="text-sm">
-              Access your SpunForce operator dashboard.
+              Access your Spunn Force operator dashboard.
             </CardDescription>
           </CardHeader>
           

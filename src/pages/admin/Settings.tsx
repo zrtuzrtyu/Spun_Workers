@@ -5,7 +5,7 @@ import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { Settings as SettingsIcon, Shield, Zap, Trash2, Activity, Save, RefreshCw, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export default function AdminSettings() {
   const [systemConfig, setSystemConfig] = useState<any>({

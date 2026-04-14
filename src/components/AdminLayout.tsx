@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { auth } from "@/firebase";
-import { LayoutDashboard, Users, CheckSquare, LogOut, Activity, Sparkles, Settings, DollarSign, Menu, X } from "lucide-react";
-import { Logo } from "./Logo";
+import { LayoutDashboard, Users, CheckSquare, LogOut, Activity, Sparkles, Settings, DollarSign, Menu, X, MessageSquare } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -21,6 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Workers", path: "/admin/workers", icon: Users },
     { name: "Tasks", path: "/admin/tasks", icon: CheckSquare },
     { name: "Withdrawals", path: "/admin/withdrawals", icon: DollarSign },
+    { name: "Spicy Chat", path: "/worker/chat", icon: MessageSquare },
     { name: "AI Tools", path: "/admin/ai", icon: Sparkles },
     { name: "Settings", path: "/admin/settings", icon: Settings },
   ];

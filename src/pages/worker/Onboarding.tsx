@@ -29,7 +29,7 @@ const STEPS = [
   { id: 5, title: "Platform Rules", icon: Lock, description: "Our community standards." },
   { id: 6, title: "Wallet Setup", icon: Zap, description: "Configure your payout destination." },
   { id: 7, title: "Demographics", icon: Globe, description: "Help us match local tasks." },
-  { id: 8, title: "Interactive Tutorial", icon: Sparkles, description: "Learn the SpunForce protocol." },
+  { id: 8, title: "Interactive Tutorial", icon: Sparkles, description: "Learn the Spunn Force protocol." },
   { id: 9, title: "Certification", icon: Award, description: "Final quality assessment." },
   { id: 10, title: "Activation", icon: Zap, description: "You're ready to start earning." }
 ];
@@ -87,7 +87,7 @@ export default function WorkerOnboarding() {
         level: 1,
         status: "active"
       });
-      toast.success("Onboarding complete! Welcome to SpunForce.");
+      toast.success("Onboarding complete! Welcome to Spunn Force.");
       navigate("/worker");
     } catch (error: any) {
       handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
@@ -210,7 +210,7 @@ export default function WorkerOnboarding() {
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, agreedToRules: !!checked }))}
               />
               <label htmlFor="rules" className="text-xs font-medium cursor-pointer">
-                I have read and agree to the SpunForce Operator Guidelines.
+                I have read and agree to the Spunn Force Operator Guidelines.
               </label>
             </div>
           </div>
@@ -247,11 +247,12 @@ export default function WorkerOnboarding() {
                   <SelectValue placeholder="Select your country" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="US">United States</SelectItem>
-                  <SelectItem value="UK">United Kingdom</SelectItem>
-                  <SelectItem value="CA">Canada</SelectItem>
-                  <SelectItem value="IN">India</SelectItem>
-                  <SelectItem value="PH">Philippines</SelectItem>
+                  <SelectItem value="United States">United States</SelectItem>
+                  <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                  <SelectItem value="Canada">Canada</SelectItem>
+                  <SelectItem value="India">India</SelectItem>
+                  <SelectItem value="Philippines">Philippines</SelectItem>
+                  <SelectItem value="Nigeria">Nigeria</SelectItem>
                   <SelectItem value="Global">Other / Global</SelectItem>
                 </SelectContent>
               </Select>
@@ -331,7 +332,7 @@ export default function WorkerOnboarding() {
             <div className="space-y-2">
               <h3 className="text-2xl font-bold tracking-tight">System Activated</h3>
               <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                Your operator profile is now live. You have been granted Level 1 access to the SpunForce network.
+                Your operator profile is now live. You have been granted Level 1 access to the Spunn Force network.
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-2">

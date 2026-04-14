@@ -11,24 +11,6 @@ export const googleProvider = new GoogleAuthProvider();
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const storage = getStorage(app);
 
-import { getDocFromServer, doc } from "firebase/firestore";
-
-async function testConnection() {
-  try {
-    // Attempt to fetch a non-existent document to test connectivity
-    await getDocFromServer(doc(db, '_connection_test_', 'ping'));
-    console.log("Firestore connection successful");
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Firestore connection failed: The client is offline. Please check your Firebase configuration and internet connection.");
-    } else {
-      console.warn("Firestore connection test completed with expected error or success:", error);
-    }
-  }
-}
-
-testConnection();
-
 export enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',

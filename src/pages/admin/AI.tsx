@@ -46,7 +46,7 @@ export default function AdminAI() {
 
       <div className="mt-12 bg-gradient-to-br from-purple-500/10 to-amber-500/10 border border-white/5 rounded-3xl p-12 text-center">
         <h2 className="text-2xl font-bold text-white mb-4">More AI Features Coming Soon</h2>
-        <p className="text-zinc-400 max-w-xl mx-auto">We are working on integrating Gemini 3.1 to provide even more powerful insights and automation for your SpunForce team.</p>
+        <p className="text-zinc-400 max-w-xl mx-auto">We are working on integrating Gemini 3.1 to provide even more powerful insights and automation for your Spunn Force team.</p>
       </div>
     </AdminLayout>
   );

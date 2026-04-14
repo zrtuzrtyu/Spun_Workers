@@ -126,7 +126,7 @@ export default function App() {
                 </ProtectedRoute>
               } />
               <Route path="/worker/chat" element={
-                <ProtectedRoute allowedRole="worker" requireOnboarding={true}>
+                <ProtectedRoute allowedRole={undefined}>
                   <WorkerChat />
                 </ProtectedRoute>
               } />
