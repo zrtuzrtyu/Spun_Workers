@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import AdminLayout from "@/components/AdminLayout";
 import { collection, query, onSnapshot, orderBy, limit, where, getDocs, getDoc, doc, updateDoc, serverTimestamp, addDoc, deleteDoc } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType } from "@/firebase";
-import { Activity, Users, CheckSquare, DollarSign, Clock, BarChart3, Trash2, Star } from "lucide-react";
+import { Activity, Users, CheckSquare, DollarSign, Clock, BarChart3, Trash2, Star, Wallet } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { toast } from "sonner";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, ComposedChart, Bar, Legend } from 'recharts';
@@ -13,11 +13,15 @@ export default function AdminDashboard() {
     pendingTasks: 0, 
     totalPayouts: 0,
     avgProcessingHours: 0,
-    overallCompletionRate: 0
+    overallCompletionRate: 0,
+    activeTasks: 0,
+    pendingWithdrawals: 0,
+    totalUnpaidBalance: 0
   });
   const [activities, setActivities] = useState<any[]>([]);
   const [pendingSubmissions, setPendingSubmissions] = useState<any[]>([]);
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
+  const [pendingWithdrawalsList, setPendingWithdrawalsList] = useState<any[]>([]);
   const [payouts, setPayouts] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
   const [systemConfig, setSystemConfig] = useState<any>(null);
@@ -37,6 +41,8 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       const workersSnap = await getDocs(query(collection(db, "users"), where("role", "==", "worker"), where("status", "==", "active")));
       const pendingAssignmentsSnap = await getDocs(query(collection(db, "assignments"), where("status", "==", "submitted")));
+      const activeTasksSnap = await getDocs(query(collection(db, "tasks"), where("status", "==", "active")));
+      const pendingWithdrawalsSnap = await getDocs(query(collection(db, "withdrawals"), where("status", "==", "pending")));
       
       const allAssignmentsSnap = await getDocs(collection(db, "assignments"));
       const allWithdrawalsSnap = await getDocs(collection(db, "withdrawals"));
@@ -45,9 +51,14 @@ export default function AdminDashboard() {
       const withdrawals = allWithdrawalsSnap.docs.map(d => d.data());
 
       let totalWorkerEarnings = 0;
+      let totalUnpaidBalance = 0;
       workersSnap.forEach(doc => {
         totalWorkerEarnings += doc.data().earnings || 0;
+        totalUnpaidBalance += doc.data().balance || 0;
       });
+
+      const paidWithdrawals = withdrawals.filter(w => w.status === 'paid');
+      const totalPayouts = paidWithdrawals.reduce((sum, w) => sum + (w.amount || 0), 0);
 
       // Calculate Processing Times
       const processedWithdrawals = withdrawals.filter(w => w.status === 'paid' && w.createdAt && w.processedAt);
@@ -69,9 +80,12 @@ export default function AdminDashboard() {
       setStats({
         workers: workersSnap.size,
         pendingTasks: pendingAssignmentsSnap.size,
-        totalPayouts: totalWorkerEarnings,
+        totalPayouts: totalPayouts,
         avgProcessingHours,
-        overallCompletionRate
+        overallCompletionRate,
+        activeTasks: activeTasksSnap.size,
+        pendingWithdrawals: pendingWithdrawalsSnap.size,
+        totalUnpaidBalance
       });
 
       // Generate real chart data for the last 7 days
@@ -165,6 +179,25 @@ export default function AdminDashboard() {
       handleFirestoreError(error, OperationType.LIST, "requests");
     });
 
+    // Pending Withdrawals
+    const qPendingWithdrawals = query(collection(db, "withdrawals"), where("status", "==", "pending"), limit(5));
+    const unsubPendingWithdrawals = onSnapshot(qPendingWithdrawals, async (snap) => {
+      const wList = await Promise.all(snap.docs.map(async (d) => {
+        const data = d.data();
+        const workerSnap = await getDoc(doc(db, "users", data.workerId));
+        return {
+          id: d.id,
+          ...data,
+          workerName: workerSnap.exists() ? workerSnap.data().name : "Unknown Worker",
+          workerEmail: workerSnap.exists() ? workerSnap.data().email : "Unknown Email",
+          workerBalance: workerSnap.exists() ? workerSnap.data().balance : 0
+        };
+      }));
+      setPendingWithdrawalsList(wList);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, "withdrawals");
+    });
+
     // Payouts
     const qPayouts = query(collection(db, "payouts"), orderBy("createdAt", "desc"), limit(10));
     const unsubPayouts = onSnapshot(qPayouts, (snap) => {
@@ -178,6 +211,7 @@ export default function AdminDashboard() {
       unsubActivities();
       unsubSubmissions();
       unsubRequests();
+      unsubPendingWithdrawals();
       unsubPayouts();
     };
   }, []);
@@ -318,6 +352,57 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleApproveWithdrawal = async (withdrawalId: string, workerId: string, amount: number, workerName: string) => {
+    try {
+      const withdrawalRef = doc(db, "withdrawals", withdrawalId);
+      const workerRef = doc(db, "users", workerId);
+
+      const workerSnap = await getDoc(workerRef);
+      if (!workerSnap.exists()) {
+        toast.error("Worker not found");
+        return;
+      }
+
+      const currentBalance = workerSnap.data().balance || 0;
+      if (currentBalance < amount) {
+        toast.error("Worker has insufficient balance for this withdrawal");
+        return;
+      }
+
+      await updateDoc(withdrawalRef, {
+        status: "paid",
+        processedAt: serverTimestamp()
+      });
+
+      await updateDoc(workerRef, {
+        balance: currentBalance - amount
+      });
+
+      await addDoc(collection(db, "activities"), {
+        type: "payout",
+        description: `Processed payout of $${amount.toFixed(2)} to ${workerName}`,
+        createdAt: serverTimestamp()
+      });
+
+      toast.success("Withdrawal marked as paid");
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.UPDATE, "withdrawals");
+    }
+  };
+
+  const handleRejectWithdrawal = async (withdrawalId: string) => {
+    try {
+      const withdrawalRef = doc(db, "withdrawals", withdrawalId);
+      await updateDoc(withdrawalRef, {
+        status: "rejected",
+        processedAt: serverTimestamp()
+      });
+      toast.success("Withdrawal rejected");
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.UPDATE, "withdrawals");
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="mb-12 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
@@ -352,7 +437,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
           <div className="w-14 h-14 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-105 transition-transform">
             <Users className="w-7 h-7" />
@@ -360,6 +445,15 @@ export default function AdminDashboard() {
           <div>
             <div className="text-3xl font-sans font-bold text-white tracking-tight">{stats.workers}</div>
             <div className="text-xs text-zinc-400 mt-1">Active Workforce</div>
+          </div>
+        </div>
+        <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
+          <div className="w-14 h-14 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform">
+            <Activity className="w-7 h-7" />
+          </div>
+          <div>
+            <div className="text-3xl font-sans font-bold text-white tracking-tight">{stats.activeTasks}</div>
+            <div className="text-xs text-zinc-400 mt-1">Active Tasks</div>
           </div>
         </div>
         <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
@@ -372,12 +466,30 @@ export default function AdminDashboard() {
           </div>
         </div>
         <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
+          <div className="w-14 h-14 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 group-hover:scale-105 transition-transform">
+            <Wallet className="w-7 h-7" />
+          </div>
+          <div>
+            <div className="text-3xl font-sans font-bold text-white tracking-tight">{stats.pendingWithdrawals}</div>
+            <div className="text-xs text-zinc-400 mt-1">Pending Withdrawals</div>
+          </div>
+        </div>
+        <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
           <div className="w-14 h-14 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 group-hover:scale-105 transition-transform">
             <DollarSign className="w-7 h-7" />
           </div>
           <div>
             <div className="text-3xl font-sans font-bold text-white tracking-tight">${stats.totalPayouts.toFixed(2)}</div>
             <div className="text-xs text-zinc-400 mt-1">Total Payouts</div>
+          </div>
+        </div>
+        <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
+          <div className="w-14 h-14 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 group-hover:scale-105 transition-transform">
+            <DollarSign className="w-7 h-7" />
+          </div>
+          <div>
+            <div className="text-3xl font-sans font-bold text-white tracking-tight">${stats.totalUnpaidBalance.toFixed(2)}</div>
+            <div className="text-xs text-zinc-400 mt-1">Total Unpaid Balance</div>
           </div>
         </div>
         <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
@@ -701,6 +813,76 @@ export default function AdminDashboard() {
                     </button>
                     <button 
                       onClick={() => handleRejectRequest(req.id)}
+                      className="flex-1 bg-white/5 hover:bg-white/10 text-white font-medium py-2.5 rounded-xl transition-colors border border-white/10"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+        {/* Pending Withdrawals */}
+        <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-xl lg:col-span-2">
+          <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0F0F0F]">
+            <h2 className="text-xl font-sans font-bold text-white tracking-tight">Pending Withdrawals</h2>
+            <span className="bg-pink-500/20 text-pink-400 text-xs font-medium px-3 py-1 rounded-full border border-pink-500/30">{pendingWithdrawalsList.length} Pending</span>
+          </div>
+          <div className="divide-y divide-white/5">
+            {pendingWithdrawalsList.length === 0 ? (
+              <div className="p-12 text-center text-zinc-500 text-sm">No pending withdrawals.</div>
+            ) : (
+              pendingWithdrawalsList.map((w) => (
+                <div key={w.id} className="p-6 hover:bg-white/[0.02] transition-colors">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <div className="font-sans font-bold text-white text-xl tracking-tight mb-2">Withdrawal Request</div>
+                      <div className="text-sm text-zinc-400 flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-xs font-bold text-pink-400">
+                            {w.workerName?.[0]}
+                          </div>
+                          {w.workerName}
+                        </div>
+                        <span className="text-white/20">•</span>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" /> 
+                          {w.createdAt?.toDate ? format(w.createdAt.toDate(), "MMM d, h:mm a") : "Unknown"}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-pink-400 font-sans font-bold text-xl">
+                      ${w.amount?.toFixed(2)}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-[#050505] border border-white/5 rounded-xl p-5 mb-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-xs text-zinc-500 font-medium mb-1">Payment Method:</div>
+                        <div className="text-sm text-zinc-300 capitalize">{w.method}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-zinc-500 font-medium mb-1">Payment Details:</div>
+                        <div className="text-sm text-zinc-300">{w.details}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-zinc-500 font-medium mb-1">Worker Balance:</div>
+                        <div className="text-sm text-zinc-300">${w.workerBalance?.toFixed(2)}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button 
+                      onClick={() => handleApproveWithdrawal(w.id, w.workerId, w.amount, w.workerName)}
+                      className="flex-1 bg-pink-500 hover:bg-pink-600 text-[#050505] font-bold py-2.5 rounded-xl transition-colors"
+                    >
+                      Approve & Pay
+                    </button>
+                    <button 
+                      onClick={() => handleRejectWithdrawal(w.id)}
                       className="flex-1 bg-white/5 hover:bg-white/10 text-white font-medium py-2.5 rounded-xl transition-colors border border-white/10"
                     >
                       Reject
