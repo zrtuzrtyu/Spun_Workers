@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
-import WorkerLayout from "../../components/WorkerLayout";
-import { useAuth } from "../../contexts/AuthContext";
-import { db, handleFirestoreError, OperationType } from "../../firebase";
+import WorkerLayout from "@/components/WorkerLayout";
+import { useAuth } from "@/contexts/AuthContext";
+import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { collection, query, orderBy, limit, onSnapshot, addDoc, serverTimestamp, where, getCountFromServer } from "firebase/firestore";
 import { toast } from "sonner";
 import { Send, MessageSquare, ShieldCheck, Zap, Lock, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { format } from "date-fns";
-import { Button, buttonVariants } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
-import { Progress } from "../../components/ui/progress";
-import { Input } from "../../components/ui/input";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
-import { cn } from "../../lib/utils";
+import { cn } from "@/lib/utils";
 
 export default function WorkerChat() {
   const { user, firebaseUser } = useAuth();

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../../contexts/AuthContext";
-import { db, handleFirestoreError, OperationType } from "../../firebase";
+import { useAuth } from "@/contexts/AuthContext";
+import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { collection, addDoc, query, where, onSnapshot, orderBy, serverTimestamp } from "firebase/firestore";
 import { Wallet as WalletIcon, ArrowUpRight, Clock, CheckCircle2, XCircle, DollarSign } from "lucide-react";
 import { toast } from "sonner";
-import WorkerLayout from "../../components/WorkerLayout";
+import WorkerLayout from "@/components/WorkerLayout";
 
 export default function Wallet() {
   const { user, firebaseUser } = useAuth();

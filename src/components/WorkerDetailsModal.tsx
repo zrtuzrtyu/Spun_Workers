@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, TrendingUp, CheckCircle, DollarSign, Star } from "lucide-react";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../firebase";
+import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { format, subDays, parseISO } from "date-fns";
 import {
   LineChart,

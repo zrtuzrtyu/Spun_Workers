@@ -1,19 +1,19 @@
-import { useAuth } from "../../contexts/AuthContext";
-import WorkerLayout from "../../components/WorkerLayout";
+import { useAuth } from "@/contexts/AuthContext";
+import WorkerLayout from "@/components/WorkerLayout";
 import { 
   User, Mail, Hash, LogOut, ShieldCheck, Award, Star, 
   MapPin, Calendar, CreditCard, Eye, EyeOff, Bell, 
   BellOff, Target, Shield, CheckCircle2
 } from "lucide-react";
-import { auth, db, handleFirestoreError, OperationType } from "../../firebase";
+import { auth, db, handleFirestoreError, OperationType } from "@/firebase";
 import { useNavigate } from "react-router-dom";
 import { doc, updateDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Button } from "../../components/ui/button";
-import { Switch } from "../../components/ui/switch";
-import { Badge } from "../../components/ui/badge";
-import { cn } from "../../lib/utils";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export default function WorkerProfile() {
   const { user } = useAuth();

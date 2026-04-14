@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from "@/components/AdminLayout";
 import { collection, query, onSnapshot, orderBy, doc, updateDoc, getDocs, where } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../firebase";
+import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { Eye } from "lucide-react";
-import WorkerDetailsModal from "../../components/WorkerDetailsModal";
+import WorkerDetailsModal from "@/components/WorkerDetailsModal";
 
 export default function AdminWorkers() {
   const [workers, setWorkers] = useState<any[]>([]);

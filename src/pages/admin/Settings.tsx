@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from "@/components/AdminLayout";
 import { collection, query, onSnapshot, orderBy, limit, doc, updateDoc, serverTimestamp, addDoc, getDocs, where, deleteDoc, writeBatch, setDoc } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../firebase";
+import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { Settings as SettingsIcon, Shield, Zap, Trash2, Activity, Save, RefreshCw, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";

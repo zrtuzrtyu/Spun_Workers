@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { doc, updateDoc } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../firebase";
-import { useAuth } from "../../contexts/AuthContext";
+import { db, handleFirestoreError, OperationType } from "@/firebase";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import WorkerLayout from "../../components/WorkerLayout";
+import WorkerLayout from "@/components/WorkerLayout";
 
 const quizQuestions = [
   {

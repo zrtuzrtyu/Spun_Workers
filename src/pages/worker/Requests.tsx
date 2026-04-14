@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../../contexts/AuthContext";
-import { db, handleFirestoreError, OperationType } from "../../firebase";
+import { useAuth } from "@/contexts/AuthContext";
+import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { 
   collection, addDoc, query, onSnapshot, orderBy, 
   serverTimestamp, deleteDoc, doc, where, updateDoc, 
@@ -13,17 +13,17 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
-import WorkerLayout from "../../components/WorkerLayout";
-import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
-import { Textarea } from "../../components/ui/textarea";
-import { Badge } from "../../components/ui/badge";
+import WorkerLayout from "@/components/WorkerLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, DialogContent, DialogDescription, 
   DialogFooter, DialogHeader, DialogTitle, DialogTrigger 
-} from "../../components/ui/dialog";
-import { cn } from "../../lib/utils";
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
 export default function Requests() {

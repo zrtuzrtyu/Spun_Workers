@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from "@/components/AdminLayout";
 import { collection, query, onSnapshot, orderBy, limit, where, getDocs, getDoc, doc, updateDoc, serverTimestamp, addDoc, deleteDoc } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../firebase";
+import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { Activity, Users, CheckSquare, DollarSign, Clock, BarChart3, Trash2, Star } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { toast } from "sonner";

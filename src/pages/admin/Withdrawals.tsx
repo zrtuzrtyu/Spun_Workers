@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { db, handleFirestoreError, OperationType } from "../../firebase";
+import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { collection, query, onSnapshot, orderBy, doc, updateDoc, getDoc, serverTimestamp, addDoc, where } from "firebase/firestore";
 import { Wallet as WalletIcon, CheckCircle2, XCircle, Clock, Search } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from "@/components/AdminLayout";
 
 export default function Withdrawals() {
   const [withdrawals, setWithdrawals] = useState<any[]>([]);

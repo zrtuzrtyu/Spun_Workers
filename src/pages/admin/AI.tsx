@@ -1,5 +1,5 @@
 import React from "react";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from "@/components/AdminLayout";
 import { motion } from "motion/react";
 import { Sparkles, Brain, Zap, MessageSquare } from "lucide-react";
 

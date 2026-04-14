@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
-import WorkerLayout from "../../components/WorkerLayout";
+import WorkerLayout from "@/components/WorkerLayout";
 import { collection, query, onSnapshot, where, doc, updateDoc, getDoc, serverTimestamp, addDoc, getDocs } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage, handleFirestoreError, OperationType } from "../../firebase";
-import { useAuth } from "../../contexts/AuthContext";
+import { db, storage, handleFirestoreError, OperationType } from "@/firebase";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { CheckCircle2, Clock, DollarSign, UploadCloud, FileUp, TrendingUp, Zap, Trophy, Users, ExternalLink, AlertCircle, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
-import { Button, buttonVariants } from "../../components/ui/button";
-import { Badge } from "../../components/ui/badge";
-import { Progress } from "../../components/ui/progress";
-import { Input } from "../../components/ui/input";
-import { Textarea } from "../../components/ui/textarea";
-import { cn } from "../../lib/utils";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 export default function WorkerDashboard() {
   const { user } = useAuth();

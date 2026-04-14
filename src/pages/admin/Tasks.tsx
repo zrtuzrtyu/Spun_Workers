@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from "@/components/AdminLayout";
 import { collection, query, onSnapshot, orderBy, doc, updateDoc, addDoc, serverTimestamp, getDocs, where, deleteDoc } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../firebase";
+import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Plus, Check, X, Edit2, Upload, Download, Database, Copy, CheckCircle2, Clock, XCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

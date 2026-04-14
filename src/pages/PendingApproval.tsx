@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Clock, ShieldCheck, LogOut, CheckCircle2, Sparkles, Zap, Trophy } from "lucide-react";
-import { auth, db } from "../firebase";
+import { auth, db } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 

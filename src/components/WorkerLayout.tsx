@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { auth } from "../firebase";
+import { useAuth } from "@/contexts/AuthContext";
+import { auth } from "@/firebase";
 import { 
   LayoutDashboard, LogOut, DollarSign, Sparkles, Wallet, 
   User, Bell, MessageSquare, Lock, ShieldCheck, ShieldAlert,
@@ -10,11 +10,11 @@ import {
 import { Logo } from "./Logo";
 import { toast } from "sonner";
 import { collection, query, where, onSnapshot, orderBy, limit, getCountFromServer } from "firebase/firestore";
-import { db } from "../firebase";
-import { Button } from "./ui/button";
-import { Progress } from "./ui/progress";
-import { Badge } from "./ui/badge";
-import { cn } from "../lib/utils";
+import { db } from "@/firebase";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export default function WorkerLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();

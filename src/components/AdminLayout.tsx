@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { auth } from "../firebase";
+import { useAuth } from "@/contexts/AuthContext";
+import { auth } from "@/firebase";
 import { LayoutDashboard, Users, CheckSquare, LogOut, Activity, Sparkles, Settings, DollarSign, Menu, X } from "lucide-react";
 import { Logo } from "./Logo";
 

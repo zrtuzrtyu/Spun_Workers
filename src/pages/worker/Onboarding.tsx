@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { doc, updateDoc } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../firebase";
+import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { 
@@ -11,15 +11,15 @@ import {
   Target, Award, Sparkles, ChevronRight, ChevronLeft,
   Eye, EyeOff, Play
 } from "lucide-react";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { Progress } from "../../components/ui/progress";
-import { Badge } from "../../components/ui/badge";
-import { Checkbox } from "../../components/ui/checkbox";
-import { Logo } from "../../components/Logo";
-import { cn } from "../../lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Logo } from "@/components/Logo";
+import { cn } from "@/lib/utils";
 
 const STEPS = [
   { id: 1, title: "Account Created", icon: CheckCircle2, description: "Your secure workspace is ready." },

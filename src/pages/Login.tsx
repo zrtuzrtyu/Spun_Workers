@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { auth, db, handleFirestoreError, OperationType } from "../firebase";
+import { auth, db, handleFirestoreError, OperationType } from "@/firebase";
 import { signInWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup } from "firebase/auth";
-import { googleProvider } from "../firebase";
+import { googleProvider } from "@/firebase";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { LogIn, Loader2, ShieldAlert, Mail, Lock, ArrowLeft, Chrome } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { Button, buttonVariants } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { Separator } from "../components/ui/separator";
-import { cn } from "../lib/utils";
-import { Logo } from "../components/Logo";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { Logo } from "@/components/Logo";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);

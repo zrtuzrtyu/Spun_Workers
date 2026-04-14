@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useMotionValue, useSpring, AnimatePresence } from "motion/react";
 import { ArrowRight, CheckCircle2, DollarSign, Zap, Shield, Globe, Sparkles, Users, TrendingUp, ChevronRight, Play, Star, Clock, Target } from "lucide-react";
-import { Logo } from "../components/Logo";
-import { Button, buttonVariants } from "../components/ui/button";
-import { Card, CardContent } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { Slider } from "../components/ui/slider";
-import { Separator } from "../components/ui/separator";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../components/ui/accordion";
-import { cn } from "../lib/utils";
+import { Logo } from "@/components/Logo";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import { Separator } from "@/components/ui/separator";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { cn } from "@/lib/utils";
 
 function NumberTicker({ value, prefix = "", suffix = "" }: { value: number, prefix?: string, suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
