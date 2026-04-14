@@ -133,7 +133,7 @@ export default function Apply() {
         email: user.email,
         name: user.displayName || "Unknown",
         role: "worker",
-        status: "pending",
+        status: "active",
         device: device,
         hoursPerDay: hoursNum,
         country: country,
@@ -147,6 +147,7 @@ export default function Apply() {
       toast.success("Account created successfully!");
       navigate("/worker");
     } catch (error: any) {
+      toast.error(error.message || "Failed to sign up with Google");
       handleFirestoreError(error, OperationType.WRITE, "users");
     } finally {
       setLoading(false);
@@ -178,7 +179,7 @@ export default function Apply() {
         email: user.email,
         name: name,
         role: "worker",
-        status: "pending",
+        status: "active",
         device: device,
         hoursPerDay: hoursNum,
         country: country,
@@ -192,6 +193,7 @@ export default function Apply() {
       toast.success("Account created successfully!");
       navigate("/worker");
     } catch (error: any) {
+      toast.error(error.message || "Failed to sign up");
       handleFirestoreError(error, OperationType.WRITE, "users");
     } finally {
       setLoading(false);

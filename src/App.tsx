@@ -32,19 +32,19 @@ const LoadingFallback = () => (
   </div>
 );
 
-const ProtectedRoute = ({ children, allowedRole, requireOnboarding = false }: { children: React.ReactNode, allowedRole?: "admin" | "worker", requireOnboarding?: boolean }) => {
+const ProtectedRoute = ({ children, allowedRoles, requireOnboarding = false }: { children: React.ReactNode, allowedRoles?: ("admin" | "worker")[], requireOnboarding?: boolean }) => {
   const { user, loading, firebaseUser } = useAuth();
 
   if (loading) return <LoadingFallback />;
 
   if (!firebaseUser) return <Navigate to="/login" replace />;
 
-  if (allowedRole) {
+  if (allowedRoles && allowedRoles.length > 0) {
     if (!user) {
       // If they are authenticated but have no user document, send them to apply
       return <Navigate to="/apply" replace />;
     }
-    if (user.role !== allowedRole) {
+    if (!allowedRoles.includes(user.role as "admin" | "worker")) {
       return <Navigate to={user.role === "admin" ? "/admin" : "/worker"} replace />;
     }
 
@@ -54,12 +54,12 @@ const ProtectedRoute = ({ children, allowedRole, requireOnboarding = false }: { 
     }
     
     // Enforce onboarding for workers
-    if (allowedRole === "worker" && requireOnboarding && !user.onboardingCompleted) {
+    if (user.role === "worker" && requireOnboarding && !user.onboardingCompleted) {
       return <Navigate to="/worker/onboarding" replace />;
     }
     
     // Prevent workers who completed onboarding from accessing it again
-    if (allowedRole === "worker" && !requireOnboarding && user.onboardingCompleted && window.location.pathname === "/worker/onboarding") {
+    if (user.role === "worker" && !requireOnboarding && user.onboardingCompleted && window.location.pathname === "/worker/onboarding") {
       return <Navigate to="/worker" replace />;
     }
   }
@@ -80,70 +80,70 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               
               <Route path="/admin" element={
-                <ProtectedRoute allowedRole="admin">
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <AdminDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/admin/workers" element={
-                <ProtectedRoute allowedRole="admin">
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <AdminWorkers />
                 </ProtectedRoute>
               } />
               <Route path="/admin/tasks" element={
-                <ProtectedRoute allowedRole="admin">
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <AdminTasks />
                 </ProtectedRoute>
               } />
               <Route path="/admin/withdrawals" element={
-                <ProtectedRoute allowedRole="admin">
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <AdminWithdrawals />
                 </ProtectedRoute>
               } />
               <Route path="/admin/settings" element={
-                <ProtectedRoute allowedRole="admin">
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <AdminSettings />
                 </ProtectedRoute>
               } />
               <Route path="/admin/ai" element={
-                <ProtectedRoute allowedRole="admin">
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <AdminAI />
                 </ProtectedRoute>
               } />
               
               <Route path="/worker" element={
-                <ProtectedRoute allowedRole="worker" requireOnboarding={true}>
+                <ProtectedRoute allowedRoles={["worker"]} requireOnboarding={true}>
                   <WorkerDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/worker/wallet" element={
-                <ProtectedRoute allowedRole="worker" requireOnboarding={true}>
+                <ProtectedRoute allowedRoles={["worker"]} requireOnboarding={true}>
                   <WorkerWallet />
                 </ProtectedRoute>
               } />
               <Route path="/worker/requests" element={
-                <ProtectedRoute allowedRole="worker" requireOnboarding={true}>
+                <ProtectedRoute allowedRoles={["worker"]} requireOnboarding={true}>
                   <WorkerRequests />
                 </ProtectedRoute>
               } />
               <Route path="/worker/chat" element={
-                <ProtectedRoute allowedRole={undefined}>
+                <ProtectedRoute allowedRoles={["admin", "worker"]}>
                   <WorkerChat />
                 </ProtectedRoute>
               } />
               <Route path="/worker/profile" element={
-                <ProtectedRoute allowedRole="worker" requireOnboarding={true}>
+                <ProtectedRoute allowedRoles={["worker"]} requireOnboarding={true}>
                   <WorkerProfile />
                 </ProtectedRoute>
               } />
 
               <Route path="/worker/quiz" element={
-                <ProtectedRoute allowedRole="worker" requireOnboarding={true}>
+                <ProtectedRoute allowedRoles={["worker"]} requireOnboarding={true}>
                   <WorkerQuiz />
                 </ProtectedRoute>
               } />
 
               <Route path="/worker/onboarding" element={
-                <ProtectedRoute allowedRole="worker" requireOnboarding={false}>
+                <ProtectedRoute allowedRoles={["worker"]} requireOnboarding={false}>
                   <WorkerOnboarding />
                 </ProtectedRoute>
               } />

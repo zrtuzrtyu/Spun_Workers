@@ -205,11 +205,13 @@ export default function Requests() {
     }
   };
 
+  const [requestToDelete, setRequestToDelete] = useState<string | null>(null);
+
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this request?")) return;
     try {
       await deleteDoc(doc(db, "requests", id));
       toast.success("Request removed from marketplace");
+      setRequestToDelete(null);
     } catch (error: any) {
       handleFirestoreError(error, OperationType.DELETE, "requests");
     }
@@ -397,7 +399,7 @@ export default function Requests() {
                         <Button 
                           variant="ghost" 
                           className="w-full font-bold text-xs uppercase tracking-widest h-10 text-muted-foreground hover:text-destructive"
-                          onClick={() => handleDelete(req.id)}
+                          onClick={() => setRequestToDelete(req.id)}
                         >
                           <Trash2 className="w-4 h-4 mr-2" /> Delete
                         </Button>
@@ -523,6 +525,31 @@ export default function Requests() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {requestToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-card border border-border/50 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-2">Delete Request</h3>
+            <p className="text-muted-foreground mb-6">
+              Are you sure you want to delete this request? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button 
+                variant="outline"
+                onClick={() => setRequestToDelete(null)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="destructive"
+                onClick={() => handleDelete(requestToDelete)}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </WorkerLayout>
   );
 }

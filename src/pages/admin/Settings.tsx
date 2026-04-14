@@ -77,9 +77,9 @@ export default function AdminSettings() {
     }
   };
 
+  const [showClearLogsConfirm, setShowClearLogsConfirm] = useState(false);
+
   const handleClearLogs = async () => {
-    if (!confirm("Are you sure you want to clear all activity logs? This cannot be undone.")) return;
-    
     try {
       const q = query(collection(db, "activities"));
       const snap = await getDocs(q);
@@ -87,6 +87,7 @@ export default function AdminSettings() {
       snap.docs.forEach(d => batch.delete(d.ref));
       await batch.commit();
       toast.success("All logs cleared!");
+      setShowClearLogsConfirm(false);
     } catch (error: any) {
       handleFirestoreError(error, OperationType.DELETE, "activities");
     }
@@ -255,7 +256,7 @@ export default function AdminSettings() {
             <h2 className="text-lg font-sans font-bold text-white mb-6">System Tools</h2>
             <div className="space-y-4">
               <button 
-                onClick={handleClearLogs}
+                onClick={() => setShowClearLogsConfirm(true)}
                 className="w-full bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 font-medium py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2"
               >
                 <Trash2 className="w-4 h-4" /> Clear Activity Logs
@@ -293,6 +294,31 @@ export default function AdminSettings() {
           </div>
         </div>
       </div>
+
+      {showClearLogsConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-2">Clear Activity Logs</h3>
+            <p className="text-zinc-400 mb-6">
+              Are you sure you want to clear all activity logs? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setShowClearLogsConfirm(false)}
+                className="px-4 py-2 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleClearLogs}
+                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-colors shadow-lg shadow-red-500/20"
+              >
+                Clear Logs
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }

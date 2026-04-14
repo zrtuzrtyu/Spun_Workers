@@ -47,14 +47,14 @@ export default function WorkerOnboarding() {
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
-    username: "",
-    isAnonymous: true,
-    notificationsEnabled: false,
-    skills: [] as string[],
+    username: user?.username || "",
+    isAnonymous: user?.isAnonymous ?? true,
+    notificationsEnabled: user?.notificationsEnabled ?? false,
+    skills: user?.skills || [] as string[],
     agreedToRules: false,
-    paymentEmail: "",
-    country: "",
-    age: "",
+    paymentEmail: user?.paymentEmail || "",
+    country: user?.country || "",
+    age: user?.age || "",
     quizScore: 0
   });
 
@@ -82,6 +82,7 @@ export default function WorkerOnboarding() {
       await updateDoc(doc(db, "users", user.uid), {
         ...formData,
         onboardingCompleted: true,
+        quizCompleted: true,
         onboardingStep: 10,
         trustTier: "New",
         level: 1,

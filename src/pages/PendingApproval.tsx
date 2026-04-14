@@ -12,9 +12,9 @@ export default function PendingApproval() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<"status" | "missions">("status");
   const [missions, setMissions] = useState([
-    { id: 1, title: "Complete Profile", desc: "Add your Telegram handle for faster updates.", icon: Zap, completed: !!user?.telegram, action: "/worker/profile" },
-    { id: 2, title: "Identity Check", desc: "Ensure your name matches your payment email.", icon: ShieldCheck, completed: true },
-    { id: 3, title: "Network Warmup", desc: "Read our Quality Guidelines to boost starting trust.", icon: Sparkles, completed: false },
+    { id: 1, title: "Account Secured", desc: "Your account has been successfully created and secured.", icon: ShieldCheck, completed: true, action: "" },
+    { id: 2, title: "Identity Check", desc: "Ensure your name matches your payment email.", icon: ShieldCheck, completed: true, action: "" },
+    { id: 3, title: "Network Warmup", desc: "Read our Quality Guidelines to boost starting trust.", icon: Sparkles, completed: false, action: "/guidelines" },
   ]);
 
   const handleLogout = async () => {

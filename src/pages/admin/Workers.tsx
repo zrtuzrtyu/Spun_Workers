@@ -55,10 +55,13 @@ export default function AdminWorkers() {
     }
   };
 
+  const [workerToDelete, setWorkerToDelete] = useState<any | null>(null);
+
   const handleDeleteWorker = async (workerId: string) => {
     try {
       await deleteDoc(doc(db, "users", workerId));
       toast.success("Worker deleted successfully");
+      setWorkerToDelete(null);
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, "users");
     }
@@ -157,11 +160,7 @@ export default function AdminWorkers() {
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => {
-                            if (confirm(`Are you sure you want to delete worker ${worker.name}? This action is irreversible.`)) {
-                              handleDeleteWorker(worker.id);
-                            }
-                          }}
+                          onClick={() => setWorkerToDelete(worker)}
                           className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors"
                           title="Delete Worker"
                         >
@@ -191,6 +190,35 @@ export default function AdminWorkers() {
           worker={selectedWorker} 
           onClose={() => setSelectedWorker(null)} 
         />
+      )}
+
+      {workerToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl"
+          >
+            <h3 className="text-xl font-bold text-white mb-2">Delete Worker</h3>
+            <p className="text-zinc-400 mb-6">
+              Are you sure you want to delete worker <span className="text-white font-bold">{workerToDelete.name}</span>? This action is irreversible.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setWorkerToDelete(null)}
+                className="px-4 py-2 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleDeleteWorker(workerToDelete.id)}
+                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-colors shadow-lg shadow-red-500/20"
+              >
+                Delete Worker
+              </button>
+            </div>
+          </motion.div>
+        </div>
       )}
     </AdminLayout>
   );

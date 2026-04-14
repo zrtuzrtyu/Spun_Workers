@@ -54,7 +54,7 @@ export default function Login() {
       if (!userSnap.exists()) {
         await setDoc(userRef, {
           uid: result.user.uid,
-          email: result.user.email,
+          email: result.user.email || "",
           name: result.user.displayName || "Unknown",
           role: "worker",
           status: "active",
@@ -65,7 +65,7 @@ export default function Login() {
         });
         
         toast.success("Account created successfully!");
-        navigate("/worker/onboarding");
+        navigate("/worker");
         return;
       }
 
@@ -84,6 +84,7 @@ export default function Login() {
         navigate("/worker");
       }
     } catch (error: any) {
+      toast.error(error.message || "Failed to login with Google");
       handleFirestoreError(error, OperationType.GET, "users");
     } finally {
       setLoading(false);
@@ -128,7 +129,7 @@ export default function Login() {
       if (!userSnap.exists()) {
         await setDoc(userRef, {
           uid: result.user.uid,
-          email: result.user.email,
+          email: result.user.email || "",
           name: result.user.displayName || "Unknown",
           role: "worker",
           status: "active",
@@ -139,7 +140,7 @@ export default function Login() {
         });
         
         toast.success("Account created successfully!");
-        navigate("/worker/onboarding");
+        navigate("/worker");
         return;
       }
 
@@ -158,6 +159,7 @@ export default function Login() {
         navigate("/worker");
       }
     } catch (error: any) {
+      toast.error(error.message || "Failed to login");
       handleFirestoreError(error, OperationType.GET, "users");
     } finally {
       setLoading(false);

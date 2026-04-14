@@ -250,21 +250,25 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleReject = async (assignmentId: string, workerId: string, taskId: string, taskTitle: string, workerName: string) => {
-    const reason = prompt("Enter reason for rejection:");
-    if (reason === null) return;
+  const [rejectionData, setRejectionData] = useState<{assignmentId: string, workerId: string, taskId: string, taskTitle: string, workerName: string} | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+
+  const handleReject = async () => {
+    if (!rejectionData || !rejectionReason.trim()) return;
+
+    const { assignmentId, workerId, taskId, taskTitle, workerName } = rejectionData;
 
     try {
       const assignmentRef = doc(db, "assignments", assignmentId);
       await updateDoc(assignmentRef, {
         status: "rejected",
-        rejectionReason: reason,
+        rejectionReason: rejectionReason.trim(),
         reviewedAt: serverTimestamp()
       });
 
       await addDoc(collection(db, "activities"), {
         type: "task_rejected",
-        description: `Task submission rejected for ${workerName}. Reason: ${reason}`,
+        description: `Task submission rejected for ${workerName}. Reason: ${rejectionReason.trim()}`,
         createdAt: serverTimestamp(),
         userId: workerId,
         taskId: taskId,
@@ -273,16 +277,20 @@ export default function AdminDashboard() {
       });
 
       toast.success("Submission rejected.");
+      setRejectionData(null);
+      setRejectionReason("");
     } catch (error: any) {
       handleFirestoreError(error, OperationType.UPDATE, `assignments/${assignmentId}`);
     }
   };
 
+  const [submissionToDelete, setSubmissionToDelete] = useState<string | null>(null);
+
   const handleDeleteSubmission = async (assignmentId: string) => {
-    if (!confirm("Are you sure you want to delete this submission record?")) return;
     try {
       await deleteDoc(doc(db, "assignments", assignmentId));
       toast.success("Submission deleted.");
+      setSubmissionToDelete(null);
     } catch (error: any) {
       handleFirestoreError(error, OperationType.DELETE, `assignments/${assignmentId}`);
     }
@@ -577,13 +585,13 @@ export default function AdminDashboard() {
                       Approve
                     </button>
                     <button 
-                      onClick={() => handleReject(sub.id, sub.workerId, sub.taskId, sub.taskTitle, sub.workerName)}
+                      onClick={() => setRejectionData({ assignmentId: sub.id, workerId: sub.workerId, taskId: sub.taskId, taskTitle: sub.taskTitle, workerName: sub.workerName })}
                       className="flex-1 bg-white/5 hover:bg-white/10 text-white font-medium py-2.5 rounded-xl transition-colors border border-white/10"
                     >
                       Decline
                     </button>
                     <button 
-                      onClick={() => handleDeleteSubmission(sub.id)}
+                      onClick={() => setSubmissionToDelete(sub.id)}
                       className="px-4 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-xl transition-colors flex items-center justify-center"
                       title="Delete Record"
                     >
@@ -758,6 +766,66 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {rejectionData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-2">Reject Submission</h3>
+            <p className="text-zinc-400 mb-4">
+              Please provide a reason for rejecting this submission from <span className="text-white font-bold">{rejectionData.workerName}</span>.
+            </p>
+            <textarea
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="Enter rejection reason..."
+              className="w-full bg-[#050505] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500/50 transition-colors mb-6 min-h-[100px] resize-none"
+            />
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => {
+                  setRejectionData(null);
+                  setRejectionReason("");
+                }}
+                className="px-4 py-2 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleReject}
+                disabled={!rejectionReason.trim()}
+                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-colors shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Reject Submission
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {submissionToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-2">Delete Submission</h3>
+            <p className="text-zinc-400 mb-6">
+              Are you sure you want to delete this submission record? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setSubmissionToDelete(null)}
+                className="px-4 py-2 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleDeleteSubmission(submissionToDelete)}
+                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-colors shadow-lg shadow-red-500/20"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }

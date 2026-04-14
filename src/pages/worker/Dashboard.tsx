@@ -6,7 +6,7 @@ import { db, storage, handleFirestoreError, OperationType } from "@/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { CheckCircle2, Clock, DollarSign, UploadCloud, FileUp, TrendingUp, Zap, Trophy, Users, ExternalLink, AlertCircle, X } from "lucide-react";
+import { CheckCircle2, Clock, DollarSign, UploadCloud, FileUp, TrendingUp, Zap, Trophy, Users, ExternalLink, AlertCircle, X, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -26,6 +26,7 @@ export default function WorkerDashboard() {
   const [proofText, setProofText] = useState("");
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const earningsToNextLevel = 15 - ((user?.earnings || 0) % 15);
   const levelProgress = Math.round(((15 - earningsToNextLevel) / 15) * 100);
@@ -180,6 +181,14 @@ export default function WorkerDashboard() {
     }
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    if (user) {
+      await autoAssignTasks(user.uid, user.trustTier || 'New', user.country || "Global");
+    }
+    setTimeout(() => setIsRefreshing(false), 1000);
+  };
+
   return (
     <WorkerLayout>
       {/* Scanline Overlay Effect */}
@@ -272,8 +281,18 @@ export default function WorkerDashboard() {
               </h2>
               <p className="text-[10px] font-mono text-muted-foreground uppercase mt-0.5">Queue processing: {assignments.length} active nodes</p>
             </div>
-            <div className="text-[10px] font-mono font-bold text-primary bg-primary/5 px-2 py-1 border border-primary/20">
-              {new Date().toLocaleTimeString([], { hour12: false })}
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="p-1.5 bg-muted/50 border border-border/50 rounded hover:bg-primary/10 hover:text-primary transition-colors disabled:opacity-50"
+                title="Refresh Queue"
+              >
+                <RefreshCw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
+              </button>
+              <div className="text-[10px] font-mono font-bold text-primary bg-primary/5 px-2 py-1 border border-primary/20">
+                {new Date().toLocaleTimeString([], { hour12: false })}
+              </div>
             </div>
           </div>
 
