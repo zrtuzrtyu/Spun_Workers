@@ -93,55 +93,55 @@ export default function Wallet() {
 
   return (
     <WorkerLayout>
-      <div className="mb-16 space-y-4">
+      <div className="mb-10 md:mb-16 space-y-4">
         <Badge variant="outline" className="bg-white/[0.03] border-white/[0.08] text-muted-foreground px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.3em] rounded-full">
           <TrendingUp className="w-3 h-3 mr-2 text-primary" /> Financial Overview
         </Badge>
-        <h1 className="text-5xl md:text-6xl font-display font-bold tracking-tight text-white leading-none">Wallet<span className="text-primary">.</span></h1>
-        <p className="text-muted-foreground text-lg font-light max-w-xl">Manage your distributed earnings and execute secure payout protocols.</p>
+        <h1 className="text-4xl md:text-6xl font-display font-bold tracking-tight text-white leading-none">Wallet<span className="text-primary">.</span></h1>
+        <p className="text-muted-foreground text-base md:text-lg font-light max-w-xl">Manage your distributed earnings and execute secure payout protocols.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-8 space-y-12">
           {/* Balance Card */}
           <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-[3rem] blur-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
-            <div className="relative bg-white/[0.02] border border-white/[0.05] rounded-[3rem] p-12 md:p-16 overflow-hidden">
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-[2.5rem] md:rounded-[3rem] blur-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+            <div className="relative bg-white/[0.02] border border-white/[0.05] rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-16 overflow-hidden">
               <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -mr-48 -mt-48 pointer-events-none" />
               
-              <div className="relative z-10 space-y-12">
+              <div className="relative z-10 space-y-8 md:space-y-12">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <DesignerIcon icon={WalletIcon} size="md" />
                     <div className="space-y-1">
-                      <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-white">Available Balance</h2>
+                      <h2 className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] text-white">Available Balance</h2>
                       <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-emerald-500">
                         <ShieldCheck className="w-3 h-3" /> Secure Node Verified
                       </div>
                     </div>
                   </div>
-                  <div className="hidden md:block">
+                  <div className="hidden sm:block">
                     <Badge variant="outline" className="bg-white/[0.03] border-white/[0.1] text-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-full">
                       USD / FIAT
                     </Badge>
                   </div>
                 </div>
                 
-                <div className="flex items-baseline gap-4">
-                  <span className="text-4xl md:text-5xl font-display font-bold text-muted-foreground/30">$</span>
-                  <div className="text-7xl md:text-9xl font-display font-bold text-white tracking-tighter">
+                <div className="flex items-baseline gap-2 md:gap-4">
+                  <span className="text-2xl md:text-5xl font-display font-bold text-muted-foreground/30">$</span>
+                  <div className="text-5xl md:text-9xl font-display font-bold text-white tracking-tighter">
                     {availableBalance.toFixed(2)}
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-12 pt-12 border-t border-white/[0.05]">
+                <div className="grid grid-cols-2 gap-6 md:gap-12 pt-8 md:pt-12 border-t border-white/[0.05]">
                   <div className="space-y-2">
-                    <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em] font-bold">Total Network Earnings</div>
-                    <div className="text-3xl font-display font-bold text-white">${(user?.earnings || 0).toFixed(2)}</div>
+                    <div className="text-[9px] md:text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em] font-bold">Total Earnings</div>
+                    <div className="text-xl md:text-3xl font-display font-bold text-white">${(user?.earnings || 0).toFixed(2)}</div>
                   </div>
                   <div className="space-y-2">
-                    <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em] font-bold">Pending Payouts</div>
-                    <div className="text-3xl font-display font-bold text-primary">${pendingWithdrawalsAmount.toFixed(2)}</div>
+                    <div className="text-[9px] md:text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em] font-bold">Pending Payouts</div>
+                    <div className="text-xl md:text-3xl font-display font-bold text-primary">${pendingWithdrawalsAmount.toFixed(2)}</div>
                   </div>
                 </div>
               </div>
@@ -168,27 +168,27 @@ export default function Wallet() {
                   </div>
                 ) : (
                   withdrawals.map((w) => (
-                    <div key={w.id} className="p-8 flex items-center justify-between hover:bg-white/[0.02] transition-all duration-300 group">
-                      <div className="flex items-center gap-6">
+                    <div key={w.id} className="p-6 md:p-8 flex items-center justify-between hover:bg-white/[0.02] transition-all duration-300 group">
+                      <div className="flex items-center gap-4 md:gap-6">
                         <div className={cn(
-                          "w-14 h-14 rounded-2xl flex items-center justify-center border transition-colors duration-500",
+                          "w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center border transition-colors duration-500",
                           w.status === 'paid' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
                           w.status === 'rejected' ? 'bg-destructive/10 text-destructive border-destructive/20' :
                           'bg-amber-500/10 text-amber-500 border-amber-500/20'
                         )}>
-                          {w.status === 'paid' ? <CheckCircle2 className="w-6 h-6" /> :
-                           w.status === 'rejected' ? <XCircle className="w-6 h-6" /> :
-                           <Clock className="w-6 h-6 animate-pulse" />}
+                          {w.status === 'paid' ? <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6" /> :
+                           w.status === 'rejected' ? <XCircle className="w-5 h-5 md:w-6 md:h-6" /> :
+                           <Clock className="w-5 h-5 md:w-6 md:h-6 animate-pulse" />}
                         </div>
                         <div className="space-y-1">
-                          <div className="text-lg font-bold text-white capitalize">{w.method} Payout</div>
+                          <div className="text-base md:text-lg font-bold text-white capitalize">{w.method} Payout</div>
                           <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">
                             {w.createdAt?.toDate ? w.createdAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Processing...'}
                           </div>
                         </div>
                       </div>
-                      <div className="text-right space-y-2">
-                        <div className="text-2xl font-display font-bold text-white">-${w.amount.toFixed(2)}</div>
+                      <div className="text-right space-y-1 md:space-y-2">
+                        <div className="text-xl md:text-2xl font-display font-bold text-white">-${w.amount.toFixed(2)}</div>
                         <Badge variant="outline" className={cn(
                           "text-[9px] font-bold uppercase tracking-widest border-none px-3 py-1 rounded-full",
                           w.status === 'paid' ? 'bg-emerald-500/10 text-emerald-500' :

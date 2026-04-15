@@ -234,16 +234,16 @@ export default function WorkerDashboard() {
   return (
     <WorkerLayout>
       {/* Header Section */}
-      <div className="mb-16 space-y-10">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
-          <div className="space-y-6">
+      <div className="mb-10 md:mb-16 space-y-8 md:space-y-10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 md:gap-10">
+          <div className="space-y-4 md:space-y-6">
             <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary px-5 py-2 text-[10px] font-black uppercase tracking-[0.3em] rounded-full">
               <Activity className="w-4 h-4 mr-2 text-primary animate-pulse" /> System Operational
             </Badge>
-            <h1 className="text-6xl md:text-7xl font-display font-bold tracking-tight text-foreground leading-none">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-bold tracking-tight text-foreground leading-none">
               Console<span className="text-primary">.</span>{user?.isAnonymous ? user?.username : user?.name?.split(' ')[0]}
             </h1>
-            <div className="flex items-center gap-8">
+            <div className="flex flex-wrap items-center gap-6 md:gap-8">
               <div className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
                 <Zap className="w-4 h-4 text-primary" />
                 Streak: <span className="text-foreground">3 Days</span>
@@ -255,16 +255,16 @@ export default function WorkerDashboard() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full md:w-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full md:w-auto">
             {[
               { label: "CPU", value: "42%", color: "text-primary" },
               { label: "MEM", value: "6.8GB", color: "text-primary" },
               { label: "LAT", value: "12ms", color: "text-emerald-500" },
               { label: "NET", value: "SECURE", color: "text-emerald-500" }
             ].map((metric, i) => (
-              <div key={i} className="px-8 py-5 rounded-2xl bg-muted/50 border border-border space-y-1 shadow-sm">
-                <div className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">{metric.label}</div>
-                <div className={cn("text-sm font-mono font-black", metric.color)}>{metric.value}</div>
+              <div key={i} className="px-6 py-4 md:px-8 md:py-5 rounded-2xl glass-card space-y-1 hover:bg-white/[0.03] transition-all duration-300">
+                <div className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/60">{metric.label}</div>
+                <div className={cn("text-xs md:text-sm font-mono font-black", metric.color)}>{metric.value}</div>
               </div>
             ))}
           </div>
@@ -276,8 +276,8 @@ export default function WorkerDashboard() {
         <div className="lg:col-span-8 space-y-12">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
-              <h2 className="text-3xl font-display font-bold text-foreground tracking-tight">Active Assignments</h2>
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+              <h2 className="text-4xl font-display font-bold text-gradient tracking-tight">Active Assignments</h2>
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60">
                 Processing {assignments.length} nodes in current queue
               </p>
             </div>
@@ -315,31 +315,32 @@ export default function WorkerDashboard() {
                         key={assign.id}
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="group relative rounded-[2.5rem] border bg-card border-primary/20 shadow-2xl shadow-primary/5 overflow-hidden transition-all hover:border-primary/40"
+                        className="group relative rounded-[2.5rem] md:rounded-[3.5rem] glass-card border-primary/20 shadow-2xl shadow-primary/10 overflow-hidden transition-all duration-500 hover:border-primary/40"
                       >
-                        <div className="p-10 md:p-14 flex flex-col md:flex-row gap-12">
-                          <div className="flex-1 space-y-10">
-                            <div className="flex items-start justify-between">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50" />
+                        <div className="relative p-8 md:p-14 flex flex-col md:flex-row gap-8 md:gap-12">
+                          <div className="flex-1 space-y-8 md:space-y-10">
+                            <div className="flex flex-col md:flex-row items-start justify-between gap-6">
                               <div className="space-y-4">
                                 <div className="flex items-center gap-3">
-                                  <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-                                  <span className="text-xs font-mono font-black text-primary uppercase tracking-[0.2em]">
+                                  <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
+                                  <span className="text-[10px] md:text-xs font-mono font-black text-primary uppercase tracking-[0.3em]">
                                     ACTIVE_NODE: {assign.id.slice(0, 8).toUpperCase()}
                                   </span>
                                 </div>
-                                <h3 className="text-5xl font-display font-bold text-foreground tracking-tight">
+                                <h3 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold text-gradient tracking-tight leading-tight md:leading-none">
                                   {assign.taskTitle}
                                 </h3>
                               </div>
-                              <div className="text-right space-y-1">
-                                <div className="text-4xl font-display font-bold text-primary tracking-tight">
+                              <div className="text-left md:text-right space-y-1">
+                                <div className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-primary tracking-tighter">
                                   ${assign.payout.toFixed(2)}
                                 </div>
-                                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Payout</div>
+                                <div className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">Payout</div>
                               </div>
                             </div>
 
-                            <div className="p-10 rounded-3xl bg-muted/30 border border-border font-medium text-xl text-muted-foreground leading-relaxed">
+                            <div className="p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] bg-white/[0.02] border border-white/[0.05] font-medium text-lg md:text-2xl text-muted-foreground leading-relaxed">
                               {assign.taskDescription}
                             </div>
 

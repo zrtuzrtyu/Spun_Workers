@@ -54,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap text-sm font-black uppercase tracking-wider ${
+                className={`flex items-center gap-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all whitespace-nowrap text-xs md:text-sm font-black uppercase tracking-wider ${
                   isActive 
                     ? "bg-primary/10 text-primary font-black shadow-[inset_0_0_20px_rgba(var(--primary),0.05)]" 
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"

@@ -123,7 +123,7 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
           </div>
         </div>
 
-        <nav className="flex-1 p-6 space-y-3 flex flex-row md:flex-col overflow-x-auto md:overflow-visible hide-scrollbar">
+        <nav className="flex-1 p-4 md:p-6 space-y-3 flex flex-row md:flex-col overflow-x-auto md:overflow-visible hide-scrollbar">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
@@ -133,7 +133,7 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center justify-between px-6 py-4 rounded-2xl transition-all text-sm font-black uppercase tracking-[0.15em] group whitespace-nowrap md:whitespace-normal",
+                  "flex items-center justify-between px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl transition-all text-xs md:text-sm font-black uppercase tracking-[0.15em] group whitespace-nowrap md:whitespace-normal",
                   isActive 
                     ? "bg-primary text-primary-foreground shadow-xl shadow-primary/20" 
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -199,7 +199,7 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
             </Link>
           </div>
         )}
-        <div className="p-8 md:p-16 max-w-7xl mx-auto relative z-10">
+        <div className="p-6 md:p-16 max-w-7xl mx-auto relative z-10">
           {children}
         </div>
       </main>

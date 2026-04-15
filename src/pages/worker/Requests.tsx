@@ -416,15 +416,17 @@ export default function Requests() {
               <motion.div
                 layout
                 key={req.id}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="group relative rounded-[3rem] border border-border bg-card hover:bg-muted/50 hover:border-primary/30 transition-all duration-500 overflow-hidden shadow-sm"
+                whileHover={{ y: -4, scale: 1.005 }}
+                className="group relative rounded-[2.5rem] md:rounded-[3.5rem] glass-card hover:bg-white/[0.03] hover:border-primary/40 transition-all duration-700 overflow-hidden"
               >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 <div className="flex flex-col md:flex-row">
-                  <div className="flex-1 p-12 space-y-10">
-                    <div className="flex justify-between items-start">
+                   <div className="flex-1 p-8 md:p-12 space-y-8 md:space-y-10">
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-6">
                       <div className="space-y-6">
-                        <div className="flex items-center gap-5">
+                        <div className="flex flex-wrap items-center gap-3 md:gap-5">
                           <Badge variant="outline" className={cn(
                             "text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full border-none",
                             req.status === 'open' ? 'bg-emerald-500/10 text-emerald-500' :
@@ -442,7 +444,7 @@ export default function Requests() {
                             REQ_{req.id.slice(0, 8).toUpperCase()}
                           </span>
                         </div>
-                        <h3 className="text-5xl md:text-6xl font-display font-bold text-foreground tracking-tight group-hover:text-primary transition-colors leading-none">{req.title}</h3>
+                        <h3 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold text-foreground tracking-tight group-hover:text-primary transition-colors leading-tight md:leading-none">{req.title}</h3>
                         <div className="flex items-center gap-8 text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/50">
                           <span className="flex items-center gap-3"><Users className="w-4 h-4 text-primary/60" /> {req.requesterName}</span>
                           <span className="flex items-center gap-3"><Clock className="w-4 h-4 text-primary/60" /> {req.createdAt?.toDate().toLocaleDateString()}</span>

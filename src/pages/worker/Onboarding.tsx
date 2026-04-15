@@ -349,17 +349,17 @@ export default function WorkerOnboarding() {
                 <Globe className="w-5 h-5 text-primary" /> Primary Location
               </label>
               <Select onValueChange={(val) => setFormData(prev => ({ ...prev, country: val as string }))}>
-                <SelectTrigger className="h-16 bg-background/50 border-border/50 text-xl font-bold rounded-2xl px-8 focus:border-primary transition-all">
+                <SelectTrigger className="h-16 md:h-20 bg-white/[0.02] border-white/[0.05] text-xl md:text-2xl font-bold rounded-2xl md:rounded-3xl px-6 md:px-10 focus:border-primary transition-all shadow-xl">
                   <SelectValue placeholder="Select your country" />
                 </SelectTrigger>
-                <SelectContent className="rounded-2xl border-border shadow-2xl">
-                  <SelectItem value="United States" className="py-3 px-6 text-base font-medium">United States</SelectItem>
-                  <SelectItem value="United Kingdom" className="py-3 px-6 text-base font-medium">United Kingdom</SelectItem>
-                  <SelectItem value="Canada" className="py-3 px-6 text-base font-medium">Canada</SelectItem>
-                  <SelectItem value="India" className="py-3 px-6 text-base font-medium">India</SelectItem>
-                  <SelectItem value="Philippines" className="py-3 px-6 text-base font-medium">Philippines</SelectItem>
-                  <SelectItem value="Nigeria" className="py-3 px-6 text-base font-medium">Nigeria</SelectItem>
-                  <SelectItem value="Global" className="py-3 px-6 text-base font-medium">Other / Global</SelectItem>
+                <SelectContent className="rounded-2xl md:rounded-3xl border-white/[0.1] shadow-2xl bg-background/95 backdrop-blur-xl">
+                  <SelectItem value="United States" className="py-3 md:py-4 px-6 md:px-8 text-base md:text-lg font-medium">United States</SelectItem>
+                  <SelectItem value="United Kingdom" className="py-3 md:py-4 px-6 md:px-8 text-base md:text-lg font-medium">United Kingdom</SelectItem>
+                  <SelectItem value="Canada" className="py-3 md:py-4 px-6 md:px-8 text-base md:text-lg font-medium">Canada</SelectItem>
+                  <SelectItem value="India" className="py-3 md:py-4 px-6 md:px-8 text-base md:text-lg font-medium">India</SelectItem>
+                  <SelectItem value="Philippines" className="py-3 md:py-4 px-6 md:px-8 text-base md:text-lg font-medium">Philippines</SelectItem>
+                  <SelectItem value="Nigeria" className="py-3 md:py-4 px-6 md:px-8 text-base md:text-lg font-medium">Nigeria</SelectItem>
+                  <SelectItem value="Global" className="py-3 md:py-4 px-6 md:px-8 text-base md:text-lg font-medium">Other / Global</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -368,14 +368,14 @@ export default function WorkerOnboarding() {
                 <Calendar className="w-5 h-5 text-primary" /> Age Group
               </label>
               <Select onValueChange={(val) => setFormData(prev => ({ ...prev, age: val as string }))}>
-                <SelectTrigger className="h-16 bg-background/50 border-border/50 text-xl font-bold rounded-2xl px-8 focus:border-primary transition-all">
+                <SelectTrigger className="h-16 md:h-20 bg-white/[0.02] border-white/[0.05] text-xl md:text-2xl font-bold rounded-2xl md:rounded-3xl px-6 md:px-10 focus:border-primary transition-all shadow-xl">
                   <SelectValue placeholder="Select your age group" />
                 </SelectTrigger>
-                <SelectContent className="rounded-2xl border-border shadow-2xl">
-                  <SelectItem value="18-24" className="py-3 px-6 text-base font-medium">18 - 24</SelectItem>
-                  <SelectItem value="25-34" className="py-3 px-6 text-base font-medium">25 - 34</SelectItem>
-                  <SelectItem value="35-44" className="py-3 px-6 text-base font-medium">35 - 44</SelectItem>
-                  <SelectItem value="45+" className="py-3 px-6 text-base font-medium">45+</SelectItem>
+                <SelectContent className="rounded-2xl md:rounded-3xl border-white/[0.1] shadow-2xl bg-background/95 backdrop-blur-xl">
+                  <SelectItem value="18-24" className="py-3 md:py-4 px-6 md:px-8 text-base md:text-lg font-medium">18 - 24</SelectItem>
+                  <SelectItem value="25-34" className="py-3 md:py-4 px-6 md:px-8 text-base md:text-lg font-medium">25 - 34</SelectItem>
+                  <SelectItem value="35-44" className="py-3 md:py-4 px-6 md:px-8 text-base md:text-lg font-medium">35 - 44</SelectItem>
+                  <SelectItem value="45+" className="py-3 md:py-4 px-6 md:px-8 text-base md:text-lg font-medium">45+</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -389,10 +389,10 @@ export default function WorkerOnboarding() {
                     key={g}
                     onClick={() => setFormData(prev => ({ ...prev, gender: g }))}
                     className={cn(
-                      "h-16 rounded-2xl border transition-all text-sm font-black uppercase tracking-widest flex items-center justify-center px-4",
+                      "h-16 md:h-20 rounded-2xl md:rounded-3xl border transition-all text-xs md:text-sm font-black uppercase tracking-[0.2em] flex items-center justify-center px-4",
                       formData.gender === g 
-                        ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20" 
-                        : "bg-background/50 border-border/50 text-muted-foreground hover:border-primary/50 hover:bg-primary/5"
+                        ? "bg-primary text-primary-foreground border-primary shadow-2xl shadow-primary/40 scale-[1.02]" 
+                        : "bg-white/[0.02] border-white/[0.05] text-muted-foreground hover:border-primary/50 hover:bg-primary/5"
                     )}
                   >
                     {g}

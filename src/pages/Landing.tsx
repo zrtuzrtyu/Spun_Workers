@@ -127,12 +127,12 @@ export default function Landing() {
                 <Sparkles className="w-4 h-4 mr-3 text-primary" /> Distributed Intelligence Network
               </Badge>
               
-              <h1 className="text-8xl md:text-[140px] font-display font-bold tracking-[-0.05em] leading-[0.8] text-foreground">
+              <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[140px] font-display font-bold tracking-[-0.05em] leading-[0.9] md:leading-[0.8] text-gradient">
                 Precision <br />
                 <span className="text-primary">at Scale.</span>
               </h1>
               
-              <p className="text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
+              <p className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium px-4">
                 Spunn Force is the premier network for high-accuracy micro-tasks. 
                 Join 12,000+ verified operators turning digital precision into sustainable profit.
               </p>
