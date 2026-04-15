@@ -91,13 +91,13 @@ export default function Landing() {
             <a href="#how-it-works" className="hover:text-primary transition-colors">Protocol</a>
           </div>
 
-          <div className="flex items-center gap-8">
-            <Link to="/login" className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">
+          <div className="flex items-center gap-4 md:gap-8">
+            <Link to="/login" className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">
               Log in
             </Link>
             <Link to="/apply" className={cn(
               buttonVariants({ size: "lg" }), 
-              "font-black uppercase tracking-[0.2em] text-xs h-14 px-10 rounded-full",
+              "font-black uppercase tracking-[0.2em] text-[10px] md:text-xs h-12 md:h-14 px-6 md:px-10 rounded-full",
               "bg-primary text-primary-foreground hover:opacity-90 transition-all shadow-xl shadow-primary/20"
             )}>
               Join Force
@@ -142,17 +142,17 @@ export default function Landing() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-8"
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8"
             >
               <Link to="/apply" className={cn(
                 buttonVariants({ size: "lg" }), 
-                "h-20 px-16 text-lg font-black uppercase tracking-[0.2em] rounded-full group bg-foreground text-background hover:opacity-90 transition-all shadow-2xl shadow-foreground/10"
+                "w-full sm:w-auto h-16 md:h-20 px-10 md:px-16 text-base md:text-lg font-black uppercase tracking-[0.2em] rounded-full group bg-foreground text-background hover:opacity-90 transition-all shadow-2xl shadow-foreground/10"
               )}>
-                Start Earning <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
+                Start Earning <ArrowRight className="w-5 h-5 md:w-6 md:h-6 ml-3 group-hover:translate-x-1 transition-transform" />
               </Link>
               <a href="#calculator" className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }), 
-                "h-20 px-16 text-lg font-black uppercase tracking-[0.2em] rounded-full border-border hover:bg-muted transition-all"
+                "w-full sm:w-auto h-16 md:h-20 px-10 md:px-16 text-base md:text-lg font-black uppercase tracking-[0.2em] rounded-full border-border hover:bg-muted transition-all"
               )}>
                 View Potential
               </a>
@@ -380,14 +380,14 @@ export default function Landing() {
                 Applications are currently open for all regions. 
                 Start your journey as a Spunn Force operator today.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-8 pt-8">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 md:gap-8 pt-8">
                 <Link to="/apply" className={cn(
                   buttonVariants({ size: "lg", variant: "secondary" }), 
-                  "h-20 px-16 text-xl font-bold rounded-full shadow-2xl bg-white text-black hover:bg-white/90 transition-all"
+                  "w-full sm:w-auto h-16 md:h-20 px-10 md:px-16 text-lg md:text-xl font-bold rounded-full shadow-2xl bg-white text-black hover:bg-white/90 transition-all"
                 )}>
                   Apply Now
                 </Link>
-                <div className="flex items-center gap-3 text-primary-foreground/60 text-[11px] font-bold uppercase tracking-[0.3em]">
+                <div className="flex items-center gap-3 text-primary-foreground/60 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.3em]">
                   <Clock className="w-4 h-4" /> 30-Second Setup
                 </div>
               </div>

@@ -366,9 +366,9 @@ export default function WorkerDashboard() {
                             {assign.status === 'pending' && (
                               <Button 
                                 onClick={() => setSelectedAssignment(assign)}
-                                className="w-full h-24 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20"
+                                className="w-full h-16 md:h-24 rounded-2xl md:rounded-[2rem] font-black text-[10px] md:text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20"
                               >
-                                <UploadCloud className="w-6 h-6 mr-3" /> Upload Proof
+                                <UploadCloud className="w-5 h-5 md:w-6 md:h-6 mr-3" /> Upload Proof
                               </Button>
                             )}
                             {assign.status === 'submitted' && (

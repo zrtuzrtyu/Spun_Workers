@@ -205,7 +205,7 @@ export default function WorkerOnboarding() {
         return (
           <div className="space-y-10 py-8">
             <p className="text-xl text-muted-foreground font-medium px-1">Select languages you are fluent in.</p>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4 md:gap-6">
               {["English", "Spanish", "French", "German", "Chinese", "Japanese", "Hindi", "Arabic"].map(lang => (
                 <button
                   key={lang}
@@ -216,7 +216,7 @@ export default function WorkerOnboarding() {
                       : [...prev.languages, lang] 
                   }))}
                   className={cn(
-                    "px-8 py-6 rounded-3xl border text-base font-black uppercase tracking-widest transition-all text-left group relative overflow-hidden",
+                    "px-4 md:px-8 py-4 md:py-6 rounded-2xl md:rounded-3xl border text-xs md:text-base font-black uppercase tracking-widest transition-all text-left group relative overflow-hidden active:scale-95",
                     formData.languages.includes(lang)
                       ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/20"
                       : "bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:bg-muted/50"
@@ -252,7 +252,7 @@ export default function WorkerOnboarding() {
             </div>
             <Button 
               variant={formData.notificationsEnabled ? "outline" : "default"}
-              className="w-full h-16 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02]"
+              className="w-full h-14 md:h-16 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02]"
               onClick={() => {
                 setFormData(prev => ({ ...prev, notificationsEnabled: true }));
                 toast.success("Notifications enabled!");
@@ -266,13 +266,13 @@ export default function WorkerOnboarding() {
         return (
           <div className="space-y-10 py-8">
             <p className="text-xl text-muted-foreground font-medium px-1">Select at least 3 categories you have experience in.</p>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4 md:gap-6">
               {SKILL_CATEGORIES.map(skill => (
                 <button
                   key={skill}
                   onClick={() => toggleSkill(skill)}
                   className={cn(
-                    "px-8 py-6 rounded-3xl border text-base font-black uppercase tracking-widest transition-all text-left group relative overflow-hidden",
+                    "px-4 md:px-8 py-4 md:py-6 rounded-2xl md:rounded-3xl border text-xs md:text-base font-black uppercase tracking-widest transition-all text-left group relative overflow-hidden active:scale-95",
                     formData.skills.includes(skill)
                       ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/20"
                       : "bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:bg-muted/50"
@@ -308,14 +308,14 @@ export default function WorkerOnboarding() {
                 <p className="text-base text-muted-foreground leading-relaxed font-medium">Multiple accounts per person are not allowed and will be flagged by our sybil-detection system.</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 p-4 rounded-3xl bg-primary/5 border border-primary/10 transition-all hover:bg-primary/10 group cursor-pointer" onClick={() => setFormData(prev => ({ ...prev, agreedToRules: !prev.agreedToRules }))}>
+            <div className="flex items-center gap-4 p-4 md:p-6 rounded-2xl md:rounded-3xl bg-primary/5 border border-primary/10 transition-all hover:bg-primary/10 group cursor-pointer" onClick={() => setFormData(prev => ({ ...prev, agreedToRules: !prev.agreedToRules }))}>
               <Checkbox 
                 id="rules"
                 checked={formData.agreedToRules}
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, agreedToRules: !!checked }))}
-                className="w-8 h-8 rounded-lg border-2 border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                className="w-6 h-6 md:w-8 md:h-8 rounded-lg border-2 border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
               />
-              <label htmlFor="rules" className="text-sm font-black uppercase tracking-[0.1em] cursor-pointer text-foreground/80 group-hover:text-foreground transition-colors">
+              <label htmlFor="rules" className="text-[11px] md:text-sm font-black uppercase tracking-[0.1em] cursor-pointer text-foreground/80 group-hover:text-foreground transition-colors">
                 I have read and agree to the Spunn Force Operator Guidelines.
               </label>
             </div>
@@ -389,7 +389,7 @@ export default function WorkerOnboarding() {
                     key={g}
                     onClick={() => setFormData(prev => ({ ...prev, gender: g }))}
                     className={cn(
-                      "h-16 md:h-20 rounded-2xl md:rounded-3xl border transition-all text-xs md:text-sm font-black uppercase tracking-[0.2em] flex items-center justify-center px-4",
+                      "h-16 md:h-20 rounded-2xl md:rounded-3xl border transition-all text-xs md:text-sm font-black uppercase tracking-[0.2em] flex items-center justify-center px-4 active:scale-95",
                       formData.gender === g 
                         ? "bg-primary text-primary-foreground border-primary shadow-2xl shadow-primary/40 scale-[1.02]" 
                         : "bg-white/[0.02] border-white/[0.05] text-muted-foreground hover:border-primary/50 hover:bg-primary/5"
@@ -507,7 +507,7 @@ export default function WorkerOnboarding() {
               size="sm" 
               onClick={prevStep}
               disabled={currentStep <= 2 || loading}
-              className="font-bold text-[11px] uppercase tracking-widest"
+              className="font-bold text-[10px] md:text-[11px] uppercase tracking-widest h-12 md:h-auto px-4"
             >
               <ChevronLeft className="w-4 h-4 mr-1" /> Back
             </Button>
@@ -516,7 +516,7 @@ export default function WorkerOnboarding() {
               <Button 
                 onClick={handleComplete}
                 disabled={loading}
-                className="font-bold px-8 shadow-lg shadow-primary/20"
+                className="font-bold px-6 md:px-8 h-12 md:h-14 shadow-lg shadow-primary/20 text-[10px] md:text-sm"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Activate Account"}
               </Button>
@@ -524,7 +524,7 @@ export default function WorkerOnboarding() {
               <Button 
                 onClick={nextStep}
                 disabled={!isStepValid() || loading}
-                className="font-bold px-8 shadow-lg shadow-primary/20 group"
+                className="font-bold px-6 md:px-8 h-12 md:h-14 shadow-lg shadow-primary/20 group text-[10px] md:text-sm"
               >
                 Continue <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
               </Button>

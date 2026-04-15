@@ -467,17 +467,17 @@ export default function Requests() {
                       <>
                         <Button 
                           variant="outline" 
-                          className="w-full h-16 rounded-full font-black text-xs uppercase tracking-[0.2em] border-border hover:bg-muted"
+                          className="w-full h-14 md:h-16 rounded-full font-black text-[10px] md:text-xs uppercase tracking-[0.2em] border-border hover:bg-muted"
                           onClick={() => setViewingBidsFor(req.id)}
                         >
-                          <Gavel className="w-5 h-5 mr-3 text-primary" /> View Bids
+                          <Gavel className="w-4 h-4 md:w-5 md:h-5 mr-3 text-primary" /> View Bids
                         </Button>
                         <Button 
                           variant="ghost" 
-                          className="w-full h-16 rounded-full font-black text-xs uppercase tracking-[0.2em] text-muted-foreground/60 hover:text-destructive hover:bg-destructive/5"
+                          className="w-full h-14 md:h-16 rounded-full font-black text-[10px] md:text-xs uppercase tracking-[0.2em] text-muted-foreground/60 hover:text-destructive hover:bg-destructive/5"
                           onClick={() => setRequestToDelete(req.id)}
                         >
-                          <Trash2 className="w-5 h-5 mr-3" /> Delete
+                          <Trash2 className="w-4 h-4 md:w-5 md:h-5 mr-3" /> Delete
                         </Button>
                       </>
                     ) : (
@@ -487,7 +487,7 @@ export default function Requests() {
                             <DialogTrigger
                               render={
                                 <Button 
-                                  className="w-full h-20 rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20"
+                                  className="w-full h-16 md:h-20 rounded-full font-black text-[10px] md:text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20"
                                   onClick={() => {
                                     if (hasActiveTask) {
                                       toast.error("Linear Protocol Active: Finish your current task before bidding on new ones.");
@@ -497,7 +497,7 @@ export default function Requests() {
                                   }}
                                   disabled={hasActiveTask}
                                 >
-                                  {hasActiveTask ? <Lock className="w-5 h-5 mr-3" /> : <Zap className="w-5 h-5 mr-3" />}
+                                  {hasActiveTask ? <Lock className="w-4 h-4 md:w-5 md:h-5 mr-3" /> : <Zap className="w-4 h-4 md:w-5 md:h-5 mr-3" />}
                                   {hasActiveTask ? "Task In Progress" : "Place Bid"}
                                 </Button>
                               }

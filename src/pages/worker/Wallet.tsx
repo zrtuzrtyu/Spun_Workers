@@ -271,13 +271,13 @@ export default function Wallet() {
               <Button
                 type="submit"
                 disabled={loading || availableBalance <= 0}
-                className="w-full h-16 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20 group"
+                className="w-full h-14 md:h-16 rounded-full font-bold text-[10px] md:text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20 group"
               >
                 {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
                 ) : (
                   <>
-                    Submit Request <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
+                    Submit Request <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-3 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
               </Button>
