@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "@/components/AdminLayout";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { collection, query, onSnapshot, orderBy, limit, where, getDocs, getDoc, doc, updateDoc, serverTimestamp, addDoc, deleteDoc } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { Activity, Users, CheckSquare, DollarSign, Clock, BarChart3, Trash2, Star, Wallet } from "lucide-react";
@@ -407,9 +409,17 @@ export default function AdminDashboard() {
     <AdminLayout>
       <div className="mb-12 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
         <div>
-          <h1 className="text-4xl font-sans font-bold text-white mb-2 leading-none">
-            Command Center
-          </h1>
+          <div className="flex items-center gap-4 mb-4">
+            <h1 className="text-4xl font-sans font-bold text-white leading-none">
+              Command Center
+            </h1>
+            <Link to="/worker">
+              <Button variant="outline" size="sm" className="bg-white/5 border-white/10 text-white hover:bg-white/10 gap-2">
+                <Users className="w-4 h-4" />
+                Worker View
+              </Button>
+            </Link>
+          </div>
           <p className="text-zinc-400 text-lg font-sans max-w-2xl leading-relaxed">
             Monitor your global workforce and mission completion in real-time. System status is currently optimal.
           </p>

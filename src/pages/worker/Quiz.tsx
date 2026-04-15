@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -24,8 +24,12 @@ export default function WorkerQuiz() {
   const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
+  const [answers, setAnswers] = useState<number[]>([]);
 
   const handleAnswer = async (index: number) => {
+    const newAnswers = [...answers, index];
+    setAnswers(newAnswers);
+
     if (index === quizQuestions[currentQuestion].correct) {
       setScore(score + 1);
     }
@@ -34,23 +38,35 @@ export default function WorkerQuiz() {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       // Quiz finished
-      if (score + (index === quizQuestions[currentQuestion].correct ? 1 : 0) === quizQuestions.length) {
-        if (user) {
-          try {
+      const finalScore = score + (index === quizQuestions[currentQuestion].correct ? 1 : 0);
+      
+      if (user) {
+        try {
+          // Store answers
+          await addDoc(collection(db, "quiz_answers"), {
+            userId: user.uid,
+            email: user.email,
+            answers: newAnswers,
+            score: finalScore,
+            timestamp: serverTimestamp()
+          });
+
+          if (finalScore === quizQuestions.length) {
             await updateDoc(doc(db, "users", user.uid), {
               quizCompleted: true,
               trustTier: "New"
             });
             toast.success("Quiz passed! You can now start tasks.");
             navigate("/worker");
-          } catch (error: any) {
-            handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
+          } else {
+            toast.error("Quiz failed. Please try again.");
+            setCurrentQuestion(0);
+            setScore(0);
+            setAnswers([]);
           }
+        } catch (error: any) {
+          handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
         }
-      } else {
-        toast.error("Quiz failed. Please try again.");
-        setCurrentQuestion(0);
-        setScore(0);
       }
     }
   };

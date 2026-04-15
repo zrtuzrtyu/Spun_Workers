@@ -45,6 +45,47 @@ export default function Requests() {
   const [proposal, setProposal] = useState("");
   const [bids, setBids] = useState<any[]>([]);
   const [viewingBidsFor, setViewingBidsFor] = useState<string | null>(null);
+  const [hasActiveTask, setHasActiveTask] = useState(false);
+
+  useEffect(() => {
+    if (!firebaseUser) return;
+
+    // Check for active assignments
+    const qAssigns = query(
+      collection(db, "assignments"),
+      where("workerId", "==", firebaseUser.uid),
+      where("status", "in", ["pending", "submitted"])
+    );
+    
+    // Check for active marketplace jobs
+    const qMarket = query(
+      collection(db, "requests"),
+      where("winnerId", "==", firebaseUser.uid),
+      where("status", "==", "in_progress")
+    );
+
+    const unsubAssigns = onSnapshot(qAssigns, (snap) => {
+      const hasAssign = !snap.empty;
+      setHasActiveTask(prev => hasAssign || prev);
+    });
+
+    const unsubMarket = onSnapshot(qMarket, (snap) => {
+      const hasMarket = !snap.empty;
+      setHasActiveTask(prev => hasMarket || prev);
+    });
+
+    // Initial check to reset if both are empty
+    const checkActive = async () => {
+      const [s1, s2] = await Promise.all([getDocs(qAssigns), getDocs(qMarket)]);
+      setHasActiveTask(!s1.empty || !s2.empty);
+    };
+    checkActive();
+
+    return () => {
+      unsubAssigns();
+      unsubMarket();
+    };
+  }, [firebaseUser]);
 
   useEffect(() => {
     if (!firebaseUser) return;
@@ -60,6 +101,14 @@ export default function Requests() {
         ...doc.data()
       })).filter((req: any) => {
         if (req.requesterId === firebaseUser.uid) return true;
+        
+        // Tier filtering logic
+        const tiers = ['New', 'Trusted', 'Premium'];
+        const userTierIndex = tiers.indexOf(user?.trustTier || 'New');
+        const requiredTierIndex = tiers.indexOf(req.requiredTier || 'New');
+        
+        if (userTierIndex < requiredTierIndex) return false;
+
         return ['open', 'in_progress', 'completed'].includes(req.status);
       });
       setRequests(data);
@@ -257,22 +306,22 @@ export default function Requests() {
 
   return (
     <WorkerLayout>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-16">
-        <div className="space-y-4">
-          <Badge variant="outline" className="bg-white/[0.03] border-white/[0.08] text-muted-foreground px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.3em] rounded-full">
-            <Sparkles className="w-3 h-3 mr-2 text-primary" /> Distributed Marketplace
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-12 mb-20">
+        <div className="space-y-6">
+          <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary px-5 py-2 text-[10px] font-black uppercase tracking-[0.3em] rounded-full">
+            <Sparkles className="w-4 h-4 mr-2 text-primary" /> Distributed Marketplace
           </Badge>
-          <h1 className="text-5xl md:text-6xl font-display font-bold tracking-tight text-white leading-none">Marketplace<span className="text-primary">.</span></h1>
-          <p className="text-muted-foreground text-lg font-light max-w-xl">Browse high-accuracy job requests or post your own protocol to the network.</p>
+          <h1 className="text-6xl md:text-7xl font-display font-bold tracking-tight text-foreground leading-none">Marketplace<span className="text-primary">.</span></h1>
+          <p className="text-muted-foreground text-xl font-medium max-w-xl leading-relaxed">Browse high-accuracy job requests or post your own protocol to the network.</p>
         </div>
         <Button 
           onClick={() => setIsCreating(!isCreating)}
           className={cn(
-            "h-16 px-10 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] transition-all shadow-2xl",
-            isCreating ? "bg-white/[0.05] text-white hover:bg-white/[0.1] border border-white/[0.1]" : "shadow-primary/20"
+            "h-20 px-12 rounded-full font-black text-xs uppercase tracking-[0.2em] transition-all shadow-2xl",
+            isCreating ? "bg-muted text-foreground hover:bg-muted/80 border border-border" : "shadow-primary/20"
           )}
         >
-          {isCreating ? <X className="w-5 h-5 mr-3" /> : <Plus className="w-5 h-5 mr-3" />}
+          {isCreating ? <X className="w-6 h-6 mr-3" /> : <Plus className="w-6 h-6 mr-3" />}
           {isCreating ? "Cancel Posting" : "Post Job Request"}
         </Button>
       </div>
@@ -348,148 +397,165 @@ export default function Requests() {
         )}
       </AnimatePresence>
 
-      <div className="space-y-8">
+      <div className="space-y-10">
         {requests.length === 0 ? (
-          <div className="text-center py-32 bg-white/[0.01] border border-dashed border-white/[0.08] rounded-[3rem] space-y-6">
-            <div className="w-20 h-20 bg-white/[0.02] border border-white/[0.05] rounded-[2rem] flex items-center justify-center mx-auto text-muted-foreground/20">
-              <TrendingUp className="w-10 h-10" />
+          <div className="text-center py-40 bg-muted/30 border border-dashed border-border rounded-[3rem] space-y-8">
+            <div className="w-24 h-24 bg-muted border border-border rounded-[2rem] flex items-center justify-center mx-auto text-muted-foreground/40">
+              <TrendingUp className="w-12 h-12" />
             </div>
-            <div className="space-y-2">
-              <h3 className="text-sm font-bold uppercase tracking-[0.3em] text-muted-foreground/60">Marketplace Idle</h3>
-              <p className="text-[10px] font-mono text-muted-foreground/20 uppercase tracking-widest italic">Awaiting network broadcast...</p>
+            <div className="space-y-3">
+              <h3 className="text-lg font-black uppercase tracking-[0.3em] text-muted-foreground/60">Marketplace Idle</h3>
+              <p className="text-xs font-mono text-muted-foreground/30 uppercase tracking-widest italic">Awaiting network broadcast...</p>
             </div>
           </div>
         ) : (
-          requests.map((req) => (
-            <motion.div
-              layout
-              key={req.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="group relative rounded-[2.5rem] border border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.02] hover:border-primary/20 transition-all duration-500 overflow-hidden"
-            >
-              <div className="flex flex-col md:flex-row">
-                <div className="flex-1 p-10 space-y-8">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-4">
-                        <Badge variant="outline" className={cn(
-                          "text-[9px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full border-none",
-                          req.status === 'open' ? 'bg-emerald-500/10 text-emerald-500' :
-                          req.status === 'in_progress' ? 'bg-amber-500/10 text-amber-400' :
-                          'bg-primary/10 text-primary'
-                        )}>
-                          {req.status.replace('_', ' ')}
-                        </Badge>
-                        <span className="text-[9px] font-mono font-bold text-muted-foreground/30 uppercase tracking-widest">
-                          REQ_{req.id.slice(0, 8).toUpperCase()}
-                        </span>
+          requests.map((req) => {
+            const isQualified = user?.skills?.some((skill: string) => req.category === skill || req.title.toLowerCase().includes(skill.toLowerCase()));
+            
+            return (
+              <motion.div
+                layout
+                key={req.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="group relative rounded-[3rem] border border-border bg-card hover:bg-muted/50 hover:border-primary/30 transition-all duration-500 overflow-hidden shadow-sm"
+              >
+                <div className="flex flex-col md:flex-row">
+                  <div className="flex-1 p-12 space-y-10">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-5">
+                          <Badge variant="outline" className={cn(
+                            "text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full border-none",
+                            req.status === 'open' ? 'bg-emerald-500/10 text-emerald-500' :
+                            req.status === 'in_progress' ? 'bg-amber-500/10 text-amber-500' :
+                            'bg-primary/10 text-primary'
+                          )}>
+                            {req.status.replace('_', ' ')}
+                          </Badge>
+                          {isQualified && (
+                            <Badge className="bg-primary text-primary-foreground border-none text-[10px] font-black uppercase tracking-[0.3em] px-5 py-2 rounded-full shadow-lg shadow-primary/20">
+                              <Sparkles className="w-3 h-3 mr-2 fill-current" /> Qualified Match
+                            </Badge>
+                          )}
+                          <span className="text-[10px] font-mono font-black text-muted-foreground/30 uppercase tracking-widest">
+                            REQ_{req.id.slice(0, 8).toUpperCase()}
+                          </span>
+                        </div>
+                        <h3 className="text-5xl md:text-6xl font-display font-bold text-foreground tracking-tight group-hover:text-primary transition-colors leading-none">{req.title}</h3>
+                        <div className="flex items-center gap-8 text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                          <span className="flex items-center gap-3"><Users className="w-4 h-4 text-primary/60" /> {req.requesterName}</span>
+                          <span className="flex items-center gap-3"><Clock className="w-4 h-4 text-primary/60" /> {req.createdAt?.toDate().toLocaleDateString()}</span>
+                        </div>
                       </div>
-                      <h3 className="text-3xl font-display font-bold text-white tracking-tight group-hover:text-primary transition-colors">{req.title}</h3>
-                      <div className="flex items-center gap-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">
-                        <span className="flex items-center gap-2"><Users className="w-3.5 h-3.5 text-primary/60" /> {req.requesterName}</span>
-                        <span className="flex items-center gap-2"><Clock className="w-3.5 h-3.5 text-primary/60" /> {req.createdAt?.toDate().toLocaleDateString()}</span>
+                      <div className="text-right space-y-1">
+                        <div className="text-5xl md:text-6xl font-display font-bold tracking-tighter text-primary">
+                          ${req.offerAmount.toFixed(2)}
+                        </div>
+                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Offer Amount</div>
                       </div>
                     </div>
-                    <div className="text-right space-y-1">
-                      <div className="text-4xl font-display font-bold tracking-tighter text-primary">
-                        ${req.offerAmount.toFixed(2)}
-                      </div>
-                      <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/30">Offer Amount</div>
-                    </div>
+                    <p className="text-muted-foreground font-medium leading-relaxed text-2xl line-clamp-3">
+                      {req.description}
+                    </p>
                   </div>
-                  <p className="text-muted-foreground font-light leading-relaxed text-lg line-clamp-2">
-                    {req.description}
-                  </p>
-                </div>
-                
-                <div className="w-full md:w-80 bg-white/[0.02] border-t md:border-t-0 md:border-l border-white/[0.05] p-10 flex flex-col justify-center gap-4">
-                  {req.requesterId === firebaseUser?.uid ? (
-                    <>
-                      <Button 
-                        variant="outline" 
-                        className="w-full h-14 rounded-full font-bold text-[10px] uppercase tracking-[0.2em] border-white/[0.1] hover:bg-white/[0.05]"
-                        onClick={() => setViewingBidsFor(req.id)}
-                      >
-                        <Gavel className="w-4 h-4 mr-3 text-primary" /> View Bids
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full h-14 rounded-full font-bold text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 hover:text-destructive hover:bg-destructive/5"
-                        onClick={() => setRequestToDelete(req.id)}
-                      >
-                        <Trash2 className="w-4 h-4 mr-3" /> Delete
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      {req.status === 'open' && (
-                        <Dialog open={selectedRequest?.id === req.id} onOpenChange={(open) => !open && setSelectedRequest(null)}>
-                          <DialogTrigger
-                            render={
-                              <Button 
-                                className="w-full h-16 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20"
-                                onClick={() => setSelectedRequest(req)}
-                              >
-                                <Zap className="w-4 h-4 mr-3" /> Place Bid
-                              </Button>
-                            }
-                          />
-                          <DialogContent className="bg-background border-white/[0.1] rounded-[2.5rem] p-10 max-w-xl">
-                            <DialogHeader className="space-y-4">
-                              <DialogTitle className="text-3xl font-display font-bold text-white">Submit Proposal</DialogTitle>
-                              <DialogDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">
-                                Propose your terms for "{req.title}"
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-8 py-8">
-                              <div className="space-y-3">
-                                <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Your Bid Amount ($)</label>
-                                <div className="relative">
-                                  <DollarSign className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
-                                  <Input 
-                                    type="number"
-                                    step="0.01"
-                                    value={bidAmount}
-                                    onChange={(e) => setBidAmount(e.target.value)}
-                                    placeholder={req.offerAmount.toString()}
-                                    className="h-14 pl-14 bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl px-6 text-sm"
+                  
+                  <div className="w-full md:w-96 bg-muted/30 border-t md:border-t-0 md:border-l border-border p-12 flex flex-col justify-center gap-6">
+                    {req.requesterId === firebaseUser?.uid ? (
+                      <>
+                        <Button 
+                          variant="outline" 
+                          className="w-full h-16 rounded-full font-black text-xs uppercase tracking-[0.2em] border-border hover:bg-muted"
+                          onClick={() => setViewingBidsFor(req.id)}
+                        >
+                          <Gavel className="w-5 h-5 mr-3 text-primary" /> View Bids
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full h-16 rounded-full font-black text-xs uppercase tracking-[0.2em] text-muted-foreground/60 hover:text-destructive hover:bg-destructive/5"
+                          onClick={() => setRequestToDelete(req.id)}
+                        >
+                          <Trash2 className="w-5 h-5 mr-3" /> Delete
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        {req.status === 'open' && (
+                          <Dialog open={selectedRequest?.id === req.id} onOpenChange={(open) => !open && setSelectedRequest(null)}>
+                            <DialogTrigger
+                              render={
+                                <Button 
+                                  className="w-full h-20 rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20"
+                                  onClick={() => {
+                                    if (hasActiveTask) {
+                                      toast.error("Linear Protocol Active: Finish your current task before bidding on new ones.");
+                                      return;
+                                    }
+                                    setSelectedRequest(req);
+                                  }}
+                                  disabled={hasActiveTask}
+                                >
+                                  {hasActiveTask ? <Lock className="w-5 h-5 mr-3" /> : <Zap className="w-5 h-5 mr-3" />}
+                                  {hasActiveTask ? "Task In Progress" : "Place Bid"}
+                                </Button>
+                              }
+                            />
+                            <DialogContent className="bg-background border-border rounded-[3rem] p-12 max-w-xl shadow-2xl">
+                              <DialogHeader className="space-y-6">
+                                <DialogTitle className="text-4xl font-display font-bold text-foreground">Submit Proposal</DialogTitle>
+                                <DialogDescription className="text-xs font-black uppercase tracking-[0.2em] text-primary/60">
+                                  Propose your terms for "{req.title}"
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-10 py-10">
+                                <div className="space-y-4">
+                                  <label className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Your Bid Amount ($)</label>
+                                  <div className="relative">
+                                    <DollarSign className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
+                                    <Input 
+                                      type="number"
+                                      step="0.01"
+                                      value={bidAmount}
+                                      onChange={(e) => setBidAmount(e.target.value)}
+                                      placeholder={req.offerAmount.toString()}
+                                      className="h-16 pl-16 bg-muted/50 border-border focus:border-primary rounded-2xl px-8 text-lg font-bold"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="space-y-4">
+                                  <label className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Proposal / Cover Letter</label>
+                                  <Textarea 
+                                    value={proposal}
+                                    onChange={(e) => setProposal(e.target.value)}
+                                    rows={5}
+                                    placeholder="Explain why you're the best fit for this task..."
+                                    className="bg-muted/50 border-border focus:border-primary rounded-2xl p-8 text-base font-medium resize-none"
                                   />
                                 </div>
                               </div>
-                              <div className="space-y-3">
-                                <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Proposal / Cover Letter</label>
-                                <Textarea 
-                                  value={proposal}
-                                  onChange={(e) => setProposal(e.target.value)}
-                                  rows={4}
-                                  placeholder="Explain why you're the best fit for this task..."
-                                  className="bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl p-6 text-sm resize-none"
-                                />
-                              </div>
-                            </div>
-                            <DialogFooter>
-                              <Button 
-                                className="w-full h-16 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20"
-                                onClick={handlePlaceBid}
-                                disabled={loading}
-                              >
-                                {loading ? <Loader2 className="w-4 h-4 animate-spin mr-3" /> : <ArrowRight className="w-4 h-4 mr-3" />}
-                                Submit Bid
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                      )}
-                      <Button variant="outline" className="w-full h-14 rounded-full font-bold text-[10px] uppercase tracking-[0.2em] border-white/[0.1] hover:bg-white/[0.05]">
-                        <MessageSquare className="w-4 h-4 mr-3 text-primary" /> Message
-                      </Button>
-                    </>
-                  )}
+                              <DialogFooter>
+                                <Button 
+                                  className="w-full h-20 rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-primary/20"
+                                  onClick={handlePlaceBid}
+                                  disabled={loading}
+                                >
+                                  {loading ? <Loader2 className="w-5 h-5 animate-spin mr-3" /> : <ArrowRight className="w-5 h-5 mr-3" />}
+                                  Submit Bid
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        )}
+                        <Button variant="outline" className="w-full h-16 rounded-full font-black text-xs uppercase tracking-[0.2em] border-border hover:bg-muted">
+                          <MessageSquare className="w-5 h-5 mr-3 text-primary" /> Message
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))
+              </motion.div>
+            );
+          })
         )}
       </div>
 

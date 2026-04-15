@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { Toaster } from "sonner";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Analytics } from "@vercel/analytics/react";
@@ -25,6 +26,7 @@ const WorkerQuiz = lazy(() => import("./pages/worker/Quiz"));
 
 const WorkerOnboarding = lazy(() => import("./pages/worker/Onboarding"));
 const PendingApproval = lazy(() => import("./pages/PendingApproval"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 
 const LoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-[#050505] text-white font-sans font-black text-2xl">
@@ -40,6 +42,11 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode,
 
   if (!firebaseUser) return <Navigate to="/login" state={{ from: location }} replace />;
 
+  // Email Verification Check
+  if (!firebaseUser.emailVerified && location.pathname !== "/verify-email") {
+    return <Navigate to="/verify-email" replace />;
+  }
+
   if (allowedRoles && allowedRoles.length > 0) {
     if (!user) {
       // If they are authenticated but have no user document, send them to apply
@@ -49,7 +56,7 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode,
       return <Navigate to={user.role === "admin" ? "/admin" : "/worker"} replace />;
     }
 
-    // Worker Flow State Machine
+    // Worker Flow State Machine (Skip for Admins)
     if (user.role === "worker") {
       const path = location.pathname;
 
@@ -90,14 +97,16 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode,
 export default function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <BrowserRouter>
+      <ThemeProvider>
+        <AuthProvider>
+          <BrowserRouter>
           <Analytics />
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/apply" element={<Apply />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
               
               <Route path="/admin" element={
                 <ProtectedRoute allowedRoles={["admin"]}>
@@ -131,17 +140,17 @@ export default function App() {
               } />
               
               <Route path="/worker" element={
-                <ProtectedRoute allowedRoles={["worker"]}>
+                <ProtectedRoute allowedRoles={["admin", "worker"]}>
                   <WorkerDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/worker/wallet" element={
-                <ProtectedRoute allowedRoles={["worker"]}>
+                <ProtectedRoute allowedRoles={["admin", "worker"]}>
                   <WorkerWallet />
                 </ProtectedRoute>
               } />
               <Route path="/worker/requests" element={
-                <ProtectedRoute allowedRoles={["worker"]}>
+                <ProtectedRoute allowedRoles={["admin", "worker"]}>
                   <WorkerRequests />
                 </ProtectedRoute>
               } />
@@ -151,7 +160,7 @@ export default function App() {
                 </ProtectedRoute>
               } />
               <Route path="/worker/profile" element={
-                <ProtectedRoute allowedRoles={["worker"]}>
+                <ProtectedRoute allowedRoles={["admin", "worker"]}>
                   <WorkerProfile />
                 </ProtectedRoute>
               } />
@@ -181,6 +190,7 @@ export default function App() {
         </BrowserRouter>
         <Toaster theme="dark" richColors closeButton />
       </AuthProvider>
+    </ThemeProvider>
     </ErrorBoundary>
   );
 }

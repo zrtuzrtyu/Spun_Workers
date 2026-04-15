@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { auth } from "@/firebase";
-import { LayoutDashboard, Users, CheckSquare, LogOut, Activity, Sparkles, Settings, DollarSign, Menu, X, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Users, CheckSquare, LogOut, Activity, Sparkles, Settings, DollarSign, Menu, X, MessageSquare, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -27,18 +30,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-300 font-sans flex flex-col md:flex-row selection:bg-purple-500/30">
+    <div className="min-h-screen bg-background text-foreground font-sans flex flex-col md:flex-row selection:bg-primary/30 transition-colors duration-300">
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-[#0A0A0A] border-r border-white/5 flex flex-col md:h-screen md:sticky top-0 relative z-20">
-        <div className="p-6 border-b border-white/5 flex justify-between items-center md:block">
+      <aside className="w-full md:w-64 bg-background border-r border-border flex flex-col md:h-screen md:sticky top-0 relative z-20">
+        <div className="p-6 border-b border-border flex justify-between items-center md:block">
           <div className="flex flex-col gap-1 md:mb-4">
             <Logo />
-            <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold font-sans ml-14">Admin Panel</div>
+            <div className="text-[11px] text-muted-foreground uppercase tracking-widest font-black font-sans ml-14">Admin Panel</div>
           </div>
-          <button onClick={handleLogout} className="md:hidden text-red-400 p-2"><LogOut className="w-5 h-5" /></button>
+          <div className="flex items-center gap-2 md:hidden">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground">
+              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </Button>
+            <button onClick={handleLogout} className="text-destructive p-2"><LogOut className="w-5 h-5" /></button>
+          </div>
         </div>
         
-        <nav className="flex-1 p-4 space-y-1 flex flex-row md:flex-col overflow-x-auto md:overflow-visible font-sans hide-scrollbar">
+        <nav className="flex-1 p-4 space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-visible font-sans hide-scrollbar">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
@@ -46,10 +54,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap text-sm font-black uppercase tracking-wider ${
                   isActive 
-                    ? "bg-purple-500/10 text-purple-400 font-medium shadow-[inset_0_0_20px_rgba(168,85,247,0.05)]" 
-                    : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                    ? "bg-primary/10 text-primary font-black shadow-[inset_0_0_20px_rgba(var(--primary),0.05)]" 
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -59,19 +67,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/5 hidden md:block font-sans">
-          <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-white/5 rounded-xl border border-white/5">
-            <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold border border-purple-500/30">
+        <div className="p-4 border-t border-border hidden md:block font-sans">
+          <Button 
+            variant="ghost" 
+            onClick={toggleTheme}
+            className="w-full justify-start gap-4 text-muted-foreground hover:text-foreground hover:bg-muted h-12 px-4 rounded-xl font-black uppercase tracking-widest text-[11px] mb-4"
+          >
+            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+          </Button>
+
+          <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-muted/50 rounded-xl border border-border">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-black border border-primary/30 text-lg">
               {user?.name?.charAt(0) || "A"}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white truncate">{user?.name}</div>
-              <div className="text-xs text-zinc-500 truncate">{user?.email}</div>
+              <div className="text-sm font-black text-foreground truncate">{user?.name}</div>
+              <div className="text-[10px] text-muted-foreground truncate font-medium">{user?.email}</div>
             </div>
           </div>
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-destructive hover:bg-destructive/10 transition-colors font-black uppercase tracking-widest text-[11px]"
           >
             <LogOut className="w-5 h-5" />
             Logout

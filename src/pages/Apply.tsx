@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { auth, db, googleProvider, handleFirestoreError, OperationType } from "@/firebase";
-import { signInWithPopup, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithPopup, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -190,7 +190,8 @@ export default function Apply() {
         createdAt: serverTimestamp()
       });
 
-      toast.success("Account created successfully!");
+      await sendEmailVerification(user);
+      toast.success("Account created! Please verify your email.");
       navigate("/worker/onboarding");
     } catch (error: any) {
       toast.error(error.message || "Failed to sign up");
@@ -251,21 +252,21 @@ export default function Apply() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="text-center space-y-8"
+                className="text-center space-y-10"
               >
-                <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto text-primary shadow-lg shadow-primary/5">
-                  <DollarSign className="w-8 h-8" />
+                <div className="w-20 h-20 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto text-primary shadow-lg shadow-primary/5">
+                  <DollarSign className="w-10 h-10" />
                 </div>
-                <div className="space-y-4">
-                  <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-foreground">
+                <div className="space-y-6">
+                  <h1 className="text-5xl md:text-6xl font-bold tracking-tighter text-foreground leading-tight">
                     Discover Your <br />Earning Potential
                   </h1>
-                  <p className="text-muted-foreground text-lg max-w-md mx-auto leading-relaxed">
+                  <p className="text-muted-foreground text-xl max-w-md mx-auto leading-relaxed font-medium">
                     Take our 30-second survey to see how much you could earn completing simple digital tasks.
                   </p>
                 </div>
-                <Button size="lg" onClick={handleNext} className="h-14 px-10 font-bold shadow-xl shadow-primary/20 group">
-                  Start Survey <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                <Button size="lg" onClick={handleNext} className="h-16 px-12 font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 group rounded-full">
+                  Start Survey <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </motion.div>
             )}
@@ -278,17 +279,17 @@ export default function Apply() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="space-y-8"
+                className="space-y-10"
               >
-                <div className="space-y-2">
-                  <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground -ml-2">
+                <div className="space-y-4">
+                  <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground -ml-2 hover:bg-muted/50 rounded-full px-4">
                     <ArrowLeft className="w-4 h-4 mr-2" /> Back
                   </Button>
-                  <h2 className="text-3xl font-bold tracking-tight text-foreground">What device will you use?</h2>
-                  <p className="text-muted-foreground">This helps us match you with compatible tasks.</p>
+                  <h2 className="text-4xl font-bold tracking-tight text-foreground">What device will you use?</h2>
+                  <p className="text-muted-foreground text-lg font-medium">This helps us match you with compatible tasks.</p>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {[
                     { id: "iPhone", icon: Smartphone, label: "iPhone / iPad" },
                     { id: "Android", icon: Smartphone, label: "Android Device" },
@@ -298,16 +299,16 @@ export default function Apply() {
                     <Card 
                       key={item.id}
                       className={cn(
-                        "cursor-pointer transition-all border-border/50 hover:bg-muted/50",
-                        device === item.id && "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                        "cursor-pointer transition-all border-border/50 hover:bg-muted/50 rounded-3xl overflow-hidden group",
+                        device === item.id && "border-primary bg-primary/5 shadow-xl shadow-primary/5"
                       )}
                       onClick={() => { setDevice(item.id as Device); setTimeout(handleNext, 300); }}
                     >
-                      <CardContent className="p-6 flex flex-col items-center text-center gap-4">
-                        <div className={cn("w-12 h-12 rounded-xl bg-muted flex items-center justify-center transition-colors", device === item.id && "bg-primary/20 text-primary")}>
-                          <item.icon className="w-6 h-6" />
+                      <CardContent className="p-8 flex flex-col items-center text-center gap-6">
+                        <div className={cn("w-16 h-16 rounded-2xl bg-muted flex items-center justify-center transition-all group-hover:scale-110", device === item.id && "bg-primary text-primary-foreground")}>
+                          <item.icon className="w-8 h-8" />
                         </div>
-                        <span className="text-sm font-bold tracking-tight">{item.label}</span>
+                        <span className="text-lg font-black tracking-tight">{item.label}</span>
                       </CardContent>
                     </Card>
                   ))}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
@@ -30,8 +30,7 @@ const STEPS = [
   { id: 6, title: "Platform Rules", icon: Lock, description: "Our community standards." },
   { id: 7, title: "Wallet Setup", icon: Zap, description: "Configure your payout destination." },
   { id: 8, title: "Demographics", icon: Globe, description: "Help us match local tasks." },
-  { id: 9, title: "Certification", icon: Award, description: "Final quality assessment." },
-  { id: 10, title: "Activation", icon: Zap, description: "You're ready to start earning." }
+  { id: 9, title: "Activation", icon: Zap, description: "You're ready to start earning." }
 ];
 
 const SKILL_CATEGORIES = [
@@ -59,11 +58,10 @@ export default function WorkerOnboarding() {
     notificationsEnabled: user?.notificationsEnabled ?? false,
     skills: user?.skills || [] as string[],
     agreedToRules: false,
-    identityVerified: false,
     paymentEmail: user?.paymentEmail || "",
     country: user?.country || "",
     age: user?.age || "",
-    quizScore: 0
+    gender: user?.gender || "",
   });
 
   const progress = (currentStep / STEPS.length) * 100;
@@ -111,21 +109,45 @@ export default function WorkerOnboarding() {
 
     setLoading(true);
     try {
-      // Create a clean update object without quizScore if we don't want it in the DB, 
-      // but I added it to the rules just in case.
-      const { quizScore, ...updateData } = formData;
-      
+      // Capture and store answers in a separate collection
+      await addDoc(collection(db, "onboarding_answers"), {
+        userId: user.uid,
+        email: user.email,
+        answers: formData,
+        timestamp: serverTimestamp()
+      });
+
+      // Auto-create a welcome task and assignment for the user
+      const taskRef = await addDoc(collection(db, "tasks"), {
+        title: "Welcome & Platform Orientation",
+        description: "Complete your first orientation task to understand how Spunn Force works. This task is automatically assigned to help you get started.",
+        payout: 5.00,
+        type: "Orientation",
+        status: "active",
+        requiredTier: "New",
+        createdAt: serverTimestamp(),
+        limit: 10000,
+        link: "https://spunn.force/orientation",
+        targetGeo: "Global"
+      });
+
+      await addDoc(collection(db, "assignments"), {
+        taskId: taskRef.id,
+        workerId: user.uid,
+        status: "pending",
+        assignedAt: serverTimestamp()
+      });
+
       await updateDoc(doc(db, "users", user.uid), {
-        ...updateData,
-        quizScore, // Including it since I added it to rules
+        ...formData,
         onboardingCompleted: true,
-        quizCompleted: true,
-        onboardingStep: 10,
+        quizCompleted: true, // Automatically complete quiz since tutorial is removed
+        onboardingStep: 9,
         trustTier: "New",
         level: 1,
         status: "active"
       });
-      toast.success("Onboarding complete! Welcome to Spunn Force.");
+      toast.success("Onboarding complete! Your first task is waiting.");
       navigate("/worker");
     } catch (error: any) {
       handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
@@ -147,42 +169,43 @@ export default function WorkerOnboarding() {
     switch (currentStep) {
       case 2:
         return (
-          <div className="space-y-6 py-4">
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                <UserCircle className="w-3 h-3" /> Choose a Username
+          <div className="space-y-10 py-8">
+            <div className="space-y-6">
+              <label className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-3 ml-1">
+                <UserCircle className="w-5 h-5 text-primary" /> Choose a Username
               </label>
               <Input 
                 value={formData.username}
                 onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
                 placeholder="e.g. ShadowOperator_42"
-                className="h-12 bg-background/50 border-border/50"
+                className="h-16 bg-background/50 border-border/50 text-xl font-bold rounded-2xl px-8 focus:border-primary transition-all"
               />
-              <p className="text-[10px] text-muted-foreground italic">
+              <p className="text-sm text-muted-foreground italic font-medium leading-relaxed px-1">
                 This is how you will be identified in the marketplace. You don't need to use your real name.
               </p>
             </div>
             
-            <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/10">
-              <div className="space-y-1">
-                <div className="text-sm font-bold flex items-center gap-2">
-                  {formData.isAnonymous ? <EyeOff className="w-4 h-4 text-primary" /> : <Eye className="w-4 h-4 text-primary" />}
+            <div className="flex items-center justify-between p-8 rounded-3xl bg-primary/5 border border-primary/10 transition-all hover:bg-primary/10 group">
+              <div className="space-y-2">
+                <div className="text-xl font-black flex items-center gap-3">
+                  {formData.isAnonymous ? <EyeOff className="w-6 h-6 text-primary" /> : <Eye className="w-6 h-6 text-primary" />}
                   Public Anonymity
                 </div>
-                <p className="text-[10px] text-muted-foreground">Hide your real identity from other operators.</p>
+                <p className="text-sm text-muted-foreground font-medium">Hide your real identity from other operators.</p>
               </div>
               <Checkbox 
                 checked={formData.isAnonymous}
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isAnonymous: !!checked }))}
+                className="w-8 h-8 rounded-lg border-2 border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
               />
             </div>
           </div>
         );
       case 3:
         return (
-          <div className="space-y-6 py-4">
-            <p className="text-sm text-muted-foreground">Select languages you are fluent in.</p>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-10 py-8">
+            <p className="text-xl text-muted-foreground font-medium px-1">Select languages you are fluent in.</p>
+            <div className="grid grid-cols-2 gap-6">
               {["English", "Spanish", "French", "German", "Chinese", "Japanese", "Hindi", "Arabic"].map(lang => (
                 <button
                   key={lang}
@@ -193,13 +216,20 @@ export default function WorkerOnboarding() {
                       : [...prev.languages, lang] 
                   }))}
                   className={cn(
-                    "px-4 py-3 rounded-xl border text-[11px] font-bold transition-all text-left",
+                    "px-8 py-6 rounded-3xl border text-base font-black uppercase tracking-widest transition-all text-left group relative overflow-hidden",
                     formData.languages.includes(lang)
-                      ? "bg-primary/10 border-primary text-primary"
-                      : "bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30"
+                      ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/20"
+                      : "bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:bg-muted/50"
                   )}
                 >
-                  {lang}
+                  <span className="relative z-10">{lang}</span>
+                  {formData.languages.includes(lang) && (
+                    <motion.div 
+                      layoutId="lang-bg"
+                      className="absolute inset-0 bg-primary"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
                 </button>
               ))}
             </div>
@@ -207,19 +237,22 @@ export default function WorkerOnboarding() {
         );
       case 4:
         return (
-          <div className="space-y-8 py-6 text-center">
-            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-primary animate-pulse">
-              <Bell className="w-10 h-10" />
+          <div className="space-y-10 py-12 text-center">
+            <div className="relative inline-block">
+              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
+              <div className="relative w-24 h-24 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto text-primary border border-primary/20 shadow-xl shadow-primary/5">
+                <Bell className="w-12 h-12" />
+              </div>
             </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-bold">Enable Phone Notifications</h3>
-              <p className="text-sm text-muted-foreground">
+            <div className="space-y-4">
+              <h3 className="text-2xl font-display font-bold tracking-tight">Enable Phone Notifications</h3>
+              <p className="text-lg text-muted-foreground font-medium leading-relaxed max-w-sm mx-auto">
                 High-value tasks often disappear in seconds. Get notified instantly when a new match is found for your profile.
               </p>
             </div>
             <Button 
               variant={formData.notificationsEnabled ? "outline" : "default"}
-              className="w-full h-12 font-bold"
+              className="w-full h-16 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02]"
               onClick={() => {
                 setFormData(prev => ({ ...prev, notificationsEnabled: true }));
                 toast.success("Notifications enabled!");
@@ -231,21 +264,28 @@ export default function WorkerOnboarding() {
         );
       case 5:
         return (
-          <div className="space-y-6 py-4">
-            <p className="text-sm text-muted-foreground">Select at least 3 categories you have experience in.</p>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-10 py-8">
+            <p className="text-xl text-muted-foreground font-medium px-1">Select at least 3 categories you have experience in.</p>
+            <div className="grid grid-cols-2 gap-6">
               {SKILL_CATEGORIES.map(skill => (
                 <button
                   key={skill}
                   onClick={() => toggleSkill(skill)}
                   className={cn(
-                    "px-4 py-3 rounded-xl border text-[11px] font-bold transition-all text-left",
+                    "px-8 py-6 rounded-3xl border text-base font-black uppercase tracking-widest transition-all text-left group relative overflow-hidden",
                     formData.skills.includes(skill)
-                      ? "bg-primary/10 border-primary text-primary"
-                      : "bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30"
+                      ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/20"
+                      : "bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:bg-muted/50"
                   )}
                 >
-                  {skill}
+                  <span className="relative z-10">{skill}</span>
+                  {formData.skills.includes(skill) && (
+                    <motion.div 
+                      layoutId="skill-bg"
+                      className="absolute inset-0 bg-primary"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
                 </button>
               ))}
             </div>
@@ -253,28 +293,29 @@ export default function WorkerOnboarding() {
         );
       case 6:
         return (
-          <div className="space-y-6 py-4">
-            <div className="bg-muted/30 p-6 rounded-2xl border border-border/50 space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar">
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-primary">1. Accuracy First</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">All tasks are peer-reviewed. Consistent low-quality submissions will result in account suspension.</p>
+          <div className="space-y-10 py-8">
+            <div className="bg-muted/30 p-10 rounded-[2.5rem] border border-border/50 space-y-8 max-h-[400px] overflow-y-auto hide-scrollbar">
+              <div className="space-y-3">
+                <h4 className="text-sm font-black uppercase tracking-[0.3em] text-primary">1. Accuracy First</h4>
+                <p className="text-base text-muted-foreground leading-relaxed font-medium">All tasks are peer-reviewed. Consistent low-quality submissions will result in account suspension.</p>
               </div>
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-primary">2. Confidentiality</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">You may be exposed to sensitive data. Sharing task details outside the platform is strictly prohibited.</p>
+              <div className="space-y-3">
+                <h4 className="text-sm font-black uppercase tracking-[0.3em] text-primary">2. Confidentiality</h4>
+                <p className="text-base text-muted-foreground leading-relaxed font-medium">You may be exposed to sensitive data. Sharing task details outside the platform is strictly prohibited.</p>
               </div>
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-primary">3. One Account</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">Multiple accounts per person are not allowed and will be flagged by our sybil-detection system.</p>
+              <div className="space-y-3">
+                <h4 className="text-sm font-black uppercase tracking-[0.3em] text-primary">3. One Account</h4>
+                <p className="text-base text-muted-foreground leading-relaxed font-medium">Multiple accounts per person are not allowed and will be flagged by our sybil-detection system.</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-2">
+            <div className="flex items-center gap-4 p-4 rounded-3xl bg-primary/5 border border-primary/10 transition-all hover:bg-primary/10 group cursor-pointer" onClick={() => setFormData(prev => ({ ...prev, agreedToRules: !prev.agreedToRules }))}>
               <Checkbox 
                 id="rules"
                 checked={formData.agreedToRules}
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, agreedToRules: !!checked }))}
+                className="w-8 h-8 rounded-lg border-2 border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
               />
-              <label htmlFor="rules" className="text-xs font-medium cursor-pointer">
+              <label htmlFor="rules" className="text-sm font-black uppercase tracking-[0.1em] cursor-pointer text-foreground/80 group-hover:text-foreground transition-colors">
                 I have read and agree to the Spunn Force Operator Guidelines.
               </label>
             </div>
@@ -282,19 +323,19 @@ export default function WorkerOnboarding() {
         );
       case 7:
         return (
-          <div className="space-y-6 py-4">
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                <Mail className="w-3 h-3" /> PayPal Payout Email
+          <div className="space-y-10 py-8">
+            <div className="space-y-6">
+              <label className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-3 ml-1">
+                <Mail className="w-5 h-5 text-primary" /> PayPal Payout Email
               </label>
               <Input 
                 type="email"
                 value={formData.paymentEmail}
                 onChange={(e) => setFormData(prev => ({ ...prev, paymentEmail: e.target.value }))}
                 placeholder="payouts@example.com"
-                className="h-12 bg-background/50 border-border/50"
+                className="h-16 bg-background/50 border-border/50 text-xl font-bold rounded-2xl px-8 focus:border-primary transition-all"
               />
-              <p className="text-[10px] text-muted-foreground italic">
+              <p className="text-sm text-muted-foreground italic font-medium leading-relaxed px-1">
                 Earnings are processed every 48 hours once you hit the $25 threshold.
               </p>
             </div>
@@ -302,89 +343,84 @@ export default function WorkerOnboarding() {
         );
       case 8:
         return (
-          <div className="space-y-6 py-4">
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                <Globe className="w-3 h-3" /> Primary Location
+          <div className="space-y-10 py-8">
+            <div className="space-y-6">
+              <label className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-3 ml-1">
+                <Globe className="w-5 h-5 text-primary" /> Primary Location
               </label>
               <Select onValueChange={(val) => setFormData(prev => ({ ...prev, country: val as string }))}>
-                <SelectTrigger className="h-12 bg-background/50 border-border/50">
+                <SelectTrigger className="h-16 bg-background/50 border-border/50 text-xl font-bold rounded-2xl px-8 focus:border-primary transition-all">
                   <SelectValue placeholder="Select your country" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="United States">United States</SelectItem>
-                  <SelectItem value="United Kingdom">United Kingdom</SelectItem>
-                  <SelectItem value="Canada">Canada</SelectItem>
-                  <SelectItem value="India">India</SelectItem>
-                  <SelectItem value="Philippines">Philippines</SelectItem>
-                  <SelectItem value="Nigeria">Nigeria</SelectItem>
-                  <SelectItem value="Global">Other / Global</SelectItem>
+                <SelectContent className="rounded-2xl border-border shadow-2xl">
+                  <SelectItem value="United States" className="py-3 px-6 text-base font-medium">United States</SelectItem>
+                  <SelectItem value="United Kingdom" className="py-3 px-6 text-base font-medium">United Kingdom</SelectItem>
+                  <SelectItem value="Canada" className="py-3 px-6 text-base font-medium">Canada</SelectItem>
+                  <SelectItem value="India" className="py-3 px-6 text-base font-medium">India</SelectItem>
+                  <SelectItem value="Philippines" className="py-3 px-6 text-base font-medium">Philippines</SelectItem>
+                  <SelectItem value="Nigeria" className="py-3 px-6 text-base font-medium">Nigeria</SelectItem>
+                  <SelectItem value="Global" className="py-3 px-6 text-base font-medium">Other / Global</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                <Calendar className="w-3 h-3" /> Age Group
+            <div className="space-y-6">
+              <label className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-3 ml-1">
+                <Calendar className="w-5 h-5 text-primary" /> Age Group
               </label>
               <Select onValueChange={(val) => setFormData(prev => ({ ...prev, age: val as string }))}>
-                <SelectTrigger className="h-12 bg-background/50 border-border/50">
+                <SelectTrigger className="h-16 bg-background/50 border-border/50 text-xl font-bold rounded-2xl px-8 focus:border-primary transition-all">
                   <SelectValue placeholder="Select your age group" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="18-24">18 - 24</SelectItem>
-                  <SelectItem value="25-34">25 - 34</SelectItem>
-                  <SelectItem value="35-44">35 - 44</SelectItem>
-                  <SelectItem value="45+">45+</SelectItem>
+                <SelectContent className="rounded-2xl border-border shadow-2xl">
+                  <SelectItem value="18-24" className="py-3 px-6 text-base font-medium">18 - 24</SelectItem>
+                  <SelectItem value="25-34" className="py-3 px-6 text-base font-medium">25 - 34</SelectItem>
+                  <SelectItem value="35-44" className="py-3 px-6 text-base font-medium">35 - 44</SelectItem>
+                  <SelectItem value="45+" className="py-3 px-6 text-base font-medium">45+</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-6">
+              <label className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-3 ml-1">
+                <UserCircle className="w-5 h-5 text-primary" /> Gender Identity
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                {["Male", "Female", "Non-binary", "Other"].map((g) => (
+                  <button
+                    key={g}
+                    onClick={() => setFormData(prev => ({ ...prev, gender: g }))}
+                    className={cn(
+                      "h-16 rounded-2xl border transition-all text-sm font-black uppercase tracking-widest flex items-center justify-center px-4",
+                      formData.gender === g 
+                        ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20" 
+                        : "bg-background/50 border-border/50 text-muted-foreground hover:border-primary/50 hover:bg-primary/5"
+                    )}
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         );
       case 9:
         return (
-          <div className="space-y-6 py-4">
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-muted/30 border border-border/50 space-y-3">
-                <p className="text-xs font-bold">Quick Quiz: What happens if your accuracy falls below 80%?</p>
-                <div className="space-y-2">
-                  {["Nothing", "Temporary suspension", "Bonus earnings"].map(opt => (
-                    <button 
-                      key={opt}
-                      onClick={() => setFormData(prev => ({ ...prev, quizScore: opt === "Temporary suspension" ? 100 : 0 }))}
-                      className={cn(
-                        "w-full p-3 rounded-lg border text-[11px] font-medium text-left transition-all",
-                        formData.quizScore === 100 && opt === "Temporary suspension" 
-                          ? "bg-emerald-500/10 border-emerald-500 text-emerald-500" 
-                          : "bg-background border-border/50 hover:border-primary/30"
-                      )}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      case 10:
-        return (
-          <div className="space-y-8 py-10 text-center">
+          <div className="space-y-10 py-12 text-center">
             <div className="relative inline-block">
-              <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full animate-pulse" />
-              <div className="relative w-24 h-24 bg-primary rounded-3xl flex items-center justify-center text-primary-foreground shadow-2xl">
-                <Zap className="w-12 h-12 fill-current" />
+              <div className="absolute inset-0 bg-primary/30 blur-3xl rounded-full animate-pulse" />
+              <div className="relative w-32 h-32 bg-primary rounded-[2.5rem] flex items-center justify-center text-primary-foreground shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
+                <Zap className="w-16 h-16 fill-current" />
               </div>
             </div>
-            <div className="space-y-2">
-              <h3 className="text-2xl font-bold tracking-tight">System Activated</h3>
-              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+            <div className="space-y-4">
+              <h3 className="text-4xl font-display font-bold tracking-tight">System Activated<span className="text-primary">.</span></h3>
+              <p className="text-lg text-muted-foreground max-w-sm mx-auto font-medium leading-relaxed">
                 Your operator profile is now live. You have been granted Level 1 access to the Spunn Force network.
               </p>
             </div>
-            <div className="flex flex-wrap justify-center gap-2">
-              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Level 1</Badge>
-              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Verified</Badge>
-              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Anonymous</Badge>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-6 py-2 text-xs font-black uppercase tracking-widest rounded-full">Level 1</Badge>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-6 py-2 text-xs font-black uppercase tracking-widest rounded-full">Verified</Badge>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-6 py-2 text-xs font-black uppercase tracking-widest rounded-full">Anonymous</Badge>
             </div>
           </div>
         );
@@ -400,8 +436,7 @@ export default function WorkerOnboarding() {
       case 5: return formData.skills.length >= 3;
       case 6: return formData.agreedToRules;
       case 7: return formData.paymentEmail.includes("@");
-      case 8: return formData.country && formData.age;
-      case 10: return formData.quizScore === 100;
+      case 8: return formData.country && formData.age && formData.gender;
       default: return true;
     }
   };

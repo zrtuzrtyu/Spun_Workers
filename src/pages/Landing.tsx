@@ -80,25 +80,25 @@ export default function Landing() {
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 overflow-x-hidden font-sans antialiased">
       {/* Navbar */}
       <nav className="fixed top-0 inset-x-0 z-50 bg-background/40 backdrop-blur-2xl border-b border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <Logo className="scale-90 group-hover:opacity-80 transition-opacity" />
+        <div className="max-w-7xl mx-auto px-10 h-24 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3 group">
+            <Logo className="scale-110 group-hover:opacity-80 transition-opacity" />
           </Link>
           
-          <div className="hidden md:flex items-center gap-10 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+          <div className="hidden md:flex items-center gap-12 text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">
             <a href="#features" className="hover:text-primary transition-colors">Network</a>
             <a href="#calculator" className="hover:text-primary transition-colors">Earnings</a>
             <a href="#how-it-works" className="hover:text-primary transition-colors">Protocol</a>
           </div>
 
-          <div className="flex items-center gap-6">
-            <Link to="/login" className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors">
+          <div className="flex items-center gap-8">
+            <Link to="/login" className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">
               Log in
             </Link>
             <Link to="/apply" className={cn(
-              buttonVariants({ size: "sm" }), 
-              "font-bold uppercase tracking-[0.15em] text-[10px] h-10 px-6 rounded-full",
-              "bg-primary text-primary-foreground hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+              buttonVariants({ size: "lg" }), 
+              "font-black uppercase tracking-[0.2em] text-xs h-14 px-10 rounded-full",
+              "bg-primary text-primary-foreground hover:opacity-90 transition-all shadow-xl shadow-primary/20"
             )}>
               Join Force
             </Link>
@@ -116,23 +116,23 @@ export default function Landing() {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
         
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="max-w-4xl mx-auto text-center space-y-12">
+          <div className="max-w-5xl mx-auto text-center space-y-16">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="space-y-6"
+              className="space-y-8"
             >
-              <Badge variant="outline" className="bg-white/[0.03] border-white/[0.08] text-muted-foreground px-5 py-2 text-[10px] font-bold uppercase tracking-[0.3em] rounded-full">
-                <Sparkles className="w-3 h-3 mr-2 text-primary" /> Distributed Intelligence Network
+              <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary px-6 py-2.5 text-xs font-black uppercase tracking-[0.4em] rounded-full">
+                <Sparkles className="w-4 h-4 mr-3 text-primary" /> Distributed Intelligence Network
               </Badge>
               
-              <h1 className="text-7xl md:text-[120px] font-display font-bold tracking-[-0.04em] leading-[0.85] text-white">
+              <h1 className="text-8xl md:text-[140px] font-display font-bold tracking-[-0.05em] leading-[0.8] text-foreground">
                 Precision <br />
                 <span className="text-primary">at Scale.</span>
               </h1>
               
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
+              <p className="text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
                 Spunn Force is the premier network for high-accuracy micro-tasks. 
                 Join 12,000+ verified operators turning digital precision into sustainable profit.
               </p>
@@ -142,17 +142,17 @@ export default function Landing() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-6"
+              className="flex flex-col sm:flex-row items-center justify-center gap-8"
             >
               <Link to="/apply" className={cn(
                 buttonVariants({ size: "lg" }), 
-                "h-16 px-12 text-base font-bold rounded-full group bg-white text-black hover:bg-white/90 transition-all shadow-2xl shadow-white/10"
+                "h-20 px-16 text-lg font-black uppercase tracking-[0.2em] rounded-full group bg-foreground text-background hover:opacity-90 transition-all shadow-2xl shadow-foreground/10"
               )}>
-                Start Earning <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                Start Earning <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
               </Link>
               <a href="#calculator" className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }), 
-                "h-16 px-12 text-base font-bold rounded-full border-white/[0.1] hover:bg-white/[0.05] transition-all"
+                "h-20 px-16 text-lg font-black uppercase tracking-[0.2em] rounded-full border-border hover:bg-muted transition-all"
               )}>
                 View Potential
               </a>

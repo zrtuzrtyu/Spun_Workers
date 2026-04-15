@@ -20,6 +20,7 @@ interface AppUser {
   country?: string;
   paymentEmail?: string;
   age?: string;
+  gender?: string;
   telegram?: string;
   username?: string;
   isAnonymous?: boolean;
