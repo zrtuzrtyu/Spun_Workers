@@ -146,15 +146,15 @@ export default function Landing() {
             >
               <Link to="/apply" className={cn(
                 buttonVariants({ size: "lg" }), 
-                "w-full sm:w-auto h-16 md:h-20 px-10 md:px-16 text-base md:text-lg font-black uppercase tracking-[0.2em] rounded-full group bg-foreground text-background hover:opacity-90 transition-all shadow-2xl shadow-foreground/10"
+                "w-full sm:w-auto h-16 md:h-20 px-10 md:px-16 text-sm md:text-base font-bold uppercase tracking-[0.2em] rounded-full group bg-foreground text-background hover:bg-foreground/90 transition-all shadow-2xl shadow-foreground/10"
               )}>
-                Start Earning <ArrowRight className="w-5 h-5 md:w-6 md:h-6 ml-3 group-hover:translate-x-1 transition-transform" />
+                START EARNING <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-3 group-hover:translate-x-1 transition-transform" />
               </Link>
               <a href="#calculator" className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }), 
-                "w-full sm:w-auto h-16 md:h-20 px-10 md:px-16 text-base md:text-lg font-black uppercase tracking-[0.2em] rounded-full border-border hover:bg-muted transition-all"
+                "w-full sm:w-auto h-16 md:h-20 px-10 md:px-16 text-sm md:text-base font-bold uppercase tracking-[0.2em] rounded-full bg-transparent border border-foreground/20 text-foreground hover:bg-foreground/5 transition-all"
               )}>
-                View Potential
+                VIEW POTENTIAL
               </a>
             </motion.div>
 
