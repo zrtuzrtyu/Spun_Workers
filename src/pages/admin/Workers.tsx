@@ -16,7 +16,7 @@ export default function AdminWorkers() {
   useEffect(() => {
     const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
     const unsub = onSnapshot(q, (snap) => {
-      const workersData = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter((w: any) => w.role === "worker");
+      const workersData: any[] = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter((w: any) => w.role === "worker");
       setWorkers(workersData);
       
       // Use pre-calculated stats from the user document instead of fetching all assignments
@@ -66,8 +66,8 @@ export default function AdminWorkers() {
         className="mb-8 flex justify-between items-center"
       >
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2 font-sans">Worker Roster</h1>
-          <p className="text-zinc-400 font-sans">Manage your workforce, approve applications, and track earnings.</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2 font-sans">Worker Roster</h1>
+          <p className="text-muted-foreground font-sans">Manage your workforce, approve applications, and track earnings.</p>
         </div>
       </motion.div>
 
@@ -75,12 +75,12 @@ export default function AdminWorkers() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.2)] relative"
+        className="bg-card border border-border rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.2)] relative"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse font-sans">
             <thead>
-              <tr className="bg-[#050505] border-b border-white/10 text-zinc-400 text-xs uppercase tracking-wider">
+              <tr className="bg-muted/30 border-b border-border text-muted-foreground text-xs uppercase tracking-wider">
                 <th className="p-4 font-semibold whitespace-nowrap">Worker</th>
                 <th className="p-4 font-semibold whitespace-nowrap">Contact</th>
                 <th className="p-4 font-semibold whitespace-nowrap">Stats</th>
@@ -89,10 +89,10 @@ export default function AdminWorkers() {
                 <th className="p-4 font-semibold text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-border">
               {workers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-white/40">No workers found.</td>
+                  <td colSpan={6} className="p-8 text-center text-muted-foreground">No workers found.</td>
                 </tr>
               ) : (
                 workers.map((worker, index) => (
@@ -101,10 +101,10 @@ export default function AdminWorkers() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
                     key={worker.id} 
-                    className="hover:bg-white/5 transition-colors group"
+                    className="hover:bg-muted/50 transition-colors group"
                   >
                     <td className="p-4 whitespace-nowrap">
-                      <div className="font-bold text-white group-hover:text-purple-400 transition-colors flex items-center gap-2">
+                      <div className="font-bold text-foreground group-hover:text-primary transition-colors flex items-center gap-2">
                         {worker.name}
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${
                           worker.trustTier === 'Premium' ? 'bg-amber-500/20 text-amber-400' :
@@ -114,15 +114,15 @@ export default function AdminWorkers() {
                           {worker.trustTier || 'New'}
                         </span>
                       </div>
-                      <div className="text-xs text-white/40">ID: {worker.uid.substring(0, 8)}...</div>
-                      <div className="text-xs text-white/40">Joined: {worker.createdAt?.toDate ? format(worker.createdAt.toDate(), "MMM d, yyyy") : "Unknown"}</div>
+                      <div className="text-xs text-muted-foreground">ID: {worker.uid.substring(0, 8)}...</div>
+                      <div className="text-xs text-muted-foreground">Joined: {worker.createdAt?.toDate ? format(worker.createdAt.toDate(), "MMM d, yyyy") : "Unknown"}</div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <div className="text-sm text-white/80">{worker.email}</div>
-                      <div className="text-xs text-purple-400">{worker.telegram}</div>
+                      <div className="text-sm text-foreground/80">{worker.email}</div>
+                      <div className="text-xs text-primary">{worker.telegram}</div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <div className="text-sm text-white/80">
+                      <div className="text-sm text-foreground/80">
                         {workerStats[worker.id]?.completionRate || 0}% Completion
                       </div>
                       <div className="text-xs text-yellow-400 flex items-center gap-1 mt-1">
@@ -130,7 +130,7 @@ export default function AdminWorkers() {
                       </div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <div className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">${(worker.earnings || 0).toFixed(2)}</div>
+                      <div className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-pink-400">${(worker.earnings || 0).toFixed(2)}</div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
                       <span className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -160,7 +160,7 @@ export default function AdminWorkers() {
                         <select 
                           value={worker.status}
                           onChange={(e) => handleStatusChange(worker.id, e.target.value)}
-                          className="bg-[#050505] border border-white/10 rounded-xl p-2 text-sm text-white outline-none focus:border-purple-500 transition-colors cursor-pointer hover:bg-white/5"
+                          className="bg-background border border-border rounded-xl p-2 text-sm text-foreground outline-none focus:border-primary transition-colors cursor-pointer hover:bg-muted/50"
                         >
                           <option value="pending">Pending</option>
                           <option value="active">Active</option>
@@ -184,20 +184,20 @@ export default function AdminWorkers() {
       )}
 
       {workerToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl"
+            className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl"
           >
-            <h3 className="text-xl font-bold text-white mb-2">Delete Worker</h3>
-            <p className="text-zinc-400 mb-6">
-              Are you sure you want to delete worker <span className="text-white font-bold">{workerToDelete.name}</span>? This action is irreversible.
+            <h3 className="text-xl font-bold text-foreground mb-2">Delete Worker</h3>
+            <p className="text-muted-foreground mb-6">
+              Are you sure you want to delete worker <span className="text-foreground font-bold">{workerToDelete.name}</span>? This action is irreversible.
             </p>
             <div className="flex justify-end gap-3">
               <button 
                 onClick={() => setWorkerToDelete(null)}
-                className="px-4 py-2 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors"
+                className="px-4 py-2 rounded-xl border border-border text-foreground hover:bg-muted/50 transition-colors"
               >
                 Cancel
               </button>

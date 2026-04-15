@@ -19,7 +19,9 @@ import {
   Layout,
   Cpu,
   Layers,
-  Fingerprint
+  Fingerprint,
+  Sun,
+  Moon
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -29,6 +31,7 @@ import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/contexts/ThemeContext";
 
 /**
  * DesignerIcon Wrapper
@@ -38,7 +41,7 @@ function DesignerIcon({ icon: Icon, className }: { icon: any, className?: string
   return (
     <div className={cn(
       "relative flex items-center justify-center w-12 h-12 rounded-2xl",
-      "bg-gradient-to-br from-white/[0.08] to-transparent border border-white/[0.05]",
+      "bg-gradient-to-br from-foreground/[0.08] to-transparent border border-border",
       "shadow-[0_8px_16px_-6px_rgba(0,0,0,0.5)] overflow-hidden group-hover:border-primary/30 transition-all duration-500",
       className
     )}>
@@ -72,6 +75,7 @@ function NumberTicker({ value, prefix = "", suffix = "" }: { value: number, pref
 }
 
 export default function Landing() {
+  const { theme, toggleTheme } = useTheme();
   const [hours, setHours] = useState([4]);
   const hourlyRate = 12.50;
   const potentialDaily = hours[0] * hourlyRate;
@@ -79,7 +83,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 overflow-x-hidden font-sans antialiased">
       {/* Navbar */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-background/40 backdrop-blur-2xl border-b border-white/[0.05]">
+      <nav className="fixed top-0 inset-x-0 z-50 bg-background/40 backdrop-blur-2xl border-b border-border">
         <div className="max-w-7xl mx-auto px-10 h-24 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
             <Logo className="scale-110 group-hover:opacity-80 transition-opacity" />
@@ -92,6 +96,9 @@ export default function Landing() {
           </div>
 
           <div className="flex items-center gap-4 md:gap-8">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground hover:text-foreground">
+              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </Button>
             <Link to="/login" className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">
               Log in
             </Link>
@@ -113,7 +120,7 @@ export default function Landing() {
         <div className="absolute top-1/4 left-0 w-96 h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none animate-pulse" />
         
         {/* Grid Overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(124,58,237,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(124,58,237,0.05)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
         
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="max-w-5xl mx-auto text-center space-y-16">
@@ -146,13 +153,13 @@ export default function Landing() {
             >
               <Link to="/apply" className={cn(
                 buttonVariants({ size: "lg" }), 
-                "w-full sm:w-auto h-16 md:h-20 px-10 md:px-16 text-sm md:text-base font-bold uppercase tracking-[0.2em] rounded-full group bg-foreground text-background hover:bg-foreground/90 transition-all shadow-2xl shadow-foreground/10"
+                "w-full sm:w-auto h-14 md:h-16 px-10 md:px-12 text-base font-black uppercase tracking-[0.2em] rounded-full group bg-foreground text-background hover:bg-foreground/90 transition-all shadow-xl shadow-foreground/10"
               )}>
-                START EARNING <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-3 group-hover:translate-x-1 transition-transform" />
+                START EARNING <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
               </Link>
               <a href="#calculator" className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }), 
-                "w-full sm:w-auto h-16 md:h-20 px-10 md:px-16 text-sm md:text-base font-bold uppercase tracking-[0.2em] rounded-full bg-transparent border border-foreground/20 text-foreground hover:bg-foreground/5 transition-all"
+                "w-full sm:w-auto h-14 md:h-16 px-10 md:px-12 text-base font-black uppercase tracking-[0.2em] rounded-full bg-transparent border border-foreground/20 text-foreground hover:bg-foreground/5 transition-all"
               )}>
                 VIEW POTENTIAL
               </a>
@@ -166,13 +173,13 @@ export default function Landing() {
             >
               <div className="flex -space-x-4">
                 {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} className="w-12 h-12 rounded-full border-4 border-background bg-muted overflow-hidden ring-1 ring-white/10 grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer">
+                  <div key={i} className="w-12 h-12 rounded-full border-4 border-background bg-muted overflow-hidden ring-1 ring-foreground/10 grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer">
                     <img src={`https://picsum.photos/seed/user${i}/100/100`} alt="User" referrerPolicy="no-referrer" />
                   </div>
                 ))}
               </div>
               <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60">
-                Trusted by <span className="text-white">12,402</span> Global Operators
+                Trusted by <span className="text-foreground">12,402</span> Global Operators
               </p>
             </motion.div>
           </div>
@@ -180,7 +187,7 @@ export default function Landing() {
       </section>
 
       {/* Stats Section */}
-      <section className="border-y border-white/[0.05] bg-white/[0.01]">
+      <section className="border-y border-border bg-muted/10">
         <div className="max-w-7xl mx-auto px-8 py-20">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-16">
             {[
@@ -194,7 +201,7 @@ export default function Landing() {
                   <stat.icon className="w-4 h-4 text-primary/40 group-hover:text-primary transition-colors" />
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{stat.label}</div>
                 </div>
-                <div className="text-4xl font-display font-bold tracking-tight text-white">
+                <div className="text-4xl font-display font-bold tracking-tight text-foreground">
                   <NumberTicker value={stat.value} prefix={stat.prefix} suffix={stat.suffix} />
                 </div>
               </div>
@@ -269,14 +276,14 @@ export default function Landing() {
       </section>
 
       {/* Earnings Calculator */}
-      <section id="calculator" className="py-40 px-8 bg-white/[0.01] border-y border-white/[0.05]">
+      <section id="calculator" className="py-40 px-8 bg-muted/10 border-y border-border">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-32 items-center">
           <div className="space-y-12">
             <div className="space-y-6">
               <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 font-bold uppercase tracking-[0.3em] text-[10px] rounded-full px-4 py-1">
                 Projection
               </Badge>
-              <h2 className="text-5xl md:text-6xl font-display font-bold tracking-tight text-white leading-[1.1]">
+              <h2 className="text-5xl md:text-6xl font-display font-bold tracking-tight text-foreground leading-[1.1]">
                 Scale Your <br />Earnings.
               </h2>
               <p className="text-lg text-muted-foreground font-light leading-relaxed max-w-md">
@@ -284,12 +291,12 @@ export default function Landing() {
               </p>
             </div>
             
-            <div className="space-y-12 p-12 rounded-[2.5rem] bg-white/[0.02] border border-white/[0.05] shadow-2xl">
+            <div className="space-y-12 p-12 rounded-[2.5rem] bg-foreground/[0.02] border border-border shadow-2xl">
               <div className="space-y-8">
                 <div className="flex justify-between items-end">
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Daily Commitment</label>
-                    <div className="text-4xl font-display font-bold text-white">{hours[0]} <span className="text-lg font-light text-muted-foreground">Hours</span></div>
+                    <div className="text-4xl font-display font-bold text-foreground">{hours[0]} <span className="text-lg font-light text-muted-foreground">Hours</span></div>
                   </div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary bg-primary/10 px-4 py-2 rounded-full border border-primary/20">
                     $12.50 / Hour
@@ -305,10 +312,10 @@ export default function Landing() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-12 pt-8 border-t border-white/[0.05]">
+              <div className="grid grid-cols-2 gap-12 pt-8 border-t border-border">
                 <div className="space-y-2">
                   <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Daily</div>
-                  <div className="text-4xl font-display font-bold text-white">${potentialDaily.toFixed(2)}</div>
+                  <div className="text-4xl font-display font-bold text-foreground">${potentialDaily.toFixed(2)}</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Monthly</div>
@@ -319,7 +326,7 @@ export default function Landing() {
           </div>
 
           <div className="space-y-12 relative">
-            <div className="absolute -left-16 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/[0.05] to-transparent hidden lg:block" />
+            <div className="absolute -left-16 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border to-transparent hidden lg:block" />
             {[
               { icon: Target, title: "Vetted Flow", desc: "No low-quality noise. Only high-value operations from verified global partners." },
               { icon: TrendingUp, title: "Career Path", desc: "Grow from a New operator to a Premium strategist with exclusive access." },
@@ -328,7 +335,7 @@ export default function Landing() {
               <div key={i} className="flex gap-8 group">
                 <DesignerIcon icon={item.icon} className="shrink-0" />
                 <div className="space-y-3">
-                  <h4 className="text-xl font-display font-bold text-white tracking-tight">{item.title}</h4>
+                  <h4 className="text-xl font-display font-bold text-foreground tracking-tight">{item.title}</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed font-light">{item.desc}</p>
                 </div>
               </div>
@@ -341,7 +348,7 @@ export default function Landing() {
       <section id="how-it-works" className="py-40 px-8">
         <div className="max-w-3xl mx-auto space-y-24">
           <div className="text-center space-y-6">
-            <h2 className="text-5xl font-display font-bold tracking-tight text-white">The Protocol.</h2>
+            <h2 className="text-5xl font-display font-bold tracking-tight text-foreground">The Protocol.</h2>
             <p className="text-muted-foreground font-light text-lg">Everything you need to know about joining the Force.</p>
           </div>
 
@@ -352,7 +359,7 @@ export default function Landing() {
               { q: "What are the requirements?", a: "You need a reliable internet connection, a modern smartphone or laptop, and the ability to follow detailed instructions with high precision." },
               { q: "How do I unlock higher rates?", a: "Maintain a quality score above 95% and complete at least 50 tasks to unlock 'Trusted' status. Premium status is granted to our top 5% of operators." }
             ].map((faq, i) => (
-              <AccordionItem key={i} value={`item-${i}`} className="border-white/[0.05] px-8 rounded-3xl bg-white/[0.01] hover:bg-white/[0.02] transition-colors">
+              <AccordionItem key={i} value={`item-${i}`} className="border-border px-8 rounded-3xl bg-muted/10 hover:bg-muted/20 transition-colors">
                 <AccordionTrigger className="text-lg font-display font-bold hover:no-underline py-8">
                   {faq.q}
                 </AccordionTrigger>
@@ -370,7 +377,7 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto">
           <div className="relative p-16 md:p-32 rounded-[3.5rem] bg-primary overflow-hidden text-center space-y-12">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent)] pointer-events-none" />
-            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-white/10 blur-[100px] rounded-full pointer-events-none" />
+            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-foreground/10 blur-[100px] rounded-full pointer-events-none" />
             
             <div className="relative z-10 space-y-8">
               <h2 className="text-5xl md:text-8xl font-display font-bold tracking-tight text-primary-foreground leading-[0.9]">
@@ -383,7 +390,7 @@ export default function Landing() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6 md:gap-8 pt-8">
                 <Link to="/apply" className={cn(
                   buttonVariants({ size: "lg", variant: "secondary" }), 
-                  "w-full sm:w-auto h-16 md:h-20 px-10 md:px-16 text-lg md:text-xl font-bold rounded-full shadow-2xl bg-white text-black hover:bg-white/90 transition-all"
+                  "w-full sm:w-auto h-16 md:h-20 px-10 md:px-16 text-lg md:text-xl font-bold rounded-full shadow-2xl bg-foreground text-background hover:bg-foreground/90 transition-all"
                 )}>
                   Apply Now
                 </Link>
@@ -397,7 +404,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="py-32 px-8 border-t border-white/[0.05] bg-white/[0.01]">
+      <footer className="py-32 px-8 border-t border-border bg-muted/10">
         <div className="max-w-7xl mx-auto space-y-24">
           <div className="flex flex-col md:flex-row justify-between items-start gap-20">
             <div className="space-y-8">
@@ -408,7 +415,7 @@ export default function Landing() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-20 sm:gap-32">
               <div className="space-y-6">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white">Platform</h4>
+                <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-foreground">Platform</h4>
                 <ul className="space-y-4 text-sm text-muted-foreground font-light">
                   <li><a href="#" className="hover:text-primary transition-colors">Network</a></li>
                   <li><a href="#" className="hover:text-primary transition-colors">Earnings</a></li>
@@ -416,7 +423,7 @@ export default function Landing() {
                 </ul>
               </div>
               <div className="space-y-6">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white">Company</h4>
+                <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-foreground">Company</h4>
                 <ul className="space-y-4 text-sm text-muted-foreground font-light">
                   <li><a href="#" className="hover:text-primary transition-colors">About</a></li>
                   <li><a href="#" className="hover:text-primary transition-colors">Privacy</a></li>
@@ -424,7 +431,7 @@ export default function Landing() {
                 </ul>
               </div>
               <div className="space-y-6">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white">Support</h4>
+                <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-foreground">Support</h4>
                 <ul className="space-y-4 text-sm text-muted-foreground font-light">
                   <li><a href="#" className="hover:text-primary transition-colors">Help</a></li>
                   <li><a href="#" className="hover:text-primary transition-colors">Contact</a></li>
@@ -434,12 +441,12 @@ export default function Landing() {
             </div>
           </div>
           
-          <div className="pt-12 border-t border-white/[0.05] flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/40">
+          <div className="pt-12 border-t border-border flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/40">
             <p>© 2026 Spunn Force Network. All rights reserved.</p>
             <div className="flex gap-12">
-              <a href="#" className="hover:text-white transition-colors">Twitter</a>
-              <a href="#" className="hover:text-white transition-colors">Discord</a>
-              <a href="#" className="hover:text-white transition-colors">GitHub</a>
+              <a href="#" className="hover:text-foreground transition-colors">Twitter</a>
+              <a href="#" className="hover:text-foreground transition-colors">Discord</a>
+              <a href="#" className="hover:text-foreground transition-colors">GitHub</a>
             </div>
           </div>
         </div>
