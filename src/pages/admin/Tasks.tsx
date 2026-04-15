@@ -102,11 +102,11 @@ export default function AdminTasks() {
       } else {
         await addDoc(collection(db, "tasks"), {
           ...data,
-          status: "pending",
+          status: "active",
           createdAt: serverTimestamp(),
           createdBy: user?.uid
         });
-        toast.success("Task created! Pending admin approval.");
+        toast.success("Task created successfully!");
       }
       setIsCreating(false);
       setEditingTaskId(null);

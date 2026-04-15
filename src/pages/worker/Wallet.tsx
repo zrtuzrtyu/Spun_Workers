@@ -74,6 +74,7 @@ export default function Wallet() {
       await addDoc(collection(db, "withdrawals"), {
         workerId: firebaseUser.uid,
         workerName: user.name,
+        workerCountry: user.country || 'Global',
         amount: withdrawAmount,
         method,
         address,

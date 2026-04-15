@@ -32,8 +32,24 @@ export default function VerifyEmail() {
     }
   };
 
-  const handleRefresh = () => {
-    window.location.reload();
+  const handleRefresh = async () => {
+    if (auth.currentUser) {
+      setLoading(true);
+      try {
+        await auth.currentUser.reload();
+        if (auth.currentUser.emailVerified) {
+          window.location.reload();
+        } else {
+          toast.error("Email not verified yet. Please check your inbox.");
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      window.location.reload();
+    }
   };
 
   return (

@@ -112,21 +112,34 @@ export default function WorkerDashboard() {
   useEffect(() => {
     if (!user) return;
 
+    // Cache for task data to prevent N+1 queries on every snapshot
+    const taskCache = new Map<string, any>();
+
     const q = query(collection(db, "assignments"), where("workerId", "==", user.uid));
     const unsub = onSnapshot(q, async (snap) => {
       const assigns = await Promise.all(snap.docs.map(async (d) => {
         const data = d.data();
-        const taskRef = doc(db, "tasks", data.taskId);
-        const taskDoc = await getDoc(taskRef);
+        let taskData = taskCache.get(data.taskId);
+        
+        if (!taskData) {
+          const taskRef = doc(db, "tasks", data.taskId);
+          const taskDoc = await getDoc(taskRef);
+          taskData = taskDoc.exists() ? taskDoc.data() : null;
+          if (taskData) {
+            taskCache.set(data.taskId, taskData);
+          }
+        }
+
         return { 
           id: d.id, 
           ...data, 
-          taskTitle: taskDoc.exists() ? taskDoc.data().title : "Unknown Task",
-          taskDescription: taskDoc.exists() ? taskDoc.data().description : "No description",
-          taskLink: taskDoc.exists() ? taskDoc.data().link : "",
-          payout: taskDoc.exists() ? taskDoc.data().payout : 0,
+          taskTitle: taskData ? taskData.title : "Unknown Task",
+          taskDescription: taskData ? taskData.description : "No description",
+          taskLink: taskData ? taskData.link : "",
+          payout: taskData ? taskData.payout : 0,
         };
       }));
+      
       setAssignments(assigns.sort((a: any, b: any) => {
         const order: any = { pending: 0, submitted: 1, rejected: 2, approved: 3 };
         return order[a.status] - order[b.status];
@@ -171,24 +184,21 @@ export default function WorkerDashboard() {
       const snapshot = await uploadBytes(storageRef, proofFile);
       const downloadUrl = await getDownloadURL(snapshot.ref);
 
-      const isAutoApproved = user?.trustTier === "Premium";
-
       await updateDoc(doc(db, "assignments", selectedAssignment.id), {
-        status: isAutoApproved ? "approved" : "submitted",
+        status: "submitted",
         proofText,
         proofImageUrl: downloadUrl,
         submittedAt: serverTimestamp(),
-        approvedAt: isAutoApproved ? serverTimestamp() : null
       });
 
       await addDoc(collection(db, "activities"), {
         type: "task_submitted",
-        description: `Worker submitted proof for task${isAutoApproved ? ' (Auto-approved)' : ''}`,
+        description: `Worker submitted proof for task`,
         createdAt: serverTimestamp(),
         userId: user?.uid
       });
 
-      toast.success(isAutoApproved ? "Proof submitted and auto-approved!" : "Proof submitted successfully!");
+      toast.success("Proof submitted successfully! Pending admin review.");
       setSelectedAssignment(null);
       setProofText("");
       setProofFile(null);

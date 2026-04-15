@@ -29,19 +29,11 @@ export default function WorkerChat() {
 
   useEffect(() => {
     if (!user) return;
-
-    const fetchCompletedCount = async () => {
-      const q = query(
-        collection(db, "assignments"),
-        where("workerId", "==", user.uid),
-        where("status", "==", "approved")
-      );
-      const snapshot = await getCountFromServer(q);
-      setCompletedTasks(snapshot.data().count);
-      setIsAuthReady(true);
-    };
-
-    fetchCompletedCount();
+    
+    // Use the pre-calculated ratingCount (which increments on every approved task)
+    // instead of querying the server for all assignments.
+    setCompletedTasks(user.ratingCount || 0);
+    setIsAuthReady(true);
   }, [user]);
 
   useEffect(() => {

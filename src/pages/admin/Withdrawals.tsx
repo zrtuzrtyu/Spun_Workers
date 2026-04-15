@@ -25,20 +25,8 @@ export default function Withdrawals() {
       handleFirestoreError(error, OperationType.LIST, "withdrawals");
     });
 
-    const qWorkers = query(collection(db, "users"), where("role", "==", "worker"));
-    const unsubWorkers = onSnapshot(qWorkers, (snapshot) => {
-      const map: Record<string, any> = {};
-      snapshot.docs.forEach(doc => {
-        map[doc.id] = doc.data();
-      });
-      setWorkersMap(map);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, "users");
-    });
-
     return () => {
       unsubscribe();
-      unsubWorkers();
     };
   }, []);
 
@@ -162,7 +150,7 @@ export default function Withdrawals() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-zinc-400">
-                        {workersMap[w.workerId]?.country || 'Unknown'}
+                        {w.workerCountry || 'Unknown'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

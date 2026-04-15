@@ -117,27 +117,6 @@ export default function WorkerOnboarding() {
         timestamp: serverTimestamp()
       });
 
-      // Auto-create a welcome task and assignment for the user
-      const taskRef = await addDoc(collection(db, "tasks"), {
-        title: "Welcome & Platform Orientation",
-        description: "Complete your first orientation task to understand how Spunn Force works. This task is automatically assigned to help you get started.",
-        payout: 5.00,
-        type: "Orientation",
-        status: "active",
-        requiredTier: "New",
-        createdAt: serverTimestamp(),
-        limit: 10000,
-        link: "https://spunn.force/orientation",
-        targetGeo: "Global"
-      });
-
-      await addDoc(collection(db, "assignments"), {
-        taskId: taskRef.id,
-        workerId: user.uid,
-        status: "pending",
-        assignedAt: serverTimestamp()
-      });
-
       await updateDoc(doc(db, "users", user.uid), {
         ...formData,
         onboardingCompleted: true,
@@ -147,7 +126,7 @@ export default function WorkerOnboarding() {
         level: 1,
         status: "active"
       });
-      toast.success("Onboarding complete! Your first task is waiting.");
+      toast.success("Onboarding complete! Welcome to the platform.");
       navigate("/worker");
     } catch (error: any) {
       handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
@@ -308,14 +287,14 @@ export default function WorkerOnboarding() {
                 <p className="text-base text-muted-foreground leading-relaxed font-medium">Multiple accounts per person are not allowed and will be flagged by our sybil-detection system.</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 p-4 md:p-6 rounded-2xl md:rounded-3xl bg-primary/5 border border-primary/10 transition-all hover:bg-primary/10 group cursor-pointer" onClick={() => setFormData(prev => ({ ...prev, agreedToRules: !prev.agreedToRules }))}>
+            <div className="flex items-center gap-4 p-4 md:p-6 rounded-2xl md:rounded-3xl bg-primary/5 border border-primary/10 transition-all hover:bg-primary/10 group">
               <Checkbox 
                 id="rules"
                 checked={formData.agreedToRules}
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, agreedToRules: !!checked }))}
                 className="w-6 h-6 md:w-8 md:h-8 rounded-lg border-2 border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
               />
-              <label htmlFor="rules" className="text-[11px] md:text-sm font-black uppercase tracking-[0.1em] cursor-pointer text-foreground/80 group-hover:text-foreground transition-colors">
+              <label htmlFor="rules" className="text-[11px] md:text-sm font-black uppercase tracking-[0.1em] cursor-pointer text-foreground/80 group-hover:text-foreground transition-colors flex-1">
                 I have read and agree to the Spunn Force Operator Guidelines.
               </label>
             </div>

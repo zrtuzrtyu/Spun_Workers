@@ -131,9 +131,10 @@ service cloud.firestore {
     }
 
     function isValidWithdrawal(data) {
-      return hasOnlyAllowedFields(['workerId', 'workerName', 'amount', 'method', 'address', 'status', 'createdAt', 'processedAt']) &&
+      return hasOnlyAllowedFields(['workerId', 'workerName', 'workerCountry', 'amount', 'method', 'address', 'status', 'createdAt', 'processedAt']) &&
              data.workerId is string && data.workerId.size() > 0 && data.workerId.size() < 100 &&
              data.workerName is string && data.workerName.size() > 0 && data.workerName.size() < 100 &&
+             (!('workerCountry' in data) || (data.workerCountry is string && data.workerCountry.size() < 100)) &&
              data.amount is number && data.amount > 0 &&
              data.method in ['paypal', 'crypto', 'bank'] &&
              data.address is string && data.address.size() > 0 && data.address.size() < 200 &&
@@ -260,6 +261,18 @@ service cloud.firestore {
                     request.resource.data.text.size() > 0 &&
                     request.resource.data.text.size() <= 1000 &&
                     (!('isAnonymous' in request.resource.data) || request.resource.data.isAnonymous is bool);
+      allow update, delete: if isAdmin();
+    }
+
+    match /quiz_answers/{answerId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    match /onboarding_answers/{answerId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if isAdmin();
     }
 
