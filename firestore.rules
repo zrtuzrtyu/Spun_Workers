@@ -40,7 +40,7 @@ service cloud.firestore {
     // ===============================================================
 
     function isValidUser(data) {
-      return hasOnlyAllowedFields(['uid', 'email', 'name', 'role', 'status', 'device', 'hoursPerDay', 'taskPreference', 'englishLevel', 'country', 'earnings', 'balance', 'telegram', 'isAdult', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier', 'quizCompleted', 'onboardingCompleted', 'paymentEmail', 'age', 'level', 'username', 'isAnonymous', 'notificationsEnabled', 'skills', 'onboardingStep']) &&
+      return hasOnlyAllowedFields(['uid', 'email', 'name', 'role', 'status', 'device', 'hoursPerDay', 'taskPreference', 'englishLevel', 'country', 'earnings', 'balance', 'telegram', 'isAdult', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier', 'quizCompleted', 'onboardingCompleted', 'paymentEmail', 'age', 'level', 'username', 'isAnonymous', 'notificationsEnabled', 'skills', 'onboardingStep', 'languages', 'agreedToRules', 'identityVerified', 'quizScore']) &&
              data.uid is string && data.uid.size() > 0 && data.uid.size() < 100 &&
              data.email is string && isValidEmail(data.email) &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
@@ -69,6 +69,10 @@ service cloud.firestore {
              (!('notificationsEnabled' in data) || (data.notificationsEnabled is bool)) &&
              (!('skills' in data) || (data.skills is list)) &&
              (!('onboardingStep' in data) || (data.onboardingStep is number)) &&
+             (!('languages' in data) || (data.languages is list)) &&
+             (!('agreedToRules' in data) || (data.agreedToRules is bool)) &&
+             (!('identityVerified' in data) || (data.identityVerified is bool)) &&
+             (!('quizScore' in data) || (data.quizScore is number)) &&
              data.createdAt is timestamp;
     }
     
@@ -180,7 +184,9 @@ service cloud.firestore {
                            areImmutableFieldsUnchanged(['uid', 'role', 'earnings', 'balance', 'status', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier']) ||
                            (areImmutableFieldsUnchanged(['uid', 'role', 'earnings', 'balance', 'status', 'createdAt', 'ratingCount', 'totalRating', 'averageRating']) && 
                             request.resource.data.trustTier == 'New' && 
-                            (!('trustTier' in resource.data) || resource.data.trustTier == null))
+                            (!('trustTier' in resource.data) || resource.data.trustTier == null)) ||
+                           (areImmutableFieldsUnchanged(['uid', 'role', 'earnings', 'balance', 'createdAt', 'ratingCount', 'totalRating', 'averageRating']) && 
+                            resource.data.status == 'pending' && request.resource.data.status == 'active')
                          )) ||
                          isAdmin()
                        );

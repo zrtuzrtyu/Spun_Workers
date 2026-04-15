@@ -57,7 +57,7 @@ export default function Login() {
           email: result.user.email || "",
           name: result.user.displayName || "Unknown",
           role: "worker",
-          status: "active",
+          status: "pending",
           earnings: 0,
           balance: 0,
           isAdult: true,
@@ -65,7 +65,7 @@ export default function Login() {
         });
         
         toast.success("Account created successfully!");
-        navigate("/worker");
+        navigate("/worker/onboarding");
         return;
       }
 
@@ -132,7 +132,7 @@ export default function Login() {
           email: result.user.email || "",
           name: result.user.displayName || "Unknown",
           role: "worker",
-          status: "active",
+          status: "pending",
           earnings: 0,
           balance: 0,
           isAdult: true,
@@ -140,7 +140,7 @@ export default function Login() {
         });
         
         toast.success("Account created successfully!");
-        navigate("/worker");
+        navigate("/worker/onboarding");
         return;
       }
 

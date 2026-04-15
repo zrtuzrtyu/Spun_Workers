@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Toaster } from "sonner";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -32,12 +32,13 @@ const LoadingFallback = () => (
   </div>
 );
 
-const ProtectedRoute = ({ children, allowedRoles, requireOnboarding = false }: { children: React.ReactNode, allowedRoles?: ("admin" | "worker")[], requireOnboarding?: boolean }) => {
+const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode, allowedRoles?: ("admin" | "worker")[] }) => {
   const { user, loading, firebaseUser } = useAuth();
+  const location = useLocation();
 
   if (loading) return <LoadingFallback />;
 
-  if (!firebaseUser) return <Navigate to="/login" replace />;
+  if (!firebaseUser) return <Navigate to="/login" state={{ from: location }} replace />;
 
   if (allowedRoles && allowedRoles.length > 0) {
     if (!user) {
@@ -48,24 +49,38 @@ const ProtectedRoute = ({ children, allowedRoles, requireOnboarding = false }: {
       return <Navigate to={user.role === "admin" ? "/admin" : "/worker"} replace />;
     }
 
-    // Check for active status
-    if (user.role === "worker" && user.status !== "active") {
-      return <Navigate to="/pending-approval" replace />;
-    }
-    
-    // Enforce onboarding for workers
-    if (user.role === "worker" && requireOnboarding && !user.onboardingCompleted) {
-      return <Navigate to="/worker/onboarding" replace />;
-    }
-    
-    // Enforce quiz for workers who completed onboarding but haven't completed quiz
-    if (user.role === "worker" && requireOnboarding && user.onboardingCompleted && !user.quizCompleted && window.location.pathname !== "/worker/quiz") {
-      return <Navigate to="/worker/quiz" replace />;
-    }
+    // Worker Flow State Machine
+    if (user.role === "worker") {
+      const path = location.pathname;
 
-    // Prevent workers who completed onboarding from accessing it again
-    if (user.role === "worker" && !requireOnboarding && user.onboardingCompleted && window.location.pathname === "/worker/onboarding") {
-      return <Navigate to="/worker" replace />;
+      // 1. Onboarding Check
+      if (!user.onboardingCompleted) {
+        if (path !== "/worker/onboarding") {
+          return <Navigate to="/worker/onboarding" replace />;
+        }
+      } 
+      // 2. Quiz Check
+      else if (!user.quizCompleted) {
+        if (path !== "/worker/quiz") {
+          return <Navigate to="/worker/quiz" replace />;
+        }
+      } 
+      // 3. Status Check
+      else if (user.status === "pending") {
+        if (path !== "/pending-approval") {
+          return <Navigate to="/pending-approval" replace />;
+        }
+      } 
+      // 4. Active User - Prevent access to onboarding/quiz/pending
+      else if (user.status === "active") {
+        if (["/worker/onboarding", "/worker/quiz", "/pending-approval"].includes(path)) {
+          return <Navigate to="/worker" replace />;
+        }
+      }
+      
+      if (user.status === "inactive") {
+        return <Navigate to="/" replace />;
+      }
     }
   }
 
@@ -116,17 +131,17 @@ export default function App() {
               } />
               
               <Route path="/worker" element={
-                <ProtectedRoute allowedRoles={["worker"]} requireOnboarding={true}>
+                <ProtectedRoute allowedRoles={["worker"]}>
                   <WorkerDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/worker/wallet" element={
-                <ProtectedRoute allowedRoles={["worker"]} requireOnboarding={true}>
+                <ProtectedRoute allowedRoles={["worker"]}>
                   <WorkerWallet />
                 </ProtectedRoute>
               } />
               <Route path="/worker/requests" element={
-                <ProtectedRoute allowedRoles={["worker"]} requireOnboarding={true}>
+                <ProtectedRoute allowedRoles={["worker"]}>
                   <WorkerRequests />
                 </ProtectedRoute>
               } />
@@ -136,24 +151,28 @@ export default function App() {
                 </ProtectedRoute>
               } />
               <Route path="/worker/profile" element={
-                <ProtectedRoute allowedRoles={["worker"]} requireOnboarding={true}>
+                <ProtectedRoute allowedRoles={["worker"]}>
                   <WorkerProfile />
                 </ProtectedRoute>
               } />
 
               <Route path="/worker/quiz" element={
-                <ProtectedRoute allowedRoles={["worker"]} requireOnboarding={true}>
+                <ProtectedRoute allowedRoles={["worker"]}>
                   <WorkerQuiz />
                 </ProtectedRoute>
               } />
 
               <Route path="/worker/onboarding" element={
-                <ProtectedRoute allowedRoles={["worker"]} requireOnboarding={false}>
+                <ProtectedRoute allowedRoles={["worker"]}>
                   <WorkerOnboarding />
                 </ProtectedRoute>
               } />
 
-              <Route path="/pending-approval" element={<PendingApproval />} />
+              <Route path="/pending-approval" element={
+                <ProtectedRoute allowedRoles={["worker"]}>
+                  <PendingApproval />
+                </ProtectedRoute>
+              } />
               
               {/* Catch-all 404 route */}
               <Route path="*" element={<Navigate to="/" replace />} />

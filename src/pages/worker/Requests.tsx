@@ -9,9 +9,13 @@ import {
 import { 
   Plus, Trash2, DollarSign, Clock, CheckCircle2, X, 
   Gavel, MessageSquare, ShieldAlert, ArrowRight,
-  TrendingUp, Users, Target, Zap, Lock, Loader2
+  TrendingUp, Users, Target, Zap, Lock, Loader2,
+  ChevronRight,
+  Search,
+  Filter,
+  Sparkles
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import WorkerLayout from "@/components/WorkerLayout";
 import { Button } from "@/components/ui/button";
@@ -25,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { DesignerIcon } from "@/components/DesignerIcon";
 
 export default function Requests() {
   const { user, firebaseUser } = useAuth();
@@ -109,7 +114,7 @@ export default function Requests() {
         offerAmount: amount,
         requesterId: firebaseUser.uid,
         requesterName: user.username || user.name,
-        status: "open", // Default to open for now, or pending_approval if admin review is needed
+        status: "open",
         createdAt: serverTimestamp()
       });
       
@@ -169,7 +174,6 @@ export default function Requests() {
       setLoading(true);
       const batch = writeBatch(db);
       
-      // Update request
       batch.update(doc(db, "requests", bid.requestId), {
         status: "in_progress",
         winnerId: bid.workerId,
@@ -177,12 +181,10 @@ export default function Requests() {
         finalAmount: bid.amount
       });
 
-      // Update accepted bid
       batch.update(doc(db, "bids", bid.id), {
         status: "accepted"
       });
 
-      // Reject other bids
       const otherBidsQuery = query(
         collection(db, "bids"), 
         where("requestId", "==", bid.requestId),
@@ -220,36 +222,31 @@ export default function Requests() {
   if (user && user.role !== 'admin' && !user.onboardingCompleted) {
     return (
       <WorkerLayout>
-        <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-8 max-w-2xl mx-auto">
-          <div className="w-24 h-24 bg-primary/10 rounded-3xl flex items-center justify-center text-primary relative">
-            <Lock className="w-12 h-12" />
-            <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border border-border rounded-full flex items-center justify-center">
-              <ShieldAlert className="w-4 h-4 text-amber-500" />
-            </div>
-          </div>
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold tracking-tight text-white">Marketplace Locked</h1>
-            <p className="text-muted-foreground leading-relaxed">
+        <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-12 max-w-2xl mx-auto">
+          <DesignerIcon icon={Lock} size="lg" className="shadow-primary/20" />
+          <div className="space-y-6">
+            <h1 className="text-5xl font-display font-bold tracking-tight text-white">Marketplace Locked</h1>
+            <p className="text-muted-foreground leading-relaxed text-lg font-light">
               To maintain the integrity of the Spunn Force network, all operators must complete the 10-step precision onboarding protocol before posting or bidding on jobs.
             </p>
           </div>
           <Link to="/worker/onboarding">
-            <Button size="lg" className="h-14 px-10 font-bold shadow-xl shadow-primary/20 group">
-              Complete Onboarding <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            <Button size="lg" className="h-16 px-12 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 group">
+              Complete Onboarding <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
           
-          <div className="grid grid-cols-3 gap-6 w-full pt-8">
+          <div className="grid grid-cols-3 gap-8 w-full pt-12 border-t border-white/[0.05]">
             {[
               { icon: ShieldAlert, label: "Identity Verified" },
               { icon: Target, label: "Skill Assessment" },
               { icon: Zap, label: "Instant Payouts" }
             ].map((item, i) => (
-              <div key={i} className="space-y-2">
-                <div className="w-10 h-10 bg-muted/50 rounded-xl flex items-center justify-center mx-auto text-muted-foreground">
+              <div key={i} className="space-y-3">
+                <div className="w-12 h-12 bg-white/[0.02] border border-white/[0.05] rounded-2xl flex items-center justify-center mx-auto text-muted-foreground/60">
                   <item.icon className="w-5 h-5" />
                 </div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{item.label}</div>
+                <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">{item.label}</div>
               </div>
             ))}
           </div>
@@ -260,263 +257,283 @@ export default function Requests() {
 
   return (
     <WorkerLayout>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-        <div className="space-y-1">
-          <h1 className="text-4xl font-bold tracking-tight text-white">Marketplace</h1>
-          <p className="text-muted-foreground">Browse high-accuracy job requests or post your own protocol.</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-16">
+        <div className="space-y-4">
+          <Badge variant="outline" className="bg-white/[0.03] border-white/[0.08] text-muted-foreground px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.3em] rounded-full">
+            <Sparkles className="w-3 h-3 mr-2 text-primary" /> Distributed Marketplace
+          </Badge>
+          <h1 className="text-5xl md:text-6xl font-display font-bold tracking-tight text-white leading-none">Marketplace<span className="text-primary">.</span></h1>
+          <p className="text-muted-foreground text-lg font-light max-w-xl">Browse high-accuracy job requests or post your own protocol to the network.</p>
         </div>
         <Button 
           onClick={() => setIsCreating(!isCreating)}
           className={cn(
-            "h-12 px-6 font-bold shadow-xl transition-all",
-            isCreating ? "bg-muted text-foreground hover:bg-muted/80" : "shadow-primary/20"
+            "h-16 px-10 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] transition-all shadow-2xl",
+            isCreating ? "bg-white/[0.05] text-white hover:bg-white/[0.1] border border-white/[0.1]" : "shadow-primary/20"
           )}
         >
-          {isCreating ? <X className="w-5 h-5 mr-2" /> : <Plus className="w-5 h-5 mr-2" />}
+          {isCreating ? <X className="w-5 h-5 mr-3" /> : <Plus className="w-5 h-5 mr-3" />}
           {isCreating ? "Cancel Posting" : "Post Job Request"}
         </Button>
       </div>
 
-      {isCreating && (
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
-        >
-          <Card className="border-primary/20 bg-primary/5 backdrop-blur-sm overflow-hidden">
-            <CardHeader>
-              <CardTitle className="text-xl font-bold">New Job Specification</CardTitle>
-              <CardDescription>Define the parameters for your distributed task.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleCreateRequest} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Job Title</label>
-                    <Input 
-                      required
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="e.g. High-Res Image Annotation"
-                      className="h-12 bg-background/50 border-border/50"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Offer Amount ($)</label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <AnimatePresence>
+        {isCreating && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-16 overflow-hidden"
+          >
+            <Card className="border-primary/20 bg-primary/5 backdrop-blur-md rounded-[2.5rem] overflow-hidden">
+              <CardHeader className="p-10 pb-6">
+                <CardTitle className="text-2xl font-display font-bold text-white">New Job Specification</CardTitle>
+                <CardDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">Define the parameters for your distributed task.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-10 pt-0">
+                <form onSubmit={handleCreateRequest} className="space-y-8">
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Job Title</label>
                       <Input 
-                        type="number"
-                        step="0.01"
-                        min="0.01"
                         required
-                        value={offerAmount}
-                        onChange={(e) => setOfferAmount(e.target.value)}
-                        placeholder="0.00"
-                        className="h-12 pl-10 bg-background/50 border-border/50"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="e.g. High-Res Image Annotation"
+                        className="h-14 bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl px-6 text-sm"
                       />
                     </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Offer Amount ($)</label>
+                      <div className="relative">
+                        <DollarSign className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                        <Input 
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          required
+                          value={offerAmount}
+                          onChange={(e) => setOfferAmount(e.target.value)}
+                          placeholder="0.00"
+                          className="h-14 pl-14 bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl px-6 text-sm"
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Detailed Description</label>
-                  <Textarea 
-                    required
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={4}
-                    placeholder="Provide clear instructions and expected deliverables..."
-                    className="bg-background/50 border-border/50 resize-none"
-                  />
-                </div>
-                <div className="flex justify-end pt-2">
-                  <Button 
-                    type="submit"
-                    disabled={loading}
-                    className="h-12 px-10 font-bold shadow-lg shadow-primary/20"
-                  >
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Broadcast to Network"}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Detailed Description</label>
+                    <Textarea 
+                      required
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows={4}
+                      placeholder="Provide clear instructions and expected deliverables..."
+                      className="bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl p-6 text-sm resize-none"
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button 
+                      type="submit"
+                      disabled={loading}
+                      className="h-16 px-12 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20"
+                    >
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin mr-3" /> : <Zap className="w-4 h-4 mr-3" />}
+                      Broadcast to Network
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="grid gap-6">
+      <div className="space-y-8">
         {requests.length === 0 ? (
-          <div className="text-center py-20 bg-muted/20 border border-dashed border-border rounded-3xl">
-            <div className="w-16 h-16 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto text-muted-foreground mb-4">
-              <TrendingUp className="w-8 h-8" />
+          <div className="text-center py-32 bg-white/[0.01] border border-dashed border-white/[0.08] rounded-[3rem] space-y-6">
+            <div className="w-20 h-20 bg-white/[0.02] border border-white/[0.05] rounded-[2rem] flex items-center justify-center mx-auto text-muted-foreground/20">
+              <TrendingUp className="w-10 h-10" />
             </div>
-            <p className="text-muted-foreground font-medium">No active job requests in the marketplace.</p>
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold uppercase tracking-[0.3em] text-muted-foreground/60">Marketplace Idle</h3>
+              <p className="text-[10px] font-mono text-muted-foreground/20 uppercase tracking-widest italic">Awaiting network broadcast...</p>
+            </div>
           </div>
         ) : (
           requests.map((req) => (
-            <Card key={req.id} className="border-border/50 bg-card/50 hover:bg-muted/30 transition-all group overflow-hidden">
-              <CardContent className="p-0">
-                <div className="flex flex-col md:flex-row">
-                  <div className="flex-1 p-8 space-y-4">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-3">
-                          <h3 className="text-xl font-bold text-white">{req.title}</h3>
-                          <Badge variant="secondary" className={cn(
-                            "text-[9px] font-bold uppercase tracking-widest",
-                            req.status === 'open' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                            req.status === 'in_progress' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                            'bg-primary/10 text-primary border-primary/20'
-                          )}>
-                            {req.status.replace('_', ' ')}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                          <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {req.requesterName}</span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {req.createdAt?.toDate().toLocaleDateString()}</span>
-                        </div>
+            <motion.div
+              layout
+              key={req.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="group relative rounded-[2.5rem] border border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.02] hover:border-primary/20 transition-all duration-500 overflow-hidden"
+            >
+              <div className="flex flex-col md:flex-row">
+                <div className="flex-1 p-10 space-y-8">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4">
+                        <Badge variant="outline" className={cn(
+                          "text-[9px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full border-none",
+                          req.status === 'open' ? 'bg-emerald-500/10 text-emerald-500' :
+                          req.status === 'in_progress' ? 'bg-amber-500/10 text-amber-400' :
+                          'bg-primary/10 text-primary'
+                        )}>
+                          {req.status.replace('_', ' ')}
+                        </Badge>
+                        <span className="text-[9px] font-mono font-bold text-muted-foreground/30 uppercase tracking-widest">
+                          REQ_{req.id.slice(0, 8).toUpperCase()}
+                        </span>
                       </div>
-                      <div className="text-3xl font-bold tracking-tighter text-primary">
-                        ${req.offerAmount.toFixed(2)}
+                      <h3 className="text-3xl font-display font-bold text-white tracking-tight group-hover:text-primary transition-colors">{req.title}</h3>
+                      <div className="flex items-center gap-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">
+                        <span className="flex items-center gap-2"><Users className="w-3.5 h-3.5 text-primary/60" /> {req.requesterName}</span>
+                        <span className="flex items-center gap-2"><Clock className="w-3.5 h-3.5 text-primary/60" /> {req.createdAt?.toDate().toLocaleDateString()}</span>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
-                      {req.description}
-                    </p>
+                    <div className="text-right space-y-1">
+                      <div className="text-4xl font-display font-bold tracking-tighter text-primary">
+                        ${req.offerAmount.toFixed(2)}
+                      </div>
+                      <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/30">Offer Amount</div>
+                    </div>
                   </div>
-                  
-                  <div className="w-full md:w-64 bg-muted/30 border-t md:border-t-0 md:border-l border-border/50 p-6 flex flex-col justify-center gap-3">
-                    {req.requesterId === firebaseUser?.uid ? (
-                      <>
-                        <Button 
-                          variant="secondary" 
-                          className="w-full font-bold text-xs uppercase tracking-widest h-10"
-                          onClick={() => setViewingBidsFor(req.id)}
-                        >
-                          <Gavel className="w-4 h-4 mr-2" /> View Bids
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full font-bold text-xs uppercase tracking-widest h-10 text-muted-foreground hover:text-destructive"
-                          onClick={() => setRequestToDelete(req.id)}
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" /> Delete
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        {req.status === 'open' && (
-                          <Dialog open={selectedRequest?.id === req.id} onOpenChange={(open) => !open && setSelectedRequest(null)}>
-                            <DialogTrigger 
-                              render={
-                                <Button 
-                                  className="w-full font-bold text-xs uppercase tracking-widest h-12 shadow-lg shadow-primary/20"
-                                  onClick={() => setSelectedRequest(req)}
-                                >
-                                  <Zap className="w-4 h-4 mr-2" /> Place Bid
-                                </Button>
-                              }
-                            />
-                            <DialogContent className="bg-card border-border/50">
-                              <DialogHeader>
-                                <DialogTitle>Submit Proposal</DialogTitle>
-                                <DialogDescription>
-                                  Propose your terms for "{req.title}"
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="space-y-6 py-4">
-                                <div className="space-y-2">
-                                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Your Bid Amount ($)</label>
-                                  <div className="relative">
-                                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                    <Input 
-                                      type="number"
-                                      step="0.01"
-                                      value={bidAmount}
-                                      onChange={(e) => setBidAmount(e.target.value)}
-                                      placeholder={req.offerAmount.toString()}
-                                      className="h-12 pl-10 bg-background/50 border-border/50"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Proposal / Cover Letter</label>
-                                  <Textarea 
-                                    value={proposal}
-                                    onChange={(e) => setProposal(e.target.value)}
-                                    rows={4}
-                                    placeholder="Explain why you're the best fit for this task..."
-                                    className="bg-background/50 border-border/50 resize-none"
+                  <p className="text-muted-foreground font-light leading-relaxed text-lg line-clamp-2">
+                    {req.description}
+                  </p>
+                </div>
+                
+                <div className="w-full md:w-80 bg-white/[0.02] border-t md:border-t-0 md:border-l border-white/[0.05] p-10 flex flex-col justify-center gap-4">
+                  {req.requesterId === firebaseUser?.uid ? (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        className="w-full h-14 rounded-full font-bold text-[10px] uppercase tracking-[0.2em] border-white/[0.1] hover:bg-white/[0.05]"
+                        onClick={() => setViewingBidsFor(req.id)}
+                      >
+                        <Gavel className="w-4 h-4 mr-3 text-primary" /> View Bids
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full h-14 rounded-full font-bold text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 hover:text-destructive hover:bg-destructive/5"
+                        onClick={() => setRequestToDelete(req.id)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-3" /> Delete
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      {req.status === 'open' && (
+                        <Dialog open={selectedRequest?.id === req.id} onOpenChange={(open) => !open && setSelectedRequest(null)}>
+                          <DialogTrigger
+                            render={
+                              <Button 
+                                className="w-full h-16 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20"
+                                onClick={() => setSelectedRequest(req)}
+                              >
+                                <Zap className="w-4 h-4 mr-3" /> Place Bid
+                              </Button>
+                            }
+                          />
+                          <DialogContent className="bg-background border-white/[0.1] rounded-[2.5rem] p-10 max-w-xl">
+                            <DialogHeader className="space-y-4">
+                              <DialogTitle className="text-3xl font-display font-bold text-white">Submit Proposal</DialogTitle>
+                              <DialogDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">
+                                Propose your terms for "{req.title}"
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-8 py-8">
+                              <div className="space-y-3">
+                                <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Your Bid Amount ($)</label>
+                                <div className="relative">
+                                  <DollarSign className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                                  <Input 
+                                    type="number"
+                                    step="0.01"
+                                    value={bidAmount}
+                                    onChange={(e) => setBidAmount(e.target.value)}
+                                    placeholder={req.offerAmount.toString()}
+                                    className="h-14 pl-14 bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl px-6 text-sm"
                                   />
                                 </div>
                               </div>
-                              <DialogFooter>
-                                <Button 
-                                  className="w-full h-12 font-bold"
-                                  onClick={handlePlaceBid}
-                                  disabled={loading}
-                                >
-                                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit Bid"}
-                                </Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                        )}
-                        <Button variant="outline" className="w-full font-bold text-xs uppercase tracking-widest h-10 border-border/50">
-                          <MessageSquare className="w-4 h-4 mr-2" /> Message
-                        </Button>
-                      </>
-                    )}
-                  </div>
+                              <div className="space-y-3">
+                                <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Proposal / Cover Letter</label>
+                                <Textarea 
+                                  value={proposal}
+                                  onChange={(e) => setProposal(e.target.value)}
+                                  rows={4}
+                                  placeholder="Explain why you're the best fit for this task..."
+                                  className="bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl p-6 text-sm resize-none"
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button 
+                                className="w-full h-16 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20"
+                                onClick={handlePlaceBid}
+                                disabled={loading}
+                              >
+                                {loading ? <Loader2 className="w-4 h-4 animate-spin mr-3" /> : <ArrowRight className="w-4 h-4 mr-3" />}
+                                Submit Bid
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                      <Button variant="outline" className="w-full h-14 rounded-full font-bold text-[10px] uppercase tracking-[0.2em] border-white/[0.1] hover:bg-white/[0.05]">
+                        <MessageSquare className="w-4 h-4 mr-3 text-primary" /> Message
+                      </Button>
+                    </>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </motion.div>
           ))
         )}
       </div>
 
       {/* Bids Viewer Dialog */}
       <Dialog open={!!viewingBidsFor} onOpenChange={(open) => !open && setViewingBidsFor(null)}>
-        <DialogContent className="max-w-2xl bg-card border-border/50 max-h-[80vh] overflow-y-auto custom-scrollbar">
-          <DialogHeader>
-            <DialogTitle>Active Bids</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="max-w-3xl bg-background border-white/[0.1] rounded-[3rem] p-12 max-h-[85vh] overflow-y-auto hide-scrollbar">
+          <DialogHeader className="space-y-4 mb-10">
+            <DialogTitle className="text-4xl font-display font-bold text-white">Active Bids</DialogTitle>
+            <DialogDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">
               Review proposals from verified operators.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 py-4">
+          <div className="space-y-8">
             {bids.length === 0 ? (
-              <div className="text-center py-10 text-muted-foreground text-sm italic">
+              <div className="text-center py-20 text-muted-foreground/40 text-sm font-light italic">
                 No bids received yet.
               </div>
             ) : (
               bids.map((bid) => (
-                <div key={bid.id} className="p-6 rounded-2xl bg-muted/30 border border-border/50 space-y-4">
+                <div key={bid.id} className="p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/[0.05] space-y-8 hover:border-primary/20 transition-all duration-500">
                   <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    <div className="flex items-center gap-6">
+                      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-bold border border-primary/20 text-xl">
                         {bid.workerName.charAt(0)}
                       </div>
-                      <div className="space-y-0.5">
-                        <div className="text-sm font-bold text-white">{bid.workerName}</div>
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Verified Operator</div>
+                      <div className="space-y-2">
+                        <div className="text-xl font-bold text-white">{bid.workerName}</div>
+                        <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-[0.2em] border-white/[0.1] text-muted-foreground/60">Verified Operator</Badge>
                       </div>
                     </div>
-                    <div className="text-xl font-bold text-primary">${bid.amount.toFixed(2)}</div>
+                    <div className="text-3xl font-display font-bold text-primary">${bid.amount.toFixed(2)}</div>
                   </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed bg-background/50 p-4 rounded-xl border border-border/50">
+                  <div className="p-8 rounded-[1.5rem] bg-white/[0.02] border border-white/[0.05] text-muted-foreground font-light leading-relaxed text-sm">
                     {bid.proposal}
-                  </p>
-                  <div className="flex justify-end pt-2">
+                  </div>
+                  <div className="flex justify-end">
                     <Button 
-                      size="sm" 
-                      className="font-bold text-[10px] uppercase tracking-widest px-6"
+                      className="h-14 px-10 rounded-full font-bold text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20"
                       onClick={() => handleAcceptBid(bid)}
                       disabled={loading}
                     >
-                      {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Accept Bid"}
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin mr-3" /> : <CheckCircle2 className="w-4 h-4 mr-3" />}
+                      Accept Bid
                     </Button>
                   </div>
                 </div>
@@ -526,30 +543,45 @@ export default function Requests() {
         </DialogContent>
       </Dialog>
 
-      {requestToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-card border border-border/50 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-2">Delete Request</h3>
-            <p className="text-muted-foreground mb-6">
-              Are you sure you want to delete this request? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-3">
-              <Button 
-                variant="outline"
-                onClick={() => setRequestToDelete(null)}
-              >
-                Cancel
-              </Button>
-              <Button 
-                variant="destructive"
-                onClick={() => handleDelete(requestToDelete)}
-              >
-                Delete
-              </Button>
-            </div>
+      {/* Delete Confirmation */}
+      <AnimatePresence>
+        {requestToDelete && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-6">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-background border border-white/[0.1] rounded-[3rem] p-12 max-w-md w-full shadow-2xl space-y-8"
+            >
+              <div className="space-y-4 text-center">
+                <div className="w-20 h-20 bg-destructive/10 rounded-[2rem] flex items-center justify-center mx-auto text-destructive mb-6">
+                  <Trash2 className="w-10 h-10" />
+                </div>
+                <h3 className="text-3xl font-display font-bold text-white">Delete Request</h3>
+                <p className="text-muted-foreground font-light leading-relaxed">
+                  Are you sure you want to delete this request? This action cannot be undone.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Button 
+                  variant="outline"
+                  className="h-14 rounded-full font-bold text-[10px] uppercase tracking-widest border-white/[0.1]"
+                  onClick={() => setRequestToDelete(null)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="destructive"
+                  className="h-14 rounded-full font-bold text-[10px] uppercase tracking-widest shadow-xl shadow-destructive/20"
+                  onClick={() => handleDelete(requestToDelete)}
+                >
+                  Delete
+                </Button>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </WorkerLayout>
   );
 }

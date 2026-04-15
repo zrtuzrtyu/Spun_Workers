@@ -43,9 +43,15 @@ const SKILL_CATEGORIES = [
 export default function WorkerOnboarding() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(2); // Start at step 2 since 1 is done
+  const [currentStep, setCurrentStep] = useState(user?.onboardingStep || 2);
   const [loading, setLoading] = useState(false);
   
+  useEffect(() => {
+    if (user?.onboardingStep && user.onboardingStep > currentStep) {
+      setCurrentStep(user.onboardingStep);
+    }
+  }, [user?.onboardingStep]);
+
   const [formData, setFormData] = useState({
     username: user?.username || "",
     isAnonymous: user?.isAnonymous ?? true,
@@ -62,17 +68,41 @@ export default function WorkerOnboarding() {
 
   const progress = (currentStep / STEPS.length) * 100;
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (currentStep < STEPS.length) {
-      setCurrentStep(prev => prev + 1);
+      const next = currentStep + 1;
+      setCurrentStep(next);
       window.scrollTo(0, 0);
+      
+      // Save progress to Firestore
+      if (user) {
+        try {
+          await updateDoc(doc(db, "users", user.uid), {
+            onboardingStep: next,
+            ...formData
+          });
+        } catch (error) {
+          console.error("Failed to save onboarding progress:", error);
+        }
+      }
     }
   };
 
-  const prevStep = () => {
+  const prevStep = async () => {
     if (currentStep > 2) {
-      setCurrentStep(prev => prev - 1);
+      const prev = currentStep - 1;
+      setCurrentStep(prev);
       window.scrollTo(0, 0);
+
+      if (user) {
+        try {
+          await updateDoc(doc(db, "users", user.uid), {
+            onboardingStep: prev
+          });
+        } catch (error) {
+          console.error("Failed to save onboarding progress:", error);
+        }
+      }
     }
   };
 
@@ -81,8 +111,13 @@ export default function WorkerOnboarding() {
 
     setLoading(true);
     try {
+      // Create a clean update object without quizScore if we don't want it in the DB, 
+      // but I added it to the rules just in case.
+      const { quizScore, ...updateData } = formData;
+      
       await updateDoc(doc(db, "users", user.uid), {
-        ...formData,
+        ...updateData,
+        quizScore, // Including it since I added it to rules
         onboardingCompleted: true,
         quizCompleted: true,
         onboardingStep: 10,

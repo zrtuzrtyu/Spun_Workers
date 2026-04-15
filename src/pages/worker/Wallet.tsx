@@ -2,9 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { collection, addDoc, query, where, onSnapshot, orderBy, serverTimestamp } from "firebase/firestore";
-import { Wallet as WalletIcon, ArrowUpRight, Clock, CheckCircle2, XCircle, DollarSign } from "lucide-react";
+import { Wallet as WalletIcon, ArrowUpRight, Clock, CheckCircle2, XCircle, DollarSign, Sparkles, TrendingUp, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import WorkerLayout from "@/components/WorkerLayout";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { motion, AnimatePresence } from "motion/react";
+import { cn } from "@/lib/utils";
+import { DesignerIcon } from "@/components/DesignerIcon";
 
 export default function Wallet() {
   const { user, firebaseUser } = useAuth();
@@ -86,146 +93,206 @@ export default function Wallet() {
 
   return (
     <WorkerLayout>
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-medium text-white mb-2">Wallet & Earnings</h1>
-        <p className="text-zinc-400">Manage your balance and request payouts.</p>
+      <div className="mb-16 space-y-4">
+        <Badge variant="outline" className="bg-white/[0.03] border-white/[0.08] text-muted-foreground px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.3em] rounded-full">
+          <TrendingUp className="w-3 h-3 mr-2 text-primary" /> Financial Overview
+        </Badge>
+        <h1 className="text-5xl md:text-6xl font-display font-bold tracking-tight text-white leading-none">Wallet<span className="text-primary">.</span></h1>
+        <p className="text-muted-foreground text-lg font-light max-w-xl">Manage your distributed earnings and execute secure payout protocols.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="lg:col-span-8 space-y-12">
           {/* Balance Card */}
-          <div className="bg-gradient-to-br from-[#111111] to-[#0A0A0A] border border-white/5 rounded-3xl p-8 relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-[80px] -ml-32 -mb-32 pointer-events-none"></div>
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
-                  <WalletIcon className="w-6 h-6 text-purple-400" />
-                </div>
-                <h2 className="text-white font-medium">Available Balance</h2>
-              </div>
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-[3rem] blur-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+            <div className="relative bg-white/[0.02] border border-white/[0.05] rounded-[3rem] p-12 md:p-16 overflow-hidden">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -mr-48 -mt-48 pointer-events-none" />
               
-              <div className="text-6xl font-display font-bold text-white mb-12 tracking-tight">
-                <span className="text-zinc-500 font-medium mr-2">$</span>
-                {availableBalance.toFixed(2)}
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-8">
-                <div>
-                  <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mb-1">Total Earned</div>
-                  <div className="text-xl font-medium text-white">${(user?.earnings || 0).toFixed(2)}</div>
+              <div className="relative z-10 space-y-12">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <DesignerIcon icon={WalletIcon} size="md" />
+                    <div className="space-y-1">
+                      <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-white">Available Balance</h2>
+                      <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-emerald-500">
+                        <ShieldCheck className="w-3 h-3" /> Secure Node Verified
+                      </div>
+                    </div>
+                  </div>
+                  <div className="hidden md:block">
+                    <Badge variant="outline" className="bg-white/[0.03] border-white/[0.1] text-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-full">
+                      USD / FIAT
+                    </Badge>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mb-1">Pending Withdrawals</div>
-                  <div className="text-xl font-medium text-amber-400">${pendingWithdrawalsAmount.toFixed(2)}</div>
+                
+                <div className="flex items-baseline gap-4">
+                  <span className="text-4xl md:text-5xl font-display font-bold text-muted-foreground/30">$</span>
+                  <div className="text-7xl md:text-9xl font-display font-bold text-white tracking-tighter">
+                    {availableBalance.toFixed(2)}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-12 pt-12 border-t border-white/[0.05]">
+                  <div className="space-y-2">
+                    <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em] font-bold">Total Network Earnings</div>
+                    <div className="text-3xl font-display font-bold text-white">${(user?.earnings || 0).toFixed(2)}</div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em] font-bold">Pending Payouts</div>
+                    <div className="text-3xl font-display font-bold text-primary">${pendingWithdrawalsAmount.toFixed(2)}</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Withdrawal History */}
-          <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-xl">
-            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0F0F0F]">
-              <h2 className="text-lg font-medium text-white">Recent Transactions</h2>
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-display font-bold text-white tracking-tight">Recent Transactions</h2>
+              <div className="text-[9px] font-mono font-bold text-muted-foreground/40 uppercase tracking-widest">
+                Node_History // v1.0.4
+              </div>
             </div>
-            <div className="divide-y divide-white/5">
-              {withdrawals.length === 0 ? (
-                <div className="p-12 text-center text-zinc-500 text-sm">
-                  No transaction history found.
-                </div>
-              ) : (
-                withdrawals.map((w) => (
-                  <div key={w.id} className="p-6 flex items-center justify-between hover:bg-white/[0.02] transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                        w.status === 'paid' ? 'bg-purple-500/10 text-purple-400' :
-                        w.status === 'rejected' ? 'bg-red-500/10 text-red-400' :
-                        'bg-amber-500/10 text-amber-400'
-                      }`}>
-                        {w.status === 'paid' ? <CheckCircle2 className="w-6 h-6" /> :
-                         w.status === 'rejected' ? <XCircle className="w-6 h-6" /> :
-                         <Clock className="w-6 h-6" />}
-                      </div>
-                      <div>
-                        <div className="text-white font-medium capitalize">{w.method} Payout</div>
-                        <div className="text-zinc-500 text-sm mt-0.5">
-                          {w.createdAt?.toDate ? w.createdAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Processing...'}
+            
+            <div className="rounded-[2.5rem] border border-white/[0.05] bg-white/[0.01] overflow-hidden">
+              <div className="divide-y divide-white/[0.05]">
+                {withdrawals.length === 0 ? (
+                  <div className="p-20 text-center space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-white/[0.02] border border-white/[0.05] flex items-center justify-center mx-auto opacity-20">
+                      <Clock className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">No transaction history detected</p>
+                  </div>
+                ) : (
+                  withdrawals.map((w) => (
+                    <div key={w.id} className="p-8 flex items-center justify-between hover:bg-white/[0.02] transition-all duration-300 group">
+                      <div className="flex items-center gap-6">
+                        <div className={cn(
+                          "w-14 h-14 rounded-2xl flex items-center justify-center border transition-colors duration-500",
+                          w.status === 'paid' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                          w.status === 'rejected' ? 'bg-destructive/10 text-destructive border-destructive/20' :
+                          'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                        )}>
+                          {w.status === 'paid' ? <CheckCircle2 className="w-6 h-6" /> :
+                           w.status === 'rejected' ? <XCircle className="w-6 h-6" /> :
+                           <Clock className="w-6 h-6 animate-pulse" />}
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-lg font-bold text-white capitalize">{w.method} Payout</div>
+                          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">
+                            {w.createdAt?.toDate ? w.createdAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Processing...'}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-white font-medium text-lg">-${w.amount.toFixed(2)}</div>
-                      <div className={`text-xs font-bold uppercase tracking-wider mt-1 ${
-                        w.status === 'paid' ? 'text-purple-400' :
-                        w.status === 'rejected' ? 'text-red-400' :
-                        'text-amber-400'
-                      }`}>
-                        {w.status}
+                      <div className="text-right space-y-2">
+                        <div className="text-2xl font-display font-bold text-white">-${w.amount.toFixed(2)}</div>
+                        <Badge variant="outline" className={cn(
+                          "text-[9px] font-bold uppercase tracking-widest border-none px-3 py-1 rounded-full",
+                          w.status === 'paid' ? 'bg-emerald-500/10 text-emerald-500' :
+                          w.status === 'rejected' ? 'bg-destructive/10 text-destructive' :
+                          'bg-amber-500/10 text-amber-500'
+                        )}>
+                          {w.status}
+                        </Badge>
                       </div>
                     </div>
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-4">
           {/* Withdrawal Form */}
-          <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl p-6 sticky top-8 shadow-xl">
-            <h2 className="text-xl font-display font-medium text-white mb-6">Request Payout</h2>
-            <form onSubmit={handleWithdraw} className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2">Amount to Withdraw</label>
+          <div className="bg-white/[0.02] border border-white/[0.05] rounded-[2.5rem] p-10 sticky top-12 shadow-2xl space-y-10">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-display font-bold text-white tracking-tight">Request Payout</h2>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">Execute secure withdrawal protocol.</p>
+            </div>
+
+            <form onSubmit={handleWithdraw} className="space-y-8">
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Withdrawal Amount</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <DollarSign className="h-5 w-5 text-zinc-500" />
-                  </div>
-                  <input
+                  <DollarSign className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                  <Input
                     type="number"
                     step="0.01"
                     max={availableBalance}
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full bg-[#050505] border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder:text-zinc-600 hover:border-white/20"
+                    className="h-14 pl-14 bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl px-6 text-sm"
                     placeholder="0.00"
                     required
                   />
                 </div>
+                <div className="flex justify-between px-1">
+                  <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest">Max: ${availableBalance.toFixed(2)}</span>
+                  <button 
+                    type="button" 
+                    onClick={() => setAmount(availableBalance.toString())}
+                    className="text-[9px] font-bold text-primary uppercase tracking-widest hover:opacity-70"
+                  >
+                    Withdraw All
+                  </button>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2">Payout Method</label>
-                <select
-                  value={method}
-                  onChange={(e) => setMethod(e.target.value)}
-                  className="w-full bg-[#050505] border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-white/20 appearance-none"
-                >
-                  <option value="paypal">PayPal</option>
-                  <option value="crypto">Crypto (USDT)</option>
-                  <option value="cashapp">CashApp</option>
-                </select>
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Payout Method</label>
+                <Select value={method} onValueChange={setMethod}>
+                  <SelectTrigger className="h-14 bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl px-6 text-sm">
+                    <SelectValue placeholder="Select method" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-white/[0.1] rounded-2xl">
+                    <SelectItem value="paypal">PayPal</SelectItem>
+                    <SelectItem value="crypto">Crypto (USDT)</SelectItem>
+                    <SelectItem value="cashapp">CashApp</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2">Destination Details</label>
-                <input
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60 ml-1">Destination Details</label>
+                <Input
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full bg-[#050505] border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder:text-zinc-600 hover:border-white/20"
+                  className="h-14 bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl px-6 text-sm"
                   placeholder={method === 'paypal' ? "PayPal Email" : method === 'crypto' ? "USDT Wallet Address" : "$Cashtag"}
                   required
                 />
               </div>
-              <button
+
+              <Button
                 type="submit"
                 disabled={loading || availableBalance <= 0}
-                className="w-full bg-white text-[#050505] hover:bg-zinc-200 font-bold py-3.5 rounded-xl transition-all disabled:opacity-50 disabled:hover:bg-white mt-4 flex items-center justify-center gap-2"
+                className="w-full h-16 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20 group"
               >
-                {loading ? "Processing..." : "Submit Request"}
-                {!loading && <ArrowUpRight className="w-5 h-5" />}
-              </button>
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    Submit Request <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </Button>
             </form>
+
+            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05] space-y-3">
+              <div className="flex items-start gap-3 text-[10px] text-muted-foreground/60 font-light leading-relaxed">
+                <ShieldCheck className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                Payouts are processed within 24-48 hours after verification.
+              </div>
+              <div className="flex items-start gap-3 text-[10px] text-muted-foreground/60 font-light leading-relaxed">
+                <ShieldCheck className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                Minimum withdrawal amount is $5.00.
+              </div>
+            </div>
           </div>
         </div>
       </div>

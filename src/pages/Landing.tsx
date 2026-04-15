@@ -1,7 +1,26 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useMotionValue, useSpring, AnimatePresence } from "motion/react";
-import { ArrowRight, CheckCircle2, DollarSign, Zap, Shield, Globe, Sparkles, Users, TrendingUp, ChevronRight, Play, Star, Clock, Target } from "lucide-react";
+import { 
+  ArrowRight, 
+  CheckCircle2, 
+  DollarSign, 
+  Zap, 
+  Shield, 
+  Globe, 
+  Sparkles, 
+  Users, 
+  TrendingUp, 
+  ChevronRight, 
+  Play, 
+  Star, 
+  Clock, 
+  Target,
+  Layout,
+  Cpu,
+  Layers,
+  Fingerprint
+} from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +29,24 @@ import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
+
+/**
+ * DesignerIcon Wrapper
+ * Adds a custom, high-end look to standard Lucide icons
+ */
+function DesignerIcon({ icon: Icon, className }: { icon: any, className?: string }) {
+  return (
+    <div className={cn(
+      "relative flex items-center justify-center w-12 h-12 rounded-2xl",
+      "bg-gradient-to-br from-white/[0.08] to-transparent border border-white/[0.05]",
+      "shadow-[0_8px_16px_-6px_rgba(0,0,0,0.5)] overflow-hidden group-hover:border-primary/30 transition-all duration-500",
+      className
+    )}>
+      <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <Icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors duration-500 relative z-10" />
+    </div>
+  );
+}
 
 function NumberTicker({ value, prefix = "", suffix = "" }: { value: number, prefix?: string, suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -40,173 +77,223 @@ export default function Landing() {
   const potentialDaily = hours[0] * hourlyRate;
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 overflow-x-hidden font-sans antialiased">
       {/* Navbar */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group hover:opacity-80 transition-opacity">
-            <Logo className="scale-90" />
+      <nav className="fixed top-0 inset-x-0 z-50 bg-background/40 backdrop-blur-2xl border-b border-white/[0.05]">
+        <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 group">
+            <Logo className="scale-90 group-hover:opacity-80 transition-opacity" />
           </Link>
-          <div className="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-            <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-foreground transition-colors">Network</a>
-            <a href="#calculator" className="hover:text-foreground transition-colors">Earnings</a>
+          
+          <div className="hidden md:flex items-center gap-10 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            <a href="#features" className="hover:text-primary transition-colors">Network</a>
+            <a href="#calculator" className="hover:text-primary transition-colors">Earnings</a>
+            <a href="#how-it-works" className="hover:text-primary transition-colors">Protocol</a>
           </div>
-            <div className="flex items-center gap-4">
-            <Link to="/login" className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors px-4">Log in</Link>
-            <Link to="/apply" className={cn(buttonVariants({ size: "sm" }), "font-bold uppercase tracking-wider h-9 px-6 shadow-lg shadow-primary/20")}>
-              Join Now
+
+          <div className="flex items-center gap-6">
+            <Link to="/login" className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors">
+              Log in
+            </Link>
+            <Link to="/apply" className={cn(
+              buttonVariants({ size: "sm" }), 
+              "font-bold uppercase tracking-[0.15em] text-[10px] h-10 px-6 rounded-full",
+              "bg-primary text-primary-foreground hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+            )}>
+              Join Force
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section - Editorial Split Layout */}
-      <section className="relative pt-32 pb-20 px-6 overflow-hidden border-b border-border/50">
-        {/* Ambient Background */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+      {/* Hero Section */}
+      <section className="relative pt-48 pb-32 px-8 overflow-hidden">
+        {/* Abstract Background Elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] bg-[radial-gradient(circle_at_50%_0%,rgba(167,139,250,0.08),transparent_70%)] pointer-events-none" />
+        <div className="absolute top-1/4 left-0 w-96 h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none animate-pulse" />
         
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="space-y-8"
-          >
-            <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em]">
-              <Sparkles className="w-3 h-3 mr-2" /> Vetted Network Open
-            </Badge>
+        {/* Grid Overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="max-w-4xl mx-auto text-center space-y-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-6"
+            >
+              <Badge variant="outline" className="bg-white/[0.03] border-white/[0.08] text-muted-foreground px-5 py-2 text-[10px] font-bold uppercase tracking-[0.3em] rounded-full">
+                <Sparkles className="w-3 h-3 mr-2 text-primary" /> Distributed Intelligence Network
+              </Badge>
+              
+              <h1 className="text-7xl md:text-[120px] font-display font-bold tracking-[-0.04em] leading-[0.85] text-white">
+                Precision <br />
+                <span className="text-primary">at Scale.</span>
+              </h1>
+              
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
+                Spunn Force is the premier network for high-accuracy micro-tasks. 
+                Join 12,000+ verified operators turning digital precision into sustainable profit.
+              </p>
+            </motion.div>
             
-            <h1 className="text-6xl md:text-8xl font-bold tracking-tighter leading-[0.9] text-foreground">
-              Spunn <br />
-              <span className="text-primary italic">Force</span>
-            </h1>
-            
-            <p className="text-lg text-muted-foreground max-w-lg leading-relaxed font-medium">
-              Spunn Force is the premier distributed network for high-accuracy micro-tasks. Join 12,000+ verified operators turning precision into profit.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-              <Link to="/apply" className={cn(buttonVariants({ size: "lg" }), "h-14 px-10 text-base font-bold shadow-xl shadow-primary/20 group")}>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-6"
+            >
+              <Link to="/apply" className={cn(
+                buttonVariants({ size: "lg" }), 
+                "h-16 px-12 text-base font-bold rounded-full group bg-white text-black hover:bg-white/90 transition-all shadow-2xl shadow-white/10"
+              )}>
                 Start Earning <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <a href="#calculator" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-14 px-10 text-base font-bold border-border/50 hover:bg-muted/50")}>
-                <TrendingUp className="w-4 h-4 mr-2" /> Earnings Calculator
+              <a href="#calculator" className={cn(
+                buttonVariants({ variant: "outline", size: "lg" }), 
+                "h-16 px-12 text-base font-bold rounded-full border-white/[0.1] hover:bg-white/[0.05] transition-all"
+              )}>
+                View Potential
               </a>
-            </div>
+            </motion.div>
 
-            <div className="flex items-center gap-6 pt-8">
-              <div className="flex -space-x-3">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-background bg-muted overflow-hidden ring-1 ring-border">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.4 }}
+              className="pt-12 flex flex-col items-center gap-6"
+            >
+              <div className="flex -space-x-4">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} className="w-12 h-12 rounded-full border-4 border-background bg-muted overflow-hidden ring-1 ring-white/10 grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer">
                     <img src={`https://picsum.photos/seed/user${i}/100/100`} alt="User" referrerPolicy="no-referrer" />
                   </div>
                 ))}
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map(i => <Star key={i} className="w-3 h-3 fill-primary text-primary" />)}
-                </div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Trusted by 12k+ Operators</p>
-              </div>
-            </div>
-          </motion.div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60">
+                Trusted by <span className="text-white">12,402</span> Global Operators
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="relative"
-          >
-            <div className="absolute inset-0 bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
-            <Card className="border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden shadow-2xl relative z-10">
-              <div className="p-1 bg-border/50">
-                <div className="flex items-center gap-1.5 px-3 py-2">
-                  <div className="w-2 h-2 rounded-full bg-red-500/50" />
-                  <div className="w-2 h-2 rounded-full bg-amber-500/50" />
-                  <div className="w-2 h-2 rounded-full bg-emerald-500/50" />
-                  <div className="ml-4 text-[10px] font-mono text-muted-foreground/50 uppercase tracking-widest">Live_Network_Status.sh</div>
+      {/* Stats Section */}
+      <section className="border-y border-white/[0.05] bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto px-8 py-20">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-16">
+            {[
+              { label: "Tasks Verified", value: 500, suffix: "k+", icon: Target },
+              { label: "Avg. Payout", value: 48, suffix: "h", icon: Clock },
+              { label: "Min. Threshold", value: 25, prefix: "$", icon: DollarSign },
+              { label: "Network Uptime", value: 100, suffix: "%", icon: Zap }
+            ].map((stat, i) => (
+              <div key={i} className="space-y-4 group">
+                <div className="flex items-center gap-3">
+                  <stat.icon className="w-4 h-4 text-primary/40 group-hover:text-primary transition-colors" />
+                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{stat.label}</div>
+                </div>
+                <div className="text-4xl font-display font-bold tracking-tight text-white">
+                  <NumberTicker value={stat.value} prefix={stat.prefix} suffix={stat.suffix} />
                 </div>
               </div>
-              <CardContent className="p-0">
-                <div className="aspect-[4/3] bg-muted/20 relative overflow-hidden">
-                  <div className="absolute inset-0 p-8 font-mono text-[10px] space-y-4">
-                    <div className="flex items-center gap-4 text-primary">
-                      <span className="opacity-50">01</span>
-                      <span>Initializing Spunn Force Protocol...</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-foreground/80">
-                      <span className="opacity-50">02</span>
-                      <span>Connecting to Global Nodes [12,402 Active]</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-foreground/80">
-                      <span className="opacity-50">03</span>
-                      <span>Syncing Task Queue: 8,291 Available</span>
-                    </div>
-                    <div className="pt-4 space-y-2">
-                      {[1, 2, 3].map(i => (
-                        <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-background/50 border border-border/50">
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-foreground/60">Task #{8290 + i} Verified</span>
-                          </div>
-                          <span className="text-primary font-bold">+$12.50</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="pt-4 flex items-center gap-2 text-primary animate-pulse">
-                      <span>_</span>
-                      <span className="h-4 w-1 bg-primary" />
-                    </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Bento Features Section */}
+      <section id="features" className="py-40 px-8">
+        <div className="max-w-7xl mx-auto space-y-24">
+          <div className="max-w-2xl space-y-6">
+            <h2 className="text-5xl md:text-6xl font-display font-bold tracking-tight text-white leading-[1.1]">
+              Engineered for <br />
+              <span className="text-muted-foreground">High-Performance.</span>
+            </h2>
+            <p className="text-lg text-muted-foreground font-light leading-relaxed">
+              Our infrastructure is built to reward accuracy and consistency. 
+              The more precise your work, the higher your tier and earning potential.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { 
+                icon: Cpu, 
+                title: "Automated Dispatch", 
+                desc: "Proprietary algorithms match tasks to your specific device profile and location for maximum efficiency." 
+              },
+              { 
+                icon: Shield, 
+                title: "Smart Escrow", 
+                desc: "Every task is backed by our automated payout system, ensuring you get paid instantly upon verification." 
+              },
+              { 
+                icon: Globe, 
+                title: "Borderless Access", 
+                desc: "A truly global network. Work from anywhere in the world with zero friction and instant onboarding." 
+              },
+              { 
+                icon: Layers, 
+                title: "Tiered Progression", 
+                desc: "Unlock higher-value tasks and priority support as you build your reputation within the network." 
+              },
+              { 
+                icon: Fingerprint, 
+                title: "Identity Verified", 
+                desc: "We maintain a high-trust environment through rigorous identity verification and quality control." 
+              },
+              { 
+                icon: Layout, 
+                title: "Unified Dashboard", 
+                desc: "Manage your tasks, earnings, and profile through a single, minimalist interface designed for speed." 
+              }
+            ].map((feature, i) => (
+              <motion.div
+                key={i}
+                whileHover={{ y: -5 }}
+                className="group p-10 rounded-[2rem] bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] hover:border-white/[0.1] transition-all duration-500"
+              >
+                <div className="space-y-8">
+                  <DesignerIcon icon={feature.icon} />
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-display font-bold text-white tracking-tight">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed font-light">{feature.desc}</p>
                   </div>
-                  {/* Grid Overlay */}
-                  <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Stats Section - Minimalist */}
-      <section className="bg-muted/30 border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-2 lg:grid-cols-4 gap-12">
-          {[
-            { label: "Tasks Completed", value: 500, suffix: "k+" },
-            { label: "Avg. Payout Time", value: 48, suffix: "h" },
-            { label: "Min. Withdrawal", value: 25, prefix: "$" },
-            { label: "Network Status", value: 100, suffix: "%", custom: "Active" }
-          ].map((stat, i) => (
-            <div key={i} className="space-y-1">
-              <div className="text-3xl font-bold tracking-tighter text-foreground">
-                {stat.custom ? <span className="text-primary">{stat.custom}</span> : <NumberTicker value={stat.value} prefix={stat.prefix} suffix={stat.suffix} />}
-              </div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Earnings Calculator - SaaS Split */}
-      <section id="calculator" className="py-32 px-6 border-b border-border/50">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-24 items-center">
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 font-bold uppercase tracking-widest text-[9px]">Potential</Badge>
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-foreground">Calculate Your <br />Earnings Potential</h2>
-              <p className="text-muted-foreground leading-relaxed max-w-md">Our top operators earn significantly more by maintaining high accuracy and unlocking Premium tier tasks.</p>
+      {/* Earnings Calculator */}
+      <section id="calculator" className="py-40 px-8 bg-white/[0.01] border-y border-white/[0.05]">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-32 items-center">
+          <div className="space-y-12">
+            <div className="space-y-6">
+              <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 font-bold uppercase tracking-[0.3em] text-[10px] rounded-full px-4 py-1">
+                Projection
+              </Badge>
+              <h2 className="text-5xl md:text-6xl font-display font-bold tracking-tight text-white leading-[1.1]">
+                Scale Your <br />Earnings.
+              </h2>
+              <p className="text-lg text-muted-foreground font-light leading-relaxed max-w-md">
+                Top operators maintain high accuracy scores to unlock Premium tier tasks with significantly higher rates.
+              </p>
             </div>
             
-            <div className="space-y-10 bg-muted/30 p-8 rounded-3xl border border-border/50">
-              <div className="space-y-6">
+            <div className="space-y-12 p-12 rounded-[2.5rem] bg-white/[0.02] border border-white/[0.05] shadow-2xl">
+              <div className="space-y-8">
                 <div className="flex justify-between items-end">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Daily Commitment</label>
-                    <div className="text-2xl font-bold text-foreground">{hours[0]} Hours</div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Daily Commitment</label>
+                    <div className="text-4xl font-display font-bold text-white">{hours[0]} <span className="text-lg font-light text-muted-foreground">Hours</span></div>
                   </div>
-                  <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors">
-                    Standard Rate: $12.50/hr
-                  </Badge>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary bg-primary/10 px-4 py-2 rounded-full border border-primary/20">
+                    $12.50 / Hour
+                  </div>
                 </div>
                 <Slider 
                   value={hours} 
@@ -218,92 +305,58 @@ export default function Landing() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Daily Potential</div>
-                  <div className="text-3xl font-bold tracking-tighter text-foreground">${potentialDaily.toFixed(2)}</div>
+              <div className="grid grid-cols-2 gap-12 pt-8 border-t border-white/[0.05]">
+                <div className="space-y-2">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Daily</div>
+                  <div className="text-4xl font-display font-bold text-white">${potentialDaily.toFixed(2)}</div>
                 </div>
-                <div className="space-y-1">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-primary">Monthly Potential</div>
-                  <div className="text-3xl font-bold tracking-tighter text-primary">${(potentialDaily * 30).toFixed(0)}</div>
+                <div className="space-y-2">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Monthly</div>
+                  <div className="text-4xl font-display font-bold text-primary">${(potentialDaily * 30).toFixed(0)}</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-12 relative">
+            <div className="absolute -left-16 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/[0.05] to-transparent hidden lg:block" />
             {[
-              { icon: Target, title: "Vetted Opportunities", desc: "No low-quality tasks. Only high-value operations from verified partners." },
-              { icon: TrendingUp, title: "Career Progression", desc: "Grow from a New operator to a Premium strategist with higher rates." },
-              { icon: Shield, title: "Guaranteed Payouts", desc: "Our smart-contract escrow ensures you get paid for every verified task." }
+              { icon: Target, title: "Vetted Flow", desc: "No low-quality noise. Only high-value operations from verified global partners." },
+              { icon: TrendingUp, title: "Career Path", desc: "Grow from a New operator to a Premium strategist with exclusive access." },
+              { icon: Shield, title: "Smart Payouts", desc: "Automated verification and smart-contract escrow for total financial security." }
             ].map((item, i) => (
-              <Card key={i} className="border-border/50 bg-card/50 hover:bg-muted/30 transition-colors group">
-                <CardContent className="p-6 flex gap-6 items-start">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0 group-hover:scale-110 transition-transform">
-                    <item.icon className="w-6 h-6" />
-                  </div>
-                  <div className="space-y-1">
-                    <h4 className="text-base font-bold text-foreground">{item.title}</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div key={i} className="flex gap-8 group">
+                <DesignerIcon icon={item.icon} className="shrink-0" />
+                <div className="space-y-3">
+                  <h4 className="text-xl font-display font-bold text-white tracking-tight">{item.title}</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed font-light">{item.desc}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features - Bento Grid */}
-      <section id="features" className="py-32 px-6 bg-muted/10">
-        <div className="max-w-7xl mx-auto space-y-20">
-          <div className="text-center space-y-4">
-            <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 font-bold uppercase tracking-widest text-[9px]">Infrastructure</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-foreground">Built for Performance</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">Our platform is designed to reward accuracy and consistency with higher-tier opportunities.</p>
+      {/* FAQ Section */}
+      <section id="how-it-works" className="py-40 px-8">
+        <div className="max-w-3xl mx-auto space-y-24">
+          <div className="text-center space-y-6">
+            <h2 className="text-5xl font-display font-bold tracking-tight text-white">The Protocol.</h2>
+            <p className="text-muted-foreground font-light text-lg">Everything you need to know about joining the Force.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: Zap, title: "Instant Access", desc: "Get assigned tasks matching your device and location automatically." },
-              { icon: Shield, title: "Secure Payouts", desc: "Reliable withdrawals via PayPal or Crypto once you hit the threshold." },
-              { icon: Globe, title: "Global Reach", desc: "Work from anywhere in the world with just a smartphone or laptop." }
-            ].map((feature, i) => (
-              <Card key={i} className="border-border/50 bg-card/50 hover:border-primary/30 transition-all group overflow-hidden">
-                <CardContent className="p-10 space-y-6">
-                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                    <feature.icon className="w-7 h-7" />
-                  </div>
-                  <div className="space-y-3">
-                    <h3 className="text-xl font-bold tracking-tight text-foreground">{feature.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ / How it Works - Accordion */}
-      <section id="how-it-works" className="py-32 px-6 border-y border-border/50">
-        <div className="max-w-3xl mx-auto space-y-16">
-          <div className="text-center space-y-4">
-            <h2 className="text-4xl font-bold tracking-tighter text-foreground">The Path to Success</h2>
-            <p className="text-muted-foreground">Everything you need to know about joining the Spunn Force network.</p>
-          </div>
-
-          <Accordion className="w-full">
+          <Accordion className="w-full space-y-4">
             {[
               { q: "How do I get started?", a: "Complete our 30-second application and verify your identity. Once approved, you'll gain access to the dashboard where tasks are automatically assigned based on your profile." },
               { q: "When do I get paid?", a: "Payouts are processed within 48 hours of reaching the $25 withdrawal threshold. We support PayPal, Bank Transfer, and major Cryptocurrencies." },
               { q: "What are the requirements?", a: "You need a reliable internet connection, a modern smartphone or laptop, and the ability to follow detailed instructions with high precision." },
               { q: "How do I unlock higher rates?", a: "Maintain a quality score above 95% and complete at least 50 tasks to unlock 'Trusted' status. Premium status is granted to our top 5% of operators." }
             ].map((faq, i) => (
-              <AccordionItem key={i} value={`item-${i}`} className="border-border/50">
-                <AccordionTrigger className="text-base font-bold hover:text-primary transition-colors text-left">
+              <AccordionItem key={i} value={`item-${i}`} className="border-white/[0.05] px-8 rounded-3xl bg-white/[0.01] hover:bg-white/[0.02] transition-colors">
+                <AccordionTrigger className="text-lg font-display font-bold hover:no-underline py-8">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground leading-relaxed">
+                <AccordionContent className="text-muted-foreground leading-relaxed font-light pb-8 text-base">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -313,72 +366,80 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-32 px-6">
-        <div className="max-w-5xl mx-auto">
-          <Card className="bg-primary border-none overflow-hidden relative shadow-2xl shadow-primary/20">
+      <section className="py-40 px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="relative p-16 md:p-32 rounded-[3.5rem] bg-primary overflow-hidden text-center space-y-12">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent)] pointer-events-none" />
-            <CardContent className="p-12 md:p-20 text-center space-y-8 relative z-10">
-              <h2 className="text-4xl md:text-6xl font-bold tracking-tighter text-primary-foreground">Ready to join the <br />distributed future?</h2>
-              <p className="text-primary-foreground/80 max-w-xl mx-auto text-lg font-medium">
-                Applications are currently open for all regions. Start your journey as a Spunn Force operator today.
+            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-white/10 blur-[100px] rounded-full pointer-events-none" />
+            
+            <div className="relative z-10 space-y-8">
+              <h2 className="text-5xl md:text-8xl font-display font-bold tracking-tight text-primary-foreground leading-[0.9]">
+                Join the <br />Future of Work.
+              </h2>
+              <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto font-light leading-relaxed">
+                Applications are currently open for all regions. 
+                Start your journey as a Spunn Force operator today.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                <Link to="/apply" className={cn(buttonVariants({ size: "lg", variant: "secondary" }), "h-16 px-12 text-lg font-bold shadow-xl")}>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-8 pt-8">
+                <Link to="/apply" className={cn(
+                  buttonVariants({ size: "lg", variant: "secondary" }), 
+                  "h-20 px-16 text-xl font-bold rounded-full shadow-2xl bg-white text-black hover:bg-white/90 transition-all"
+                )}>
                   Apply Now
                 </Link>
-                <div className="flex items-center gap-3 text-primary-foreground/60 text-sm font-bold uppercase tracking-widest">
+                <div className="flex items-center gap-3 text-primary-foreground/60 text-[11px] font-bold uppercase tracking-[0.3em]">
                   <Clock className="w-4 h-4" /> 30-Second Setup
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-20 px-6 border-t border-border/50 bg-muted/20">
-        <div className="max-w-7xl mx-auto space-y-12">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-12">
-            <div className="space-y-6">
+      <footer className="py-32 px-8 border-t border-white/[0.05] bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto space-y-24">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-20">
+            <div className="space-y-8">
               <Logo showText={true} />
-              <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
+              <p className="text-sm text-muted-foreground max-w-xs leading-relaxed font-light">
                 The premier distributed workforce for high-accuracy micro-tasks and digital asset generation.
               </p>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-12 sm:gap-24">
-              <div className="space-y-4">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground">Platform</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><a href="#" className="hover:text-primary transition-colors">Features</a></li>
-                  <li><a href="#" className="hover:text-primary transition-colors">Earnings</a></li>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-20 sm:gap-32">
+              <div className="space-y-6">
+                <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white">Platform</h4>
+                <ul className="space-y-4 text-sm text-muted-foreground font-light">
                   <li><a href="#" className="hover:text-primary transition-colors">Network</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Earnings</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Protocol</a></li>
                 </ul>
               </div>
-              <div className="space-y-4">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground">Company</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
+              <div className="space-y-6">
+                <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white">Company</h4>
+                <ul className="space-y-4 text-sm text-muted-foreground font-light">
                   <li><a href="#" className="hover:text-primary transition-colors">About</a></li>
                   <li><a href="#" className="hover:text-primary transition-colors">Privacy</a></li>
                   <li><a href="#" className="hover:text-primary transition-colors">Terms</a></li>
                 </ul>
               </div>
-              <div className="space-y-4">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground">Support</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><a href="#" className="hover:text-primary transition-colors">Help Center</a></li>
+              <div className="space-y-6">
+                <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white">Support</h4>
+                <ul className="space-y-4 text-sm text-muted-foreground font-light">
+                  <li><a href="#" className="hover:text-primary transition-colors">Help</a></li>
                   <li><a href="#" className="hover:text-primary transition-colors">Contact</a></li>
                   <li><a href="#" className="hover:text-primary transition-colors">Status</a></li>
                 </ul>
               </div>
             </div>
           </div>
-          <Separator className="bg-border/50" />
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+          
+          <div className="pt-12 border-t border-white/[0.05] flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/40">
             <p>© 2026 Spunn Force Network. All rights reserved.</p>
-            <div className="flex gap-8">
-              <a href="#" className="hover:text-foreground transition-colors">Twitter</a>
-              <a href="#" className="hover:text-foreground transition-colors">Discord</a>
-              <a href="#" className="hover:text-foreground transition-colors">GitHub</a>
+            <div className="flex gap-12">
+              <a href="#" className="hover:text-white transition-colors">Twitter</a>
+              <a href="#" className="hover:text-white transition-colors">Discord</a>
+              <a href="#" className="hover:text-white transition-colors">GitHub</a>
             </div>
           </div>
         </div>
