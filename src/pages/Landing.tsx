@@ -214,7 +214,7 @@ export default function Landing() {
       <section id="features" className="py-40 px-8">
         <div className="max-w-7xl mx-auto space-y-24">
           <div className="max-w-2xl space-y-6">
-            <h2 className="text-5xl md:text-6xl font-display font-bold tracking-tight text-white leading-[1.1]">
+            <h2 className="text-5xl md:text-6xl font-display font-bold tracking-tight text-foreground leading-[1.1]">
               Engineered for <br />
               <span className="text-muted-foreground">High-Performance.</span>
             </h2>
@@ -260,12 +260,12 @@ export default function Landing() {
               <motion.div
                 key={i}
                 whileHover={{ y: -5 }}
-                className="group p-10 rounded-[2rem] bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] hover:border-white/[0.1] transition-all duration-500"
+                className="group p-10 rounded-[2rem] bg-card border border-border hover:bg-muted/50 transition-all duration-500 shadow-sm hover:shadow-xl"
               >
                 <div className="space-y-8">
                   <DesignerIcon icon={feature.icon} />
                   <div className="space-y-4">
-                    <h3 className="text-xl font-display font-bold text-white tracking-tight">{feature.title}</h3>
+                    <h3 className="text-xl font-display font-bold text-foreground tracking-tight">{feature.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed font-light">{feature.desc}</p>
                   </div>
                 </div>

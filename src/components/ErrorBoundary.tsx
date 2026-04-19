@@ -29,13 +29,13 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 text-white font-sans">
-          <div className="w-full max-w-2xl bg-[#0A0A0A] p-8 rounded-2xl border border-red-500/30 shadow-[0_0_40px_rgba(239,68,68,0.15)]">
+        <div className="min-h-screen bg-muted/10 flex items-center justify-center p-6 text-foreground font-sans">
+          <div className="w-full max-w-2xl bg-card p-8 rounded-2xl border border-red-500/30 shadow-[0_0_40px_rgba(239,68,68,0.15)]">
             <h1 className="text-3xl font-bold text-red-500 mb-4">Something went wrong.</h1>
             <p className="text-zinc-400 mb-6">
               An unexpected error occurred in the application.
             </p>
-            <div className="bg-[#050505] border border-white/10 rounded-xl p-4 overflow-x-auto mb-6">
+            <div className="bg-muted/10 border border-border rounded-xl p-4 overflow-x-auto mb-6">
               <pre className="text-red-400 text-sm font-mono whitespace-pre-wrap">
                 {this.state.error?.toString()}
               </pre>

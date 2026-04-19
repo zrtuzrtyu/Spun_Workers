@@ -29,6 +29,7 @@ interface AppUser {
   skills?: string[];
   languages?: string[];
   identityVerified?: boolean;
+  tutorialShown?: boolean;
   createdAt?: any;
 }
 

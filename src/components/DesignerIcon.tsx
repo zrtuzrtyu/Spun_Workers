@@ -24,7 +24,7 @@ export function DesignerIcon({ icon: Icon, className, size = "md" }: DesignerIco
     <div className={cn(
       "relative flex items-center justify-center shrink-0",
       sizeClasses[size],
-      "bg-gradient-to-br from-white/[0.08] to-transparent border border-white/[0.05]",
+      "bg-gradient-to-br from-foreground/5 to-transparent border border-border",
       "shadow-[0_8px_16px_-6px_rgba(0,0,0,0.5)] overflow-hidden group-hover:border-primary/30 transition-all duration-500",
       className
     )}>

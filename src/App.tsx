@@ -29,7 +29,7 @@ const PendingApproval = lazy(() => import("./pages/PendingApproval"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 
 const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center bg-[#050505] text-white font-sans font-black text-2xl">
+  <div className="min-h-screen flex items-center justify-center bg-background text-foreground font-sans font-black text-2xl">
     <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
   </div>
 );

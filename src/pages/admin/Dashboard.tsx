@@ -407,39 +407,39 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
-      <div className="mb-12 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
+      <div className="mb-10 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
         <div>
-          <div className="flex items-center gap-4 mb-4">
-            <h1 className="text-4xl font-sans font-bold text-white leading-none">
+          <div className="flex items-center gap-3 mb-3">
+            <h1 className="text-3xl font-sans font-bold text-foreground leading-none">
               Command Center
             </h1>
             <Link to="/worker">
-              <Button variant="outline" size="sm" className="bg-white/5 border-white/10 text-white hover:bg-white/10 gap-2">
-                <Users className="w-4 h-4" />
+              <Button variant="outline" size="sm" className="bg-background/5 border-border text-foreground hover:bg-muted/50 gap-2 h-8 text-xs">
+                <Users className="w-3.5 h-3.5" />
                 Worker View
               </Button>
             </Link>
           </div>
-          <p className="text-zinc-400 text-lg font-sans max-w-2xl leading-relaxed">
+          <p className="text-muted-foreground text-sm font-sans max-w-2xl leading-relaxed">
             Monitor your global workforce and mission completion in real-time. System status is currently optimal.
           </p>
         </div>
         {systemConfig && (
-          <div className="flex flex-wrap gap-4">
-            <div className={`px-4 py-2 rounded-xl border font-sans text-xs font-medium flex items-center gap-3 ${
+          <div className="flex flex-wrap gap-3">
+            <div className={`px-3 py-1.5 rounded-xl border font-sans text-[10px] uppercase font-bold tracking-widest flex items-center gap-2 ${
               systemConfig.maintenanceMode 
-                ? 'bg-red-500/10 text-red-400 border-red-500/20' 
-                : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                ? 'bg-destructive/20 text-destructive border-destructive/30' 
+                : 'bg-primary/10 text-primary border-primary/20'
             }`}>
-              <div className={`w-2 h-2 rounded-full ${systemConfig.maintenanceMode ? 'bg-red-500 animate-pulse' : 'bg-purple-500'}`} />
+              <div className={`w-1.5 h-1.5 rounded-full ${systemConfig.maintenanceMode ? 'bg-destructive animate-pulse' : 'bg-primary'}`} />
               {systemConfig.maintenanceMode ? 'Maintenance Active' : 'System Operational'}
             </div>
-            <div className={`px-4 py-2 rounded-xl border font-sans text-xs font-medium flex items-center gap-3 ${
+            <div className={`px-3 py-1.5 rounded-xl border font-sans text-[10px] uppercase font-bold tracking-widest flex items-center gap-2 ${
               systemConfig.allowNewRegistrations 
-                ? 'bg-white/5 text-white border-white/10' 
-                : 'bg-white/5 text-white/40 border-white/10'
+                ? 'bg-card text-foreground border-border' 
+                : 'bg-muted/50 text-muted-foreground border-border'
             }`}>
-              <Users className="w-4 h-4" />
+              <Users className="w-3.5 h-3.5" />
               {systemConfig.allowNewRegistrations ? 'Registrations Open' : 'Registrations Closed'}
             </div>
           </div>
@@ -447,114 +447,114 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
-          <div className="w-14 h-14 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-105 transition-transform">
-            <Users className="w-7 h-7" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+          <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-600 group-hover:scale-105 transition-transform">
+            <Users className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-3xl font-sans font-bold text-white tracking-tight">{stats.workers}</div>
-            <div className="text-xs text-zinc-400 mt-1">Active Workforce</div>
+            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">{stats.workers}</div>
+            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Active Workforce</div>
           </div>
         </div>
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
-          <div className="w-14 h-14 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform">
-            <Activity className="w-7 h-7" />
+        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+          <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
+            <Activity className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-3xl font-sans font-bold text-white tracking-tight">{stats.activeTasks}</div>
-            <div className="text-xs text-zinc-400 mt-1">Active Tasks</div>
+            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">{stats.activeTasks}</div>
+            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Active Tasks</div>
           </div>
         </div>
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
-          <div className="w-14 h-14 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
-            <CheckSquare className="w-7 h-7" />
+        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 group-hover:scale-105 transition-transform">
+            <CheckSquare className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-3xl font-sans font-bold text-white tracking-tight">{stats.pendingTasks}</div>
-            <div className="text-xs text-zinc-400 mt-1">Pending Reviews</div>
+            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">{stats.pendingTasks}</div>
+            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Pending Reviews</div>
           </div>
         </div>
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
-          <div className="w-14 h-14 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 group-hover:scale-105 transition-transform">
-            <Wallet className="w-7 h-7" />
+        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform">
+            <Wallet className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-3xl font-sans font-bold text-white tracking-tight">{stats.pendingWithdrawals}</div>
-            <div className="text-xs text-zinc-400 mt-1">Pending Withdrawals</div>
+            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">{stats.pendingWithdrawals}</div>
+            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Pending Withdrawals</div>
           </div>
         </div>
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
-          <div className="w-14 h-14 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 group-hover:scale-105 transition-transform">
-            <DollarSign className="w-7 h-7" />
+        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+          <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-600 group-hover:scale-105 transition-transform">
+            <DollarSign className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-3xl font-sans font-bold text-white tracking-tight">${stats.totalPayouts.toFixed(2)}</div>
-            <div className="text-xs text-zinc-400 mt-1">Total Payouts</div>
+            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">${stats.totalPayouts.toFixed(2)}</div>
+            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Total Payouts</div>
           </div>
         </div>
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
-          <div className="w-14 h-14 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 group-hover:scale-105 transition-transform">
-            <DollarSign className="w-7 h-7" />
+        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+          <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-600 group-hover:scale-105 transition-transform">
+            <DollarSign className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-3xl font-sans font-bold text-white tracking-tight">${stats.totalUnpaidBalance.toFixed(2)}</div>
-            <div className="text-xs text-zinc-400 mt-1">Total Unpaid Balance</div>
+            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">${stats.totalUnpaidBalance.toFixed(2)}</div>
+            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Total Unpaid Balance</div>
           </div>
         </div>
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
-          <div className="w-14 h-14 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform">
-            <Activity className="w-7 h-7" />
+        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+          <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
+            <Activity className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-3xl font-sans font-bold text-white tracking-tight">{stats.overallCompletionRate.toFixed(1)}%</div>
-            <div className="text-xs text-zinc-400 mt-1">Completion Rate</div>
+            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">{stats.overallCompletionRate.toFixed(1)}%</div>
+            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Completion Rate</div>
           </div>
         </div>
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 flex items-center gap-6 group hover:bg-white/5 transition-all shadow-xl">
-          <div className="w-14 h-14 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 group-hover:scale-105 transition-transform">
-            <Clock className="w-7 h-7" />
+        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+          <div className="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-600 group-hover:scale-105 transition-transform">
+            <Clock className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-3xl font-sans font-bold text-white tracking-tight">{stats.avgProcessingHours.toFixed(1)}h</div>
-            <div className="text-xs text-zinc-400 mt-1">Avg Payout Time</div>
+            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">{stats.avgProcessingHours.toFixed(1)}h</div>
+            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Avg Payout Time</div>
           </div>
         </div>
       </div>
 
       {/* Chart Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl p-8 relative overflow-hidden shadow-xl">
+        <div className="glass-card rounded-3xl p-8 relative overflow-hidden">
           <div className="flex items-center justify-between mb-8 relative z-10">
-            <h2 className="text-2xl font-sans font-bold text-white flex items-center gap-3">
-              <BarChart3 className="w-6 h-6 text-purple-400" /> Mission Analytics
+            <h2 className="text-2xl font-sans font-bold text-foreground flex items-center gap-3">
+              <BarChart3 className="w-6 h-6 text-purple-600" /> Mission Analytics
             </h2>
           </div>
           <div className="h-[350px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="name" stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dy={10} />
-                <YAxis yAxisId="left" stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={-10} />
-                <YAxis yAxisId="right" orientation="right" stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={10} tickFormatter={(val) => `${val}%`} />
+                <CartesianGrid strokeDasharray="0" stroke="rgba(0,0,0,0.1)" vertical={false} />
+                <XAxis dataKey="name" stroke="currentColor" className="text-muted-foreground" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dy={10} />
+                <YAxis yAxisId="left" stroke="currentColor" className="text-muted-foreground" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={-10} />
+                <YAxis yAxisId="right" orientation="right" stroke="currentColor" className="text-muted-foreground" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={10} tickFormatter={(val) => `${val}%`} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#111111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
-                  itemStyle={{ color: '#fff', fontWeight: '500', fontSize: '12px' }}
-                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', padding: '12px' }}
+                  itemStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', fontSize: '12px' }}
+                  cursor={{ fill: 'rgba(0,0,0,0.05)' }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }} />
-                <Bar yAxisId="left" dataKey="submissions" name="Submissions" fill="#8b5cf6" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                <Bar yAxisId="left" dataKey="approvals" name="Approvals" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                <Line yAxisId="right" type="monotone" dataKey="completionRate" name="Completion Rate" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} />
+                <Bar yAxisId="left" dataKey="submissions" name="Submissions" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                <Bar yAxisId="left" dataKey="approvals" name="Approvals" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                <Line yAxisId="right" type="monotone" dataKey="completionRate" name="Completion Rate" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 4, fill: 'hsl(var(--primary))', strokeWidth: 0 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl p-8 relative overflow-hidden shadow-xl">
+        <div className="glass-card rounded-3xl p-8 relative overflow-hidden">
           <div className="flex items-center justify-between mb-8 relative z-10">
-            <h2 className="text-2xl font-sans font-bold text-white flex items-center gap-3">
-              <Users className="w-6 h-6 text-blue-400" /> Live Worker Activity
+            <h2 className="text-2xl font-sans font-bold text-foreground flex items-center gap-3">
+              <Users className="w-6 h-6 text-blue-600" /> Live Worker Activity
             </h2>
           </div>
           <div className="h-[350px] w-full relative z-10">
@@ -562,19 +562,19 @@ export default function AdminDashboard() {
               <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorWorkers" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="name" stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dy={10} />
-                <YAxis stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={-10} />
+                <CartesianGrid strokeDasharray="0" stroke="rgba(0,0,0,0.1)" vertical={false} />
+                <XAxis dataKey="name" stroke="currentColor" className="text-muted-foreground" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dy={10} />
+                <YAxis stroke="currentColor" className="text-muted-foreground" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={-10} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#111111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
-                  itemStyle={{ color: '#fff', fontWeight: '500', fontSize: '12px' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', padding: '12px' }}
+                  itemStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', fontSize: '12px' }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }} />
-                <Area type="monotone" dataKey="activeWorkers" name="Active Workers" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorWorkers)" />
+                <Area type="monotone" dataKey="activeWorkers" name="Active Workers" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorWorkers)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -582,51 +582,51 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl p-8 relative overflow-hidden shadow-xl">
+        <div className="glass-card rounded-3xl p-8 relative overflow-hidden">
           <div className="flex items-center justify-between mb-8 relative z-10">
-            <h2 className="text-2xl font-sans font-bold text-white flex items-center gap-3">
-              <Clock className="w-6 h-6 text-pink-400" /> Payout Processing Times
+            <h2 className="text-2xl font-sans font-bold text-foreground flex items-center gap-3">
+              <Clock className="w-6 h-6 text-pink-600" /> Payout Processing Times
             </h2>
           </div>
           <div className="h-[350px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="name" stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dy={10} />
-                <YAxis stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={-10} tickFormatter={(val) => `${val}h`} />
+                <CartesianGrid strokeDasharray="0" stroke="rgba(128,128,128,0.1)" vertical={false} />
+                <XAxis dataKey="name" stroke="currentColor" className="text-muted-foreground" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dy={10} />
+                <YAxis stroke="currentColor" className="text-muted-foreground" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={-10} tickFormatter={(val) => `${val}h`} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#111111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
-                  itemStyle={{ color: '#fff', fontWeight: '500', fontSize: '12px' }}
-                  cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', padding: '12px' }}
+                  itemStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', fontSize: '12px' }}
+                  cursor={{ stroke: 'rgba(128,128,128,0.2)', strokeWidth: 1 }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }} />
-                <Line type="monotone" dataKey="avgProcessingTime" name="Avg Processing Time (Hours)" stroke="#ec4899" strokeWidth={3} dot={{ r: 6, fill: '#ec4899', strokeWidth: 2, stroke: '#0A0A0A' }} activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="avgProcessingTime" name="Avg Processing Time (Hours)" stroke="#ec4899" strokeWidth={3} dot={{ r: 4, fill: '#ec4899', strokeWidth: 0 }} activeDot={{ r: 8 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl p-8 relative overflow-hidden shadow-xl">
+        <div className="glass-card rounded-3xl p-8 relative overflow-hidden">
           <div className="flex items-center justify-between mb-8 relative z-10">
-            <h2 className="text-2xl font-sans font-bold text-white flex items-center gap-3">
-              <Star className="w-6 h-6 text-amber-400" /> Worker Performance Trend
+            <h2 className="text-2xl font-sans font-bold text-foreground flex items-center gap-3">
+              <Star className="w-6 h-6 text-amber-600" /> Worker Performance Trend
             </h2>
           </div>
           <div className="h-[350px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="name" stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dy={10} />
-                <YAxis yAxisId="left" domain={[1, 5]} stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={-10} />
-                <YAxis yAxisId="right" orientation="right" domain={[0, 100]} stroke="#71717a" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={10} tickFormatter={(val) => `${val}%`} />
+                <CartesianGrid strokeDasharray="0" stroke="rgba(128,128,128,0.1)" vertical={false} />
+                <XAxis dataKey="name" stroke="currentColor" className="text-muted-foreground" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dy={10} />
+                <YAxis yAxisId="left" domain={[1, 5]} stroke="currentColor" className="text-muted-foreground" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={-10} />
+                <YAxis yAxisId="right" orientation="right" domain={[0, 100]} stroke="currentColor" className="text-muted-foreground" fontSize={10} fontWeight="500" tickLine={false} axisLine={false} dx={10} tickFormatter={(val) => `${val}%`} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#111111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
-                  itemStyle={{ color: '#fff', fontWeight: '500', fontSize: '12px' }}
-                  cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', padding: '12px' }}
+                  itemStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', fontSize: '12px' }}
+                  cursor={{ stroke: 'rgba(128,128,128,0.2)', strokeWidth: 1 }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }} />
-                <Line yAxisId="left" type="monotone" dataKey="avgRating" name="Avg Rating (1-5)" stroke="#f59e0b" strokeWidth={3} dot={{ r: 6, fill: '#f59e0b', strokeWidth: 2, stroke: '#0A0A0A' }} activeDot={{ r: 8 }} />
-                <Line yAxisId="right" type="monotone" dataKey="completionRate" name="Completion Rate" stroke="#10b981" strokeWidth={3} dot={{ r: 6, fill: '#10b981', strokeWidth: 2, stroke: '#0A0A0A' }} activeDot={{ r: 8 }} />
+                <Line yAxisId="left" type="monotone" dataKey="avgRating" name="Avg Rating (1-5)" stroke="#f59e0b" strokeWidth={3} dot={{ r: 4, fill: '#f59e0b', strokeWidth: 0 }} activeDot={{ r: 8 }} />
+                <Line yAxisId="right" type="monotone" dataKey="completionRate" name="Completion Rate" stroke="#10b981" strokeWidth={3} dot={{ r: 4, fill: '#10b981', strokeWidth: 0 }} activeDot={{ r: 8 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -635,44 +635,44 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Pending Submissions */}
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-xl">
-          <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0F0F0F]">
-            <h2 className="text-xl font-sans font-bold text-white tracking-tight">Pending Reviews</h2>
-            <span className="bg-purple-500/20 text-purple-400 text-xs font-medium px-3 py-1 rounded-full border border-purple-500/30">{pendingSubmissions.length} Pending</span>
+        <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
+          <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
+            <h2 className="text-xl font-sans font-bold text-foreground tracking-tight">Pending Reviews</h2>
+            <span className="bg-purple-500/10 text-purple-600 text-xs font-medium px-3 py-1 rounded-full border border-purple-500/20">{pendingSubmissions.length} Pending</span>
           </div>
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-border">
             {pendingSubmissions.length === 0 ? (
-              <div className="p-12 text-center text-zinc-500 text-sm">No pending missions.</div>
+              <div className="p-12 text-center text-muted-foreground text-sm font-medium">No pending missions.</div>
             ) : (
               pendingSubmissions.map((sub) => (
-                <div key={sub.id} className="p-6 hover:bg-white/[0.02] transition-colors">
+                <div key={sub.id} className="p-6 hover:bg-muted/10 transition-colors">
                   <div className="flex justify-between items-start mb-6">
                     <div>
-                      <div className="font-sans font-bold text-white text-xl tracking-tight mb-2">{sub.taskTitle}</div>
-                      <div className="text-sm text-zinc-400 flex items-center gap-3">
+                      <div className="font-sans font-bold text-foreground text-xl tracking-tight mb-2">{sub.taskTitle}</div>
+                      <div className="text-sm text-muted-foreground flex items-center gap-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-xs font-bold text-purple-400">
+                          <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary">
                             {sub.workerName?.[0]}
                           </div>
                           {sub.workerName}
                         </div>
-                        <span className="text-white/20">•</span>
+                        <span className="text-border">•</span>
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" /> 
                           {sub.submittedAt?.toDate ? format(sub.submittedAt.toDate(), "MMM d, h:mm a") : "Unknown"}
                         </div>
                       </div>
                     </div>
-                    <div className="text-purple-400 font-sans font-bold text-xl">
+                    <div className="text-primary font-sans font-bold text-xl">
                       ${sub.payout.toFixed(2)}
                     </div>
                   </div>
                   
-                  <div className="bg-[#050505] border border-white/5 rounded-xl p-5 mb-6">
-                    <div className="text-xs text-zinc-500 font-medium mb-2">Worker Proof:</div>
-                    <p className="text-sm text-zinc-300 leading-relaxed mb-4">{sub.proofText || "No text provided."}</p>
+                  <div className="bg-card/50 border border-border rounded-xl p-5 mb-6">
+                    <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-2">Worker Proof:</div>
+                    <p className="text-sm text-foreground leading-relaxed mb-4">{sub.proofText || "No text provided."}</p>
                     {sub.proofImageUrl && (
-                      <a href={sub.proofImageUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-xs font-medium text-purple-400 hover:text-purple-300 transition-colors">
+                      <a href={sub.proofImageUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
                         View Visual Proof <Activity className="w-3 h-3" />
                       </a>
                     )}
@@ -702,13 +702,13 @@ export default function AdminDashboard() {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button 
                       onClick={() => handleApprove(sub.id, sub.workerId, sub.payout, sub.taskId, sub.taskTitle)}
-                      className="flex-1 bg-purple-500 hover:bg-purple-600 text-[#050505] font-bold py-2.5 rounded-xl transition-colors"
+                      className="flex-1 bg-purple-500 hover:bg-purple-600 text-primary-foreground font-bold py-2.5 rounded-xl transition-colors"
                     >
                       Approve
                     </button>
                     <button 
                       onClick={() => setRejectionData({ assignmentId: sub.id, workerId: sub.workerId, taskId: sub.taskId, taskTitle: sub.taskTitle, workerName: sub.workerName })}
-                      className="flex-1 bg-white/5 hover:bg-white/10 text-white font-medium py-2.5 rounded-xl transition-colors border border-white/10"
+                      className="flex-1 bg-card hover:bg-muted/80 text-foreground font-medium py-2.5 rounded-xl transition-colors border border-border"
                     >
                       Decline
                     </button>
@@ -727,33 +727,33 @@ export default function AdminDashboard() {
         </div>
 
         {/* Activity Feed */}
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-xl">
-          <div className="p-6 border-b border-white/5 bg-[#0F0F0F]">
-            <h2 className="text-xl font-sans font-bold text-white flex items-center gap-3 tracking-tight">
-              <Activity className="w-5 h-5 text-purple-400" /> Activity Log
+        <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
+          <div className="p-6 border-b border-border bg-muted/30">
+            <h2 className="text-xl font-sans font-bold text-foreground flex items-center gap-3 tracking-tight">
+              <Activity className="w-5 h-5 text-purple-600" /> Activity Log
             </h2>
           </div>
           <div className="p-6">
-            <div className="space-y-6 relative before:absolute before:inset-0 before:ml-[1.125rem] before:-translate-x-px before:h-full before:w-px before:bg-white/10">
+            <div className="space-y-6 relative before:absolute before:inset-0 before:ml-[1.125rem] before:-translate-x-px before:h-full before:w-px before:border-l before:border-border">
               {activities.length === 0 ? (
-                <div className="text-center text-zinc-500 py-12 text-sm">No recent log entries.</div>
+                <div className="text-center text-muted-foreground py-12 text-sm font-medium">No recent log entries.</div>
               ) : (
                 activities.map((act) => (
                   <div key={act.id} className="relative flex items-start gap-6 group">
-                    <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[#050505] border border-white/10 text-zinc-400 group-hover:text-purple-400 group-hover:border-purple-500/50 z-10 transition-all duration-300">
+                    <div className="flex items-center justify-center w-9 h-9 rounded-full bg-card border border-border text-muted-foreground group-hover:text-primary group-hover:border-primary/50 z-10 transition-all duration-300">
                       <Activity className="w-4 h-4" />
                     </div>
-                    <div className="flex-1 bg-[#050505] border border-white/5 rounded-xl p-4 group-hover:border-white/10 transition-all duration-300">
+                    <div className="flex-1 glass-card rounded-xl p-4 group-hover:border-primary/30 transition-all duration-300">
                       <div className="flex items-center justify-between gap-4 mb-1">
-                        <div className="font-sans text-zinc-300 text-xs font-medium capitalize">{act.type?.replace('_', ' ') || 'Activity'}</div>
-                        <time className="text-xs text-zinc-500">{act.createdAt?.toDate ? format(act.createdAt.toDate(), "h:mm a") : ""}</time>
+                        <div className="font-sans text-foreground text-xs font-bold uppercase tracking-widest leading-relaxed capitalize">{act.type?.replace('_', ' ') || 'Activity'}</div>
+                        <time className="text-xs text-muted-foreground">{act.createdAt?.toDate ? format(act.createdAt.toDate(), "h:mm a") : ""}</time>
                       </div>
-                      <div className="text-sm text-zinc-400 font-sans leading-relaxed mb-2">{act.description}</div>
+                      <div className="text-sm text-muted-foreground font-sans leading-relaxed mb-2">{act.description}</div>
                       {(act.taskId || act.userId || act.amount !== undefined) && (
                         <div className="flex flex-wrap gap-2 mt-2">
                           {act.userId && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] text-zinc-400 font-mono">
-                              <span className="text-zinc-500">USR:</span> {act.userId.slice(0, 8)}...
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/30 border border-border text-[10px] text-muted-foreground font-mono">
+                              <span className="text-muted-foreground/60">USR:</span> {act.userId.slice(0, 8)}...
                             </span>
                           )}
                           {act.taskId && (
@@ -777,53 +777,53 @@ export default function AdminDashboard() {
         </div>
 
         {/* Pending Member Requests */}
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-xl lg:col-span-2">
-          <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0F0F0F]">
-            <h2 className="text-xl font-sans font-bold text-white tracking-tight">Pending Member Requests</h2>
-            <span className="bg-blue-500/20 text-blue-400 text-xs font-medium px-3 py-1 rounded-full border border-blue-500/30">{pendingRequests.length} Pending</span>
+        <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm lg:col-span-2">
+          <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
+            <h2 className="text-xl font-sans font-bold text-foreground tracking-tight">Pending Member Requests</h2>
+            <span className="bg-blue-500/10 text-blue-600 text-xs font-medium px-3 py-1 rounded-full border border-blue-500/20">{pendingRequests.length} Pending</span>
           </div>
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-border">
             {pendingRequests.length === 0 ? (
-              <div className="p-12 text-center text-zinc-500 text-sm">No pending member requests.</div>
+              <div className="p-12 text-center text-muted-foreground text-sm font-medium">No pending member requests.</div>
             ) : (
               pendingRequests.map((req) => (
-                <div key={req.id} className="p-6 hover:bg-white/[0.02] transition-colors">
+                <div key={req.id} className="p-6 hover:bg-muted/10 transition-colors">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <div className="font-sans font-bold text-white text-xl tracking-tight mb-2">{req.title}</div>
-                      <div className="text-sm text-zinc-400 flex items-center gap-3">
+                      <div className="font-sans font-bold text-foreground text-xl tracking-tight mb-2">{req.title}</div>
+                      <div className="text-sm text-muted-foreground flex items-center gap-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-xs font-bold text-blue-400">
+                          <div className="w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-xs font-bold text-blue-600">
                             {req.requesterName?.[0]}
                           </div>
                           {req.requesterName}
                         </div>
-                        <span className="text-white/20">•</span>
+                        <span className="text-border">•</span>
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" /> 
                           {req.createdAt?.toDate ? format(req.createdAt.toDate(), "MMM d, h:mm a") : "Unknown"}
                         </div>
                       </div>
                     </div>
-                    <div className="text-blue-400 font-sans font-bold text-xl">
+                    <div className="text-blue-600 font-sans font-bold text-xl">
                       ${req.offerAmount.toFixed(2)}
                     </div>
                   </div>
                   
-                  <div className="bg-[#050505] border border-white/5 rounded-xl p-5 mb-6">
-                    <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">{req.description}</p>
+                  <div className="bg-card/50 border border-border rounded-xl p-5 mb-6">
+                    <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{req.description}</p>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button 
                       onClick={() => handleApproveRequest(req.id)}
-                      className="flex-1 bg-blue-500 hover:bg-blue-600 text-[#050505] font-bold py-2.5 rounded-xl transition-colors"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-foreground font-bold py-2.5 rounded-xl transition-colors"
                     >
                       Approve & Publish
                     </button>
                     <button 
                       onClick={() => handleRejectRequest(req.id)}
-                      className="flex-1 bg-white/5 hover:bg-white/10 text-white font-medium py-2.5 rounded-xl transition-colors border border-white/10"
+                      className="flex-1 bg-card hover:bg-muted/80 text-foreground font-medium py-2.5 rounded-xl transition-colors border border-border"
                     >
                       Reject
                     </button>
@@ -834,52 +834,52 @@ export default function AdminDashboard() {
           </div>
         </div>
         {/* Pending Withdrawals */}
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-xl lg:col-span-2">
-          <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0F0F0F]">
-            <h2 className="text-xl font-sans font-bold text-white tracking-tight">Pending Withdrawals</h2>
-            <span className="bg-pink-500/20 text-pink-400 text-xs font-medium px-3 py-1 rounded-full border border-pink-500/30">{pendingWithdrawalsList.length} Pending</span>
+        <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm lg:col-span-2">
+          <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
+            <h2 className="text-xl font-sans font-bold text-foreground tracking-tight">Pending Withdrawals</h2>
+            <span className="bg-pink-500/10 text-pink-600 text-xs font-medium px-3 py-1 rounded-full border border-pink-500/20">{pendingWithdrawalsList.length} Pending</span>
           </div>
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-border">
             {pendingWithdrawalsList.length === 0 ? (
-              <div className="p-12 text-center text-zinc-500 text-sm">No pending withdrawals.</div>
+              <div className="p-12 text-center text-muted-foreground text-sm font-medium">No pending withdrawals.</div>
             ) : (
               pendingWithdrawalsList.map((w) => (
-                <div key={w.id} className="p-6 hover:bg-white/[0.02] transition-colors">
+                <div key={w.id} className="p-6 hover:bg-muted/10 transition-colors">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <div className="font-sans font-bold text-white text-xl tracking-tight mb-2">Withdrawal Request</div>
-                      <div className="text-sm text-zinc-400 flex items-center gap-3">
+                      <div className="font-sans font-bold text-foreground text-xl tracking-tight mb-2">Withdrawal Request</div>
+                      <div className="text-sm text-muted-foreground flex items-center gap-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-xs font-bold text-pink-400">
+                          <div className="w-6 h-6 rounded-full bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-xs font-bold text-pink-600">
                             {w.workerName?.[0]}
                           </div>
                           {w.workerName}
                         </div>
-                        <span className="text-white/20">•</span>
+                        <span className="text-border">•</span>
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" /> 
                           {w.createdAt?.toDate ? format(w.createdAt.toDate(), "MMM d, h:mm a") : "Unknown"}
                         </div>
                       </div>
                     </div>
-                    <div className="text-pink-400 font-sans font-bold text-xl">
+                    <div className="text-pink-600 font-sans font-bold text-xl">
                       ${w.amount?.toFixed(2)}
                     </div>
                   </div>
                   
-                  <div className="bg-[#050505] border border-white/5 rounded-xl p-5 mb-6">
+                  <div className="bg-card/50 border border-border rounded-xl p-5 mb-6">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <div className="text-xs text-zinc-500 font-medium mb-1">Payment Method:</div>
-                        <div className="text-sm text-zinc-300 capitalize">{w.method}</div>
+                        <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Payment Method:</div>
+                        <div className="text-sm text-foreground capitalize">{w.method}</div>
                       </div>
                       <div>
-                        <div className="text-xs text-zinc-500 font-medium mb-1">Payment Details:</div>
-                        <div className="text-sm text-zinc-300">{w.details}</div>
+                        <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Payment Details:</div>
+                        <div className="text-sm text-foreground">{w.details}</div>
                       </div>
                       <div>
-                        <div className="text-xs text-zinc-500 font-medium mb-1">Worker Balance:</div>
-                        <div className="text-sm text-zinc-300">${w.workerBalance?.toFixed(2)}</div>
+                        <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Worker Balance:</div>
+                        <div className="text-sm text-foreground">${w.workerBalance?.toFixed(2)}</div>
                       </div>
                     </div>
                   </div>
@@ -887,13 +887,13 @@ export default function AdminDashboard() {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button 
                       onClick={() => handleApproveWithdrawal(w.id, w.workerId, w.amount, w.workerName)}
-                      className="flex-1 bg-pink-500 hover:bg-pink-600 text-[#050505] font-bold py-2.5 rounded-xl transition-colors"
+                      className="flex-1 bg-pink-600 hover:bg-pink-700 text-foreground font-bold py-2.5 rounded-xl transition-colors"
                     >
                       Approve & Pay
                     </button>
                     <button 
                       onClick={() => handleRejectWithdrawal(w.id)}
-                      className="flex-1 bg-white/5 hover:bg-white/10 text-white font-medium py-2.5 rounded-xl transition-colors border border-white/10"
+                      className="flex-1 bg-card hover:bg-muted/80 text-foreground font-medium py-2.5 rounded-xl transition-colors border border-border"
                     >
                       Reject
                     </button>
@@ -906,47 +906,47 @@ export default function AdminDashboard() {
       </div>
 
       {/* Payout History */}
-      <div className="mt-12 bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-xl">
-        <div className="p-6 border-b border-white/5 bg-[#0F0F0F]">
-          <h2 className="text-xl font-sans font-bold text-white flex items-center gap-3 tracking-tight">
-            <DollarSign className="w-5 h-5 text-purple-400" /> Transaction Ledger
+      <div className="mt-12 bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-border bg-muted/30">
+          <h2 className="text-xl font-sans font-bold text-foreground flex items-center gap-3 tracking-tight">
+            <DollarSign className="w-5 h-5 text-primary" /> Transaction Ledger
           </h2>
         </div>
         <div className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-zinc-300">
+            <table className="w-full text-left text-sm text-foreground">
               <thead>
                 <tr>
-                  <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Timestamp</th>
-                  <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Worker</th>
-                  <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Task</th>
-                  <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Amount</th>
+                  <th className="px-6 py-4 border-b border-border bg-card text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Timestamp</th>
+                  <th className="px-6 py-4 border-b border-border bg-card text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Worker</th>
+                  <th className="px-6 py-4 border-b border-border bg-card text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Task</th>
+                  <th className="px-6 py-4 border-b border-border bg-card text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-border">
                 {payouts.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-12 text-center text-zinc-500 text-sm">No transactions recorded.</td>
+                    <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground text-sm font-medium">No transactions recorded.</td>
                   </tr>
                 ) : (
                   payouts.map((payout) => (
-                    <tr key={payout.id} className="hover:bg-white/[0.02] transition-colors group">
-                      <td className="px-6 py-4 whitespace-nowrap text-xs text-zinc-400">
+                    <tr key={payout.id} className="hover:bg-muted/10 transition-colors group">
+                      <td className="px-6 py-4 whitespace-nowrap text-xs text-muted-foreground">
                         {payout.createdAt?.toDate ? format(payout.createdAt.toDate(), "MMM d, yyyy h:mm a") : "Unknown"}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center font-sans text-purple-400 text-xs font-medium">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-sans text-primary text-xs font-bold">
                             {payout.workerName?.[0]}
                           </div>
-                          <span className="font-sans font-medium text-zinc-200">{payout.workerName}</span>
+                          <span className="font-sans font-medium text-foreground">{payout.workerName}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-sans text-zinc-400 text-sm">
+                      <td className="px-6 py-4 font-sans text-muted-foreground text-sm">
                         {payout.taskTitle || payout.taskId}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-purple-400 font-sans font-medium">
+                        <span className="text-primary font-sans font-medium">
                           ${payout.amount?.toFixed(2)}
                         </span>
                       </td>
@@ -960,17 +960,17 @@ export default function AdminDashboard() {
       </div>
 
       {rejectionData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-2">Reject Submission</h3>
-            <p className="text-zinc-400 mb-4">
-              Please provide a reason for rejecting this submission from <span className="text-white font-bold">{rejectionData.workerName}</span>.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-foreground mb-2">Reject Submission</h3>
+            <p className="text-muted-foreground mb-4">
+              Please provide a reason for rejecting this submission from <span className="text-foreground font-bold">{rejectionData.workerName}</span>.
             </p>
             <textarea
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder="Enter rejection reason..."
-              className="w-full bg-[#050505] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500/50 transition-colors mb-6 min-h-[100px] resize-none"
+              className="w-full bg-background border border-border rounded-xl p-3 text-foreground focus:outline-none focus:border-primary transition-colors mb-6 min-h-[100px] resize-none"
             />
             <div className="flex justify-end gap-3">
               <button 
@@ -978,14 +978,14 @@ export default function AdminDashboard() {
                   setRejectionData(null);
                   setRejectionReason("");
                 }}
-                className="px-4 py-2 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors"
+                className="px-4 py-2 rounded-xl border border-border text-foreground hover:bg-muted transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleReject}
                 disabled={!rejectionReason.trim()}
-                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-colors shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-xl bg-destructive hover:bg-destructive/90 text-foreground font-bold transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Reject Submission
               </button>
@@ -995,22 +995,22 @@ export default function AdminDashboard() {
       )}
 
       {submissionToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-2">Delete Submission</h3>
-            <p className="text-zinc-400 mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-foreground mb-2">Delete Submission</h3>
+            <p className="text-muted-foreground mb-6">
               Are you sure you want to delete this submission record? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <button 
                 onClick={() => setSubmissionToDelete(null)}
-                className="px-4 py-2 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors"
+                className="px-4 py-2 rounded-xl border border-border text-foreground hover:bg-muted transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={() => handleDeleteSubmission(submissionToDelete)}
-                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-colors shadow-lg shadow-red-500/20"
+                className="px-4 py-2 rounded-xl bg-destructive hover:bg-destructive/90 text-foreground font-bold transition-colors shadow-lg shadow-destructive/20"
               >
                 Delete
               </button>

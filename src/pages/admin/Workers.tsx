@@ -203,7 +203,7 @@ export default function AdminWorkers() {
               </button>
               <button 
                 onClick={() => handleDeleteWorker(workerToDelete.id)}
-                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-colors shadow-lg shadow-red-500/20"
+                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-foreground font-bold transition-colors shadow-lg shadow-red-500/20"
               >
                 Delete Worker
               </button>

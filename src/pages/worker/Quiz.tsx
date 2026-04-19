@@ -73,15 +73,15 @@ export default function WorkerQuiz() {
 
   return (
     <WorkerLayout>
-      <div className="max-w-2xl mx-auto bg-[#0A0A0A] border border-white/10 p-8 rounded-3xl">
-        <h1 className="text-2xl font-bold text-white mb-6">Worker Qualification Quiz</h1>
+      <div className="max-w-2xl mx-auto bg-card border border-border p-8 rounded-3xl">
+        <h1 className="text-2xl font-bold text-foreground mb-6">Worker Qualification Quiz</h1>
         <p className="text-zinc-400 mb-8">{quizQuestions[currentQuestion].question}</p>
         <div className="grid gap-4">
           {quizQuestions[currentQuestion].options.map((option, index) => (
             <button
               key={index}
               onClick={() => handleAnswer(index)}
-              className="bg-[#151515] hover:bg-[#202020] text-white p-4 rounded-xl border border-white/5 transition-all"
+              className="bg-muted/50 hover:bg-muted text-foreground p-4 rounded-xl border border-border transition-all"
             >
               {option}
             </button>

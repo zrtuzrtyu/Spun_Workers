@@ -115,7 +115,7 @@ export default function AdminSettings() {
     <AdminLayout>
       <div className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
         <div>
-          <h1 className="text-4xl font-sans font-bold text-white mb-2 leading-none">
+          <h1 className="text-4xl font-sans font-bold text-foreground mb-2 leading-none">
             System Settings
           </h1>
           <p className="text-zinc-400 text-lg font-sans max-w-2xl leading-relaxed">
@@ -125,7 +125,7 @@ export default function AdminSettings() {
         <button 
           onClick={handleSaveConfig}
           disabled={saving}
-          className="bg-purple-500 hover:bg-purple-600 text-[#050505] font-bold py-3 px-8 rounded-xl transition-colors flex items-center gap-2"
+          className="bg-purple-500 hover:bg-purple-600 text-primary-foreground font-bold py-3 px-8 rounded-xl transition-colors flex items-center gap-2"
         >
           <Save className="w-5 h-5" />
           {saving ? "Saving..." : "Save Changes"}
@@ -135,36 +135,36 @@ export default function AdminSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* System Configuration */}
         <div className="lg:col-span-2 space-y-8">
-          <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-xl">
-            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-[#0F0F0F]">
-              <h2 className="text-xl font-sans font-bold text-white flex items-center gap-3">
+          <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-xl">
+            <div className="p-6 border-b border-border flex items-center justify-between bg-muted/30">
+              <h2 className="text-xl font-sans font-bold text-foreground flex items-center gap-3">
                 <SettingsIcon className="w-5 h-5 text-purple-400" /> System Configuration
               </h2>
             </div>
 
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-6">
-                <div className="bg-[#050505] border border-white/5 rounded-xl p-6 flex items-center justify-between group hover:border-white/10 transition-all">
+                <div className="bg-muted/10 border border-border rounded-xl p-6 flex items-center justify-between group hover:border-border transition-all">
                   <div>
                     <div className="font-sans text-zinc-200 font-medium text-sm">Maintenance Mode</div>
                     <div className="text-xs text-zinc-500 mt-1">Disable worker access globally</div>
                   </div>
                   <button 
                     onClick={() => setSystemConfig({...systemConfig, maintenanceMode: !systemConfig.maintenanceMode})}
-                    className={`w-12 h-6 rounded-full relative transition-all duration-300 ${systemConfig.maintenanceMode ? 'bg-red-500' : 'bg-white/10'}`}
+                    className={`w-12 h-6 rounded-full relative transition-all duration-300 ${systemConfig.maintenanceMode ? 'bg-red-500' : 'bg-muted/80'}`}
                   >
                     <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300 ${systemConfig.maintenanceMode ? 'left-7' : 'left-1'}`} />
                   </button>
                 </div>
 
-                <div className="bg-[#050505] border border-white/5 rounded-xl p-6 flex items-center justify-between group hover:border-white/10 transition-all">
+                <div className="bg-muted/10 border border-border rounded-xl p-6 flex items-center justify-between group hover:border-border transition-all">
                   <div>
                     <div className="font-sans text-zinc-200 font-medium text-sm">New Registrations</div>
                     <div className="text-xs text-zinc-500 mt-1">Allow new workers to join</div>
                   </div>
                   <button 
                     onClick={() => setSystemConfig({...systemConfig, allowNewRegistrations: !systemConfig.allowNewRegistrations})}
-                    className={`w-12 h-6 rounded-full relative transition-all duration-300 ${systemConfig.allowNewRegistrations ? 'bg-purple-500' : 'bg-white/10'}`}
+                    className={`w-12 h-6 rounded-full relative transition-all duration-300 ${systemConfig.allowNewRegistrations ? 'bg-purple-500' : 'bg-muted/80'}`}
                   >
                     <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300 ${systemConfig.allowNewRegistrations ? 'left-7' : 'left-1'}`} />
                   </button>
@@ -172,14 +172,14 @@ export default function AdminSettings() {
               </div>
 
               <div className="space-y-6">
-                <div className="bg-[#050505] border border-white/5 rounded-xl p-6 group hover:border-white/10 transition-all">
+                <div className="bg-muted/10 border border-border rounded-xl p-6 group hover:border-border transition-all">
                   <label className="block text-sm font-medium mb-3 text-zinc-400">Global Payout Multiplier</label>
                   <div className="flex items-center gap-4">
                     <input 
                       type="number" step="0.1" min="0.1" max="5.0"
                       value={systemConfig.globalMultiplier}
                       onChange={(e) => setSystemConfig({...systemConfig, globalMultiplier: parseFloat(e.target.value)})}
-                      className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500/50 transition-colors text-xl font-sans"
+                      className="w-full bg-card border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-purple-500/50 transition-colors text-xl font-sans"
                     />
                     <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center font-sans font-bold text-purple-400 text-lg">
                       X
@@ -188,13 +188,13 @@ export default function AdminSettings() {
                   <p className="text-xs text-zinc-500 mt-3">Boosts all task payouts by this factor.</p>
                 </div>
 
-                <div className="bg-[#050505] border border-white/5 rounded-xl p-6 group hover:border-white/10 transition-all">
+                <div className="bg-muted/10 border border-border rounded-xl p-6 group hover:border-border transition-all">
                   <label className="block text-sm font-medium mb-3 text-zinc-400">Min. Withdrawal ($)</label>
                   <input 
                     type="number" step="1" min="1"
                     value={systemConfig.minWithdrawal}
                     onChange={(e) => setSystemConfig({...systemConfig, minWithdrawal: parseInt(e.target.value)})}
-                    className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500/50 transition-colors text-xl font-sans"
+                    className="w-full bg-card border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-purple-500/50 transition-colors text-xl font-sans"
                   />
                   <p className="text-xs text-zinc-500 mt-3">Minimum balance required for payout.</p>
                 </div>
@@ -203,9 +203,9 @@ export default function AdminSettings() {
           </div>
 
           {/* Admin Management */}
-          <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-xl">
-            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-[#0F0F0F]">
-              <h2 className="text-xl font-sans font-bold text-white flex items-center gap-3">
+          <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-xl">
+            <div className="p-6 border-b border-border flex items-center justify-between bg-muted/30">
+              <h2 className="text-xl font-sans font-bold text-foreground flex items-center gap-3">
                 <Shield className="w-5 h-5 text-purple-400" /> Admin Access
               </h2>
             </div>
@@ -216,14 +216,14 @@ export default function AdminSettings() {
                   id="admin-email"
                   type="email" 
                   placeholder="User email to promote..."
-                  className="flex-1 bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500/50 transition-colors text-sm"
+                  className="flex-1 bg-muted/10 border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-purple-500/50 transition-colors text-sm"
                 />
                 <button 
                   onClick={() => {
                     const input = document.getElementById('admin-email') as HTMLInputElement;
                     if (input.value) handlePromoteAdmin(input.value);
                   }}
-                  className="bg-white/5 hover:bg-white/10 text-white font-medium py-3 px-8 rounded-xl transition-colors border border-white/10"
+                  className="bg-muted hover:bg-muted/80 text-foreground font-medium py-3 px-8 rounded-xl transition-colors border border-border"
                 >
                   Promote
                 </button>
@@ -231,7 +231,7 @@ export default function AdminSettings() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {admins.map(admin => (
-                  <div key={admin.id} className="bg-[#050505] border border-white/5 rounded-xl p-4 flex items-center gap-4 group hover:border-white/10 transition-all">
+                  <div key={admin.id} className="bg-muted/10 border border-border rounded-xl p-4 flex items-center gap-4 group hover:border-border transition-all">
                     <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center font-sans font-bold text-lg text-purple-400">
                       {admin.name?.[0]}
                     </div>
@@ -252,8 +252,8 @@ export default function AdminSettings() {
         {/* Sidebar Tools */}
         <div className="space-y-8">
           {/* Quick Actions */}
-          <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl p-6 shadow-xl">
-            <h2 className="text-lg font-sans font-bold text-white mb-6">System Tools</h2>
+          <div className="bg-card border border-border rounded-3xl p-6 shadow-xl">
+            <h2 className="text-lg font-sans font-bold text-foreground mb-6">System Tools</h2>
             <div className="space-y-4">
               <button 
                 onClick={() => setShowClearLogsConfirm(true)}
@@ -263,7 +263,7 @@ export default function AdminSettings() {
               </button>
               <button 
                 onClick={() => window.location.reload()}
-                className="w-full bg-white/5 hover:bg-white/10 text-white font-medium py-3 px-4 rounded-xl transition-colors border border-white/10 flex items-center justify-center gap-2"
+                className="w-full bg-muted hover:bg-muted/80 text-foreground font-medium py-3 px-4 rounded-xl transition-colors border border-border flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" /> Restart App Instance
               </button>
@@ -275,16 +275,16 @@ export default function AdminSettings() {
           </div>
 
           {/* Detailed Activity Log */}
-          <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-xl">
-            <div className="p-6 border-b border-white/5 bg-[#0F0F0F] flex items-center justify-between">
-              <h2 className="text-lg font-sans font-bold text-white">System Log</h2>
+          <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-xl">
+            <div className="p-6 border-b border-border bg-muted/30 flex items-center justify-between">
+              <h2 className="text-lg font-sans font-bold text-foreground">System Log</h2>
               <Activity className="w-5 h-5 text-zinc-500" />
             </div>
             <div className="max-h-[600px] overflow-auto divide-y divide-white/5">
               {logs.map(log => (
-                <div key={log.id} className="p-6 hover:bg-white/[0.02] transition-all group">
+                <div key={log.id} className="p-6 hover:bg-muted/10 transition-all group">
                   <div className="flex justify-between items-start gap-4 mb-2">
-                    <div className="text-xs font-sans text-zinc-300 capitalize bg-white/5 border border-white/10 px-2 py-1 rounded-md">{log.type?.replace('_', ' ')}</div>
+                    <div className="text-xs font-sans text-zinc-300 capitalize bg-muted border border-border px-2 py-1 rounded-md">{log.type?.replace('_', ' ')}</div>
                     <div className="text-xs text-zinc-500">{log.createdAt?.toDate ? format(log.createdAt.toDate(), "HH:mm:ss") : ""}</div>
                   </div>
                   <div className="text-sm text-zinc-400 leading-relaxed group-hover:text-zinc-300 transition-colors font-sans">{log.description}</div>
@@ -297,21 +297,21 @@ export default function AdminSettings() {
 
       {showClearLogsConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-2">Clear Activity Logs</h3>
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-foreground mb-2">Clear Activity Logs</h3>
             <p className="text-zinc-400 mb-6">
               Are you sure you want to clear all activity logs? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <button 
                 onClick={() => setShowClearLogsConfirm(false)}
-                className="px-4 py-2 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors"
+                className="px-4 py-2 rounded-xl border border-border text-foreground hover:bg-muted transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleClearLogs}
-                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-colors shadow-lg shadow-red-500/20"
+                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-foreground font-bold transition-colors shadow-lg shadow-red-500/20"
               >
                 Clear Logs
               </button>

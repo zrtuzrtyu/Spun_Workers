@@ -39,8 +39,8 @@ service cloud.firestore {
     // Domain Validators
     // ===============================================================
 
-    function isValidUser(data) {
-      return hasOnlyAllowedFields(['uid', 'email', 'name', 'role', 'status', 'device', 'hoursPerDay', 'taskPreference', 'englishLevel', 'country', 'earnings', 'balance', 'telegram', 'isAdult', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier', 'quizCompleted', 'onboardingCompleted', 'paymentEmail', 'age', 'level', 'username', 'isAnonymous', 'notificationsEnabled', 'skills', 'onboardingStep', 'languages', 'agreedToRules', 'identityVerified', 'quizScore']) &&
+      function isValidUser(data) {
+      return hasOnlyAllowedFields(['uid', 'email', 'name', 'role', 'status', 'device', 'hoursPerDay', 'taskPreference', 'englishLevel', 'country', 'earnings', 'balance', 'telegram', 'isAdult', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier', 'quizCompleted', 'onboardingCompleted', 'paymentEmail', 'age', 'level', 'username', 'isAnonymous', 'notificationsEnabled', 'skills', 'onboardingStep', 'languages', 'agreedToRules', 'identityVerified', 'quizScore', 'tutorialShown']) &&
              data.uid is string && data.uid.size() > 0 && data.uid.size() < 100 &&
              data.email is string && isValidEmail(data.email) &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
@@ -73,6 +73,7 @@ service cloud.firestore {
              (!('agreedToRules' in data) || (data.agreedToRules is bool)) &&
              (!('identityVerified' in data) || (data.identityVerified is bool)) &&
              (!('quizScore' in data) || (data.quizScore is number)) &&
+             (!('tutorialShown' in data) || (data.tutorialShown is bool)) &&
              data.createdAt is timestamp;
     }
     

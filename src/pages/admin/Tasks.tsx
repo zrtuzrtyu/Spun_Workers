@@ -53,9 +53,22 @@ export default function AdminTasks() {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
 
+  const defaultTaskDescription = `1. Sign up using the provided link
+2. Confirm your email address
+3. Complete your profile
+4. Complete one quick activity to verify your account
+5. Send a screenshot of your dashboard showing your username as proof of completion`;
+
   const { register, handleSubmit, reset, trigger, watch, formState: { errors } } = useForm<TaskForm>({
     resolver: zodResolver(taskSchema) as any,
-    defaultValues: { payout: 0.5, limit: 10, targetGeo: "Global", requiredTier: "New", category: "General" }
+    defaultValues: { 
+      payout: 0.5, 
+      limit: 10, 
+      targetGeo: "Global", 
+      requiredTier: "New", 
+      category: "General",
+      description: defaultTaskDescription
+    }
   });
 
   const handleNextStep = async () => {
@@ -378,8 +391,8 @@ export default function AdminTasks() {
         className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2 font-outfit">Task Management</h1>
-          <p className="text-white/60 font-jakarta">Create tasks, set payouts, and assign them to workers.</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2 font-outfit">Task Management</h1>
+          <p className="text-foreground/60 font-jakarta">Create tasks, set payouts, and assign them to workers.</p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -392,13 +405,13 @@ export default function AdminTasks() {
           </button>
           <button
             onClick={downloadTemplate}
-            className="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-2 px-4 rounded-xl transition-all flex items-center gap-2 text-sm"
+            className="bg-muted hover:bg-muted/80 border border-border text-foreground font-medium py-2 px-4 rounded-xl transition-all flex items-center gap-2 text-sm"
             title="Download CSV Template"
           >
             <Download className="w-4 h-4" />
             Template
           </button>
-          <label className="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-2 px-4 rounded-xl transition-all flex items-center gap-2 text-sm cursor-pointer">
+          <label className="bg-muted hover:bg-muted/80 border border-border text-foreground font-medium py-2 px-4 rounded-xl transition-all flex items-center gap-2 text-sm cursor-pointer">
             <Upload className="w-4 h-4" />
             Bulk Upload CSV
             <input type="file" accept=".csv" className="hidden" onChange={handleBulkUpload} />
@@ -415,7 +428,7 @@ export default function AdminTasks() {
                 setCurrentStep(1);
               }
             }}
-            className="bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] flex items-center gap-2 text-sm"
+            className="bg-purple-500 hover:bg-purple-600 text-foreground font-medium py-2 px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] flex items-center gap-2 text-sm"
           >
             {isCreating ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {isCreating ? "Cancel" : "Create Task"}
@@ -431,16 +444,16 @@ export default function AdminTasks() {
             exit={{ opacity: 0, height: 0, marginBottom: 0 }}
             className="overflow-hidden"
           >
-            <div className="bg-[#0A0A0A] border border-white/10 p-6 rounded-2xl relative shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
-              <h2 className="text-xl font-semibold text-white mb-6 font-sans">{editingTaskId ? "Edit Task" : "Create New Task"}</h2>
+            <div className="bg-card border border-border p-6 rounded-2xl relative shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+              <h2 className="text-xl font-semibold text-foreground mb-6 font-sans">{editingTaskId ? "Edit Task" : "Create New Task"}</h2>
               
               {/* Stepper Header */}
               <div className="flex items-center justify-between mb-8 relative">
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-white/10 z-0"></div>
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-muted/80 z-0"></div>
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-purple-500 z-0 transition-all duration-300" style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}></div>
                 
                 {[1, 2, 3].map((step) => (
-                  <div key={step} className={`relative z-10 flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${currentStep >= step ? 'bg-purple-500 border-purple-500 text-white' : 'bg-[#0A0A0A] border-white/20 text-white/40'}`}>
+                  <div key={step} className={`relative z-10 flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${currentStep >= step ? 'bg-purple-500 border-purple-500 text-foreground' : 'bg-card border-white/20 text-foreground/40'}`}>
                     {currentStep > step ? <Check className="w-5 h-5" /> : step}
                   </div>
                 ))}
@@ -450,31 +463,36 @@ export default function AdminTasks() {
                 {currentStep === 1 && (
                   <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="grid grid-cols-1 gap-6">
                     <div>
-                      <label className="block text-sm font-medium mb-2 text-white/80">Task Title</label>
+                      <label className="block text-sm font-medium mb-2 text-foreground/80">Task Title</label>
                       <input 
                         {...register("title")} 
                         placeholder="e.g. Survey Signup - $0.50"
-                        className="w-full bg-[#050505] border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
+                        className="w-full bg-muted/10 border border-border rounded-lg p-3 text-foreground focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
                       />
                       {errors.title && <p className="text-red-400 text-sm mt-1">{errors.title.message}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2 text-white/80">Instructions / Description</label>
+                      <label className="block text-sm font-medium mb-2 text-foreground/80">Instructions / Description</label>
                       <textarea 
                         {...register("description")} 
-                        rows={4}
-                        placeholder="Step 1: Click link... Step 2: Submit email... Proof: Screenshot of success page"
-                        className="w-full bg-[#050505] border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none resize-none transition-all focus:border-transparent"
+                        rows={5}
+                        placeholder="Step 1: Go to the link.
+Step 2: Submit your email and complete registration.
+Step 3: Reach the 'Success' page.
+
+CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g., 'Make sure the confirmation email and your username are visible on the success screen')."
+                        className="w-full bg-muted/10 border border-border rounded-lg p-3 text-foreground focus:ring-2 focus:ring-primary outline-none resize-none transition-all placeholder:text-muted-foreground/50"
                       />
-                      {errors.description && <p className="text-red-400 text-sm mt-1">{errors.description.message}</p>}
+                      {errors.description && <p className="text-destructive text-sm mt-1">{errors.description.message}</p>}
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 font-medium">Workers are strictly required to upload proof as a screen capture. Ensure your instructions above detail <strong className="text-foreground">exactly</strong> which page, username, or element must be visible in the image.</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2 text-white/80">Category</label>
+                      <label className="block text-sm font-medium mb-2 text-foreground/80">Category</label>
                       <input 
                         list="category-options"
                         {...register("category")} 
                         placeholder="Select or type a category"
-                        className="w-full bg-[#050505] border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
+                        className="w-full bg-muted/10 border border-border rounded-lg p-3 text-foreground focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
                       />
                       <datalist id="category-options">
                         <option value="Survey" />
@@ -487,13 +505,13 @@ export default function AdminTasks() {
                       {errors.category && <p className="text-red-400 text-sm mt-1">{errors.category.message}</p>}
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium mb-2 text-white/80">Target Geography</label>
+                      <label className="block text-sm font-medium mb-2 text-foreground/80">Target Geography</label>
                       <input 
                         {...register("targetGeo")} 
                         placeholder="e.g. Global, United States, India"
-                        className="w-full bg-[#050505] border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
+                        className="w-full bg-muted/10 border border-border rounded-lg p-3 text-foreground focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
                       />
-                      <p className="text-xs text-white/40 mt-1">Leave as "Global" to allow all workers, or specify a country.</p>
+                      <p className="text-xs text-foreground/40 mt-1">Leave as "Global" to allow all workers, or specify a country.</p>
                     </div>
                   </motion.div>
                 )}
@@ -501,92 +519,92 @@ export default function AdminTasks() {
                 {currentStep === 2 && (
                   <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium mb-2 text-white/80">Task Link</label>
+                      <label className="block text-sm font-medium mb-2 text-foreground/80">Task Link</label>
                       <input 
                         type="url"
                         {...register("link")} 
                         placeholder="https://example.com/task"
-                        className="w-full bg-[#050505] border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
+                        className="w-full bg-muted/10 border border-border rounded-lg p-3 text-foreground focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
                       />
                       {errors.link && <p className="text-red-400 text-sm mt-1">{errors.link.message}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2 text-white/80">Payout ($)</label>
+                      <label className="block text-sm font-medium mb-2 text-foreground/80">Payout ($)</label>
                       <input 
                         type="number" step="0.01"
                         {...register("payout", { valueAsNumber: true })} 
-                        className="w-full bg-[#050505] border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
+                        className="w-full bg-muted/10 border border-border rounded-lg p-3 text-foreground focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
                       />
                       {errors.payout && <p className="text-red-400 text-sm mt-1">{errors.payout.message}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2 text-white/80">Worker Limit</label>
+                      <label className="block text-sm font-medium mb-2 text-foreground/80">Worker Limit</label>
                       <input 
                         type="number"
                         {...register("limit", { valueAsNumber: true })} 
-                        className="w-full bg-[#050505] border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
+                        className="w-full bg-muted/10 border border-border rounded-lg p-3 text-foreground focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
                       />
                       {errors.limit && <p className="text-red-400 text-sm mt-1">{errors.limit.message}</p>}
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium mb-2 text-white/80">Required Trust Tier</label>
+                      <label className="block text-sm font-medium mb-2 text-foreground/80">Required Trust Tier</label>
                       <select 
                         {...register("requiredTier")} 
-                        className="w-full bg-[#050505] border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
+                        className="w-full bg-muted/10 border border-border rounded-lg p-3 text-foreground focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:border-transparent"
                       >
                         <option value="New">New (All Workers)</option>
                         <option value="Trusted">Trusted (Proven Workers)</option>
                         <option value="Premium">Premium (Top Quality Only)</option>
                       </select>
-                      <p className="text-xs text-white/40 mt-1">Restrict this task to workers who have earned a specific trust level.</p>
+                      <p className="text-xs text-foreground/40 mt-1">Restrict this task to workers who have earned a specific trust level.</p>
                     </div>
                   </motion.div>
                 )}
 
                 {currentStep === 3 && (
                   <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
-                    <div className="bg-[#050505] border border-white/10 rounded-xl p-6">
-                      <h3 className="text-lg font-bold text-white mb-4">Review Task Details</h3>
+                    <div className="bg-muted/10 border border-border rounded-xl p-6">
+                      <h3 className="text-lg font-bold text-foreground mb-4">Review Task Details</h3>
                       <div className="space-y-3 text-sm">
-                        <div className="grid grid-cols-3 gap-4 border-b border-white/5 pb-3">
-                          <span className="text-white/60">Title</span>
-                          <span className="col-span-2 text-white font-medium">{watch("title")}</span>
+                        <div className="grid grid-cols-3 gap-4 border-b border-border pb-3">
+                          <span className="text-foreground/60">Title</span>
+                          <span className="col-span-2 text-foreground font-medium">{watch("title")}</span>
                         </div>
-                        <div className="grid grid-cols-3 gap-4 border-b border-white/5 pb-3">
-                          <span className="text-white/60">Description</span>
-                          <span className="col-span-2 text-white font-medium whitespace-pre-wrap">{watch("description")}</span>
+                        <div className="grid grid-cols-3 gap-4 border-b border-border pb-3">
+                          <span className="text-foreground/60">Description</span>
+                          <span className="col-span-2 text-foreground font-medium whitespace-pre-wrap">{watch("description")}</span>
                         </div>
-                        <div className="grid grid-cols-3 gap-4 border-b border-white/5 pb-3">
-                          <span className="text-white/60">Link</span>
+                        <div className="grid grid-cols-3 gap-4 border-b border-border pb-3">
+                          <span className="text-foreground/60">Link</span>
                           <span className="col-span-2 text-purple-400 break-all">{watch("link")}</span>
                         </div>
-                        <div className="grid grid-cols-3 gap-4 border-b border-white/5 pb-3">
-                          <span className="text-white/60">Payout</span>
-                          <span className="col-span-2 text-white font-medium">${watch("payout")?.toFixed(2)}</span>
+                        <div className="grid grid-cols-3 gap-4 border-b border-border pb-3">
+                          <span className="text-foreground/60">Payout</span>
+                          <span className="col-span-2 text-foreground font-medium">${watch("payout")?.toFixed(2)}</span>
                         </div>
-                        <div className="grid grid-cols-3 gap-4 border-b border-white/5 pb-3">
-                          <span className="text-white/60">Target Geo</span>
-                          <span className="col-span-2 text-white font-medium">{watch("targetGeo") || "Global"}</span>
+                        <div className="grid grid-cols-3 gap-4 border-b border-border pb-3">
+                          <span className="text-foreground/60">Target Geo</span>
+                          <span className="col-span-2 text-foreground font-medium">{watch("targetGeo") || "Global"}</span>
                         </div>
-                        <div className="grid grid-cols-3 gap-4 border-b border-white/5 pb-3">
-                          <span className="text-white/60">Worker Limit</span>
-                          <span className="col-span-2 text-white font-medium">{watch("limit")} workers</span>
+                        <div className="grid grid-cols-3 gap-4 border-b border-border pb-3">
+                          <span className="text-foreground/60">Worker Limit</span>
+                          <span className="col-span-2 text-foreground font-medium">{watch("limit")} workers</span>
                         </div>
-                        <div className="grid grid-cols-3 gap-4 border-b border-white/5 pb-3">
-                          <span className="text-white/60">Required Tier</span>
-                          <span className="col-span-2 text-white font-medium">{watch("requiredTier") || "New"}</span>
+                        <div className="grid grid-cols-3 gap-4 border-b border-border pb-3">
+                          <span className="text-foreground/60">Required Tier</span>
+                          <span className="col-span-2 text-foreground font-medium">{watch("requiredTier") || "New"}</span>
                         </div>
                       </div>
                     </div>
                   </motion.div>
                 )}
 
-                <div className="flex justify-between mt-8 pt-6 border-t border-white/10">
+                <div className="flex justify-between mt-8 pt-6 border-t border-border">
                   {currentStep > 1 ? (
                     <button 
                       type="button" 
                       onClick={handlePrevStep}
-                      className="bg-white/5 hover:bg-white/10 text-white font-bold py-2.5 px-6 rounded-xl transition-all"
+                      className="bg-muted hover:bg-muted/80 text-foreground font-bold py-2.5 px-6 rounded-xl transition-all"
                     >
                       Back
                     </button>
@@ -598,14 +616,14 @@ export default function AdminTasks() {
                     <button 
                       type="button" 
                       onClick={handleNextStep}
-                      className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2.5 px-6 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)]"
+                      className="bg-purple-500 hover:bg-purple-600 text-foreground font-bold py-2.5 px-6 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)]"
                     >
                       Next Step
                     </button>
                   ) : (
                     <button 
                       type="submit"
-                      className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold py-2.5 px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)]"
+                      className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-foreground font-bold py-2.5 px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)]"
                     >
                       {editingTaskId ? "Update Task" : "Publish Task"}
                     </button>
@@ -622,15 +640,15 @@ export default function AdminTasks() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-[#0A0A0A] border border-white/10 p-6 rounded-2xl mb-8 shadow-[0_0_30px_rgba(168,85,247,0.05)] relative"
+        className="bg-card border border-border p-6 rounded-2xl mb-8 shadow-[0_0_30px_rgba(168,85,247,0.05)] relative"
       >
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500/0 via-purple-500/50 to-purple-500/0"></div>
-        <h2 className="text-xl font-bold text-white mb-4 font-outfit">Bulk Assign Tasks</h2>
+        <h2 className="text-xl font-bold text-foreground mb-4 font-outfit">Bulk Assign Tasks</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Tasks List */}
-          <div className="bg-[#050505] border border-white/10 rounded-xl overflow-hidden flex flex-col h-64">
-            <div className="p-3 border-b border-white/10 bg-white/5 flex justify-between items-center">
+          <div className="bg-muted/10 border border-border rounded-xl overflow-hidden flex flex-col h-64">
+            <div className="p-3 border-b border-border bg-muted flex justify-between items-center">
               <span className="text-sm font-medium text-zinc-300">Select Tasks ({selectedAssignTasks.length})</span>
               <button 
                 onClick={() => setSelectedAssignTasks(selectedAssignTasks.length === tasks.filter(t => t.status === "active").length ? [] : tasks.filter(t => t.status === "active").map(t => t.id))}
@@ -641,7 +659,7 @@ export default function AdminTasks() {
             </div>
             <div className="overflow-y-auto flex-1 p-2 space-y-1">
               {tasks.filter(t => t.status === "active").map(t => (
-                <label key={t.id} className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${selectedAssignTasks.includes(t.id) ? 'bg-purple-500/10 border border-purple-500/30' : 'hover:bg-white/5 border border-transparent'}`}>
+                <label key={t.id} className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${selectedAssignTasks.includes(t.id) ? 'bg-purple-500/10 border border-purple-500/30' : 'hover:bg-muted border border-transparent'}`}>
                   <input 
                     type="checkbox" 
                     checked={selectedAssignTasks.includes(t.id)}
@@ -652,7 +670,7 @@ export default function AdminTasks() {
                     className="w-4 h-4 rounded border-white/20 bg-transparent text-purple-500 focus:ring-purple-500 focus:ring-offset-0 cursor-pointer"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-white truncate flex items-center gap-2">
+                    <div className="text-sm font-medium text-foreground truncate flex items-center gap-2">
                       {t.title}
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${
                         t.requiredTier === 'Premium' ? 'bg-amber-500/20 text-amber-400' :
@@ -673,8 +691,8 @@ export default function AdminTasks() {
           </div>
 
           {/* Workers List */}
-          <div className="bg-[#050505] border border-white/10 rounded-xl overflow-hidden flex flex-col h-64">
-            <div className="p-3 border-b border-white/10 bg-white/5 flex justify-between items-center">
+          <div className="bg-muted/10 border border-border rounded-xl overflow-hidden flex flex-col h-64">
+            <div className="p-3 border-b border-border bg-muted flex justify-between items-center">
               <span className="text-sm font-medium text-zinc-300">Select Workers ({selectedAssignWorkers.length})</span>
               <button 
                 onClick={() => setSelectedAssignWorkers(selectedAssignWorkers.length === workers.length ? [] : workers.map(w => w.id))}
@@ -685,7 +703,7 @@ export default function AdminTasks() {
             </div>
             <div className="overflow-y-auto flex-1 p-2 space-y-1">
               {workers.map(w => (
-                <label key={w.id} className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${selectedAssignWorkers.includes(w.id) ? 'bg-purple-500/10 border border-purple-500/30' : 'hover:bg-white/5 border border-transparent'}`}>
+                <label key={w.id} className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${selectedAssignWorkers.includes(w.id) ? 'bg-purple-500/10 border border-purple-500/30' : 'hover:bg-muted border border-transparent'}`}>
                   <input 
                     type="checkbox" 
                     checked={selectedAssignWorkers.includes(w.id)}
@@ -696,7 +714,7 @@ export default function AdminTasks() {
                     className="w-4 h-4 rounded border-white/20 bg-transparent text-purple-500 focus:ring-purple-500 focus:ring-offset-0 cursor-pointer"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-white truncate flex items-center gap-2">
+                    <div className="text-sm font-medium text-foreground truncate flex items-center gap-2">
                       {w.name}
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${
                         w.trustTier === 'Premium' ? 'bg-amber-500/20 text-amber-400' :
@@ -733,7 +751,7 @@ export default function AdminTasks() {
           <button 
             onClick={handleAssign}
             disabled={isAssigning || selectedAssignTasks.length === 0 || selectedAssignWorkers.length === 0}
-            className="bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-8 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] flex items-center gap-2"
+            className="bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-foreground font-bold py-3 px-8 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] flex items-center gap-2"
           >
             {isAssigning ? (
               <>
@@ -754,21 +772,21 @@ export default function AdminTasks() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-[#0A0A0A] border border-purple-500/30 p-4 rounded-2xl mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-[0_0_20px_rgba(168,85,247,0.1)]"
+            className="bg-card border border-purple-500/30 p-4 rounded-2xl mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-[0_0_20px_rgba(168,85,247,0.1)]"
           >
-            <div className="text-white font-jakarta">
+            <div className="text-foreground font-jakarta">
               <span className="font-bold text-purple-400">{selectedTasks.length}</span> tasks selected
             </div>
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => handleBulkStatusChange('active')}
-                className="bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-bold py-2 px-4 rounded-lg transition-colors"
+                className="bg-muted hover:bg-muted/80 border border-border text-foreground text-sm font-bold py-2 px-4 rounded-lg transition-colors"
               >
                 Set Active
               </button>
               <button
                 onClick={() => handleBulkStatusChange('inactive')}
-                className="bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-bold py-2 px-4 rounded-lg transition-colors"
+                className="bg-muted hover:bg-muted/80 border border-border text-foreground text-sm font-bold py-2 px-4 rounded-lg transition-colors"
               >
                 Set Inactive
               </button>
@@ -786,11 +804,11 @@ export default function AdminTasks() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-2 text-white/80">Filter by Status</label>
+          <label className="block text-sm font-medium mb-2 text-foreground/80">Filter by Status</label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full bg-[#050505] border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all cursor-pointer"
+            className="w-full bg-muted/10 border border-border rounded-lg p-3 text-foreground focus:ring-2 focus:ring-purple-500 outline-none transition-all cursor-pointer"
           >
             <option value="all">All Statuses</option>
             <option value="active">Active</option>
@@ -799,11 +817,11 @@ export default function AdminTasks() {
           </select>
         </div>
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-2 text-white/80">Filter by Category</label>
+          <label className="block text-sm font-medium mb-2 text-foreground/80">Filter by Category</label>
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full bg-[#050505] border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all cursor-pointer"
+            className="w-full bg-muted/10 border border-border rounded-lg p-3 text-foreground focus:ring-2 focus:ring-purple-500 outline-none transition-all cursor-pointer"
           >
             <option value="all">All Categories</option>
             {uniqueCategories.map(cat => (
@@ -818,12 +836,12 @@ export default function AdminTasks() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.2)] relative"
+        className="bg-card border border-border rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.2)] relative"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse font-sans">
             <thead>
-              <tr className="bg-[#050505] border-b border-white/10 text-zinc-400 text-xs uppercase tracking-wider">
+              <tr className="bg-muted/10 border-b border-border text-zinc-400 text-xs uppercase tracking-wider">
                 <th className="p-4 w-12 whitespace-nowrap">
                   <input 
                     type="checkbox" 
@@ -845,7 +863,7 @@ export default function AdminTasks() {
             <tbody className="divide-y divide-white/5">
               {filteredTasks.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="p-8 text-center text-white/40">No tasks found matching filters.</td>
+                  <td colSpan={9} className="p-8 text-center text-foreground/40">No tasks found matching filters.</td>
                 </tr>
               ) : (
                 filteredTasks.map((task, index) => (
@@ -854,7 +872,7 @@ export default function AdminTasks() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
                     key={task.id} 
-                    className={`hover:bg-white/5 transition-colors group ${selectedTasks.includes(task.id) ? 'bg-purple-500/5' : ''}`}
+                    className={`hover:bg-muted transition-colors group ${selectedTasks.includes(task.id) ? 'bg-purple-500/5' : ''}`}
                   >
                     <td className="p-4 whitespace-nowrap">
                       <input 
@@ -865,17 +883,17 @@ export default function AdminTasks() {
                       />
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <div className="font-bold text-white group-hover:text-purple-400 transition-colors">{task.title}</div>
-                      <div className="text-xs text-white/40 truncate max-w-xs">{task.description}</div>
+                      <div className="font-bold text-foreground group-hover:text-purple-400 transition-colors">{task.title}</div>
+                      <div className="text-xs text-foreground/40 truncate max-w-xs">{task.description}</div>
                       {task.link && (
                         <a href={task.link} target="_blank" rel="noopener noreferrer" className="text-xs text-purple-400 hover:underline truncate max-w-xs block mt-1">
                           {task.link}
                         </a>
                       )}
-                      <div className="text-xs text-white/40 mt-1">Created: {task.createdAt?.toDate ? format(task.createdAt.toDate(), "MMM d, yyyy") : "Unknown"}</div>
+                      <div className="text-xs text-foreground/40 mt-1">Created: {task.createdAt?.toDate ? format(task.createdAt.toDate(), "MMM d, yyyy") : "Unknown"}</div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <span className="bg-white/5 border border-white/10 text-white/80 text-xs px-2 py-1 rounded-md">
+                      <span className="bg-muted border border-border text-foreground/80 text-xs px-2 py-1 rounded-md">
                         {task.category || "General"}
                       </span>
                     </td>
@@ -883,7 +901,7 @@ export default function AdminTasks() {
                       <div className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">${(task.payout || 0).toFixed(2)}</div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <div className="text-sm text-white/80">{task.targetGeo || "Global"}</div>
+                      <div className="text-sm text-foreground/80">{task.targetGeo || "Global"}</div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
                       <span className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-wider ${
@@ -895,7 +913,7 @@ export default function AdminTasks() {
                       </span>
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <div className="text-sm text-white/80">{task.limit} workers</div>
+                      <div className="text-sm text-foreground/80">{task.limit} workers</div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
@@ -913,14 +931,14 @@ export default function AdminTasks() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleRepostClick(task)}
-                          className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg p-2 text-white transition-colors"
+                          className="bg-muted hover:bg-muted/80 border border-border rounded-lg p-2 text-foreground transition-colors"
                           title="Repost Task"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleEditClick(task)}
-                          className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg p-2 text-white transition-colors"
+                          className="bg-muted hover:bg-muted/80 border border-border rounded-lg p-2 text-foreground transition-colors"
                           title="Edit Task"
                         >
                           <Edit2 className="w-4 h-4" />
@@ -928,7 +946,7 @@ export default function AdminTasks() {
                         <select 
                           value={task.status}
                           onChange={(e) => handleStatusChange(task.id, e.target.value)}
-                          className="bg-[#050505] border border-white/10 rounded-lg p-2 text-sm text-white outline-none focus:border-purple-500 transition-colors cursor-pointer hover:bg-white/5"
+                          className="bg-muted/10 border border-border rounded-lg p-2 text-sm text-foreground outline-none focus:border-purple-500 transition-colors cursor-pointer hover:bg-muted"
                         >
                           <option value="active">Active</option>
                           <option value="inactive">Inactive</option>
@@ -951,22 +969,22 @@ export default function AdminTasks() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl"
+              className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl"
             >
-              <h3 className="text-xl font-bold text-white mb-2 font-outfit">Confirm Deletion</h3>
-              <p className="text-white/60 font-jakarta mb-6">
+              <h3 className="text-xl font-bold text-foreground mb-2 font-outfit">Confirm Deletion</h3>
+              <p className="text-foreground/60 font-jakarta mb-6">
                 Are you sure you want to delete {selectedTasks.length} selected task{selectedTasks.length !== 1 ? 's' : ''}? This action cannot be undone.
               </p>
               <div className="flex justify-end gap-3 font-jakarta">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="px-4 py-2 rounded-xl text-white font-bold hover:bg-white/5 transition-colors"
+                  className="px-4 py-2 rounded-xl text-foreground font-bold hover:bg-muted transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleBulkDelete}
-                  className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-colors shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+                  className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-foreground font-bold transition-colors shadow-[0_0_15px_rgba(239,68,68,0.3)]"
                 >
                   Delete
                 </button>
@@ -984,9 +1002,9 @@ export default function AdminTasks() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 max-w-lg w-full shadow-2xl flex flex-col max-h-[80vh]"
+              className="bg-card border border-border rounded-2xl p-6 max-w-lg w-full shadow-2xl flex flex-col max-h-[80vh]"
             >
-              <h3 className="text-xl font-bold text-white mb-4 font-outfit">Assignment Results</h3>
+              <h3 className="text-xl font-bold text-foreground mb-4 font-outfit">Assignment Results</h3>
               
               <div className="flex gap-4 mb-6">
                 <div className="flex-1 bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
@@ -1000,8 +1018,8 @@ export default function AdminTasks() {
               </div>
 
               {assignResults.details.length > 0 && (
-                <div className="flex-1 overflow-y-auto bg-[#050505] border border-white/5 rounded-xl p-4 mb-6 space-y-2">
-                  <h4 className="text-sm font-bold text-white/80 mb-3">Failure Details:</h4>
+                <div className="flex-1 overflow-y-auto bg-muted/10 border border-border rounded-xl p-4 mb-6 space-y-2">
+                  <h4 className="text-sm font-bold text-foreground/80 mb-3">Failure Details:</h4>
                   {assignResults.details.map((detail, idx) => (
                     <div key={idx} className="text-sm text-red-400/80 flex items-start gap-2">
                       <X className="w-4 h-4 mt-0.5 shrink-0" />
@@ -1014,7 +1032,7 @@ export default function AdminTasks() {
               <div className="flex justify-end mt-auto">
                 <button
                   onClick={() => setAssignResults(null)}
-                  className="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold transition-colors"
+                  className="px-6 py-2.5 rounded-xl bg-muted/80 hover:bg-white/20 text-foreground font-bold transition-colors"
                 >
                   Close
                 </button>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { auth, db, googleProvider, handleFirestoreError, OperationType } from "@/firebase";
 import { signInWithPopup, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
@@ -60,7 +60,7 @@ export default function Apply() {
   const navigate = useNavigate();
   const { user: loggedInUser } = useAuth();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (loggedInUser) {
       navigate(loggedInUser.role === "admin" ? "/admin" : "/worker");
     }

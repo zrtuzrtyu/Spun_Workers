@@ -274,7 +274,7 @@ export default function Requests() {
         <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-12 max-w-2xl mx-auto">
           <DesignerIcon icon={Lock} size="lg" className="shadow-primary/20" />
           <div className="space-y-6">
-            <h1 className="text-5xl font-display font-bold tracking-tight text-white">Marketplace Locked</h1>
+            <h1 className="text-5xl font-display font-bold tracking-tight text-foreground">Marketplace Locked</h1>
             <p className="text-muted-foreground leading-relaxed text-lg font-light">
               To maintain the integrity of the Spunn Force network, all operators must complete the 10-step precision onboarding protocol before posting or bidding on jobs.
             </p>
@@ -285,14 +285,14 @@ export default function Requests() {
             </Button>
           </Link>
           
-          <div className="grid grid-cols-3 gap-8 w-full pt-12 border-t border-white/[0.05]">
+          <div className="grid grid-cols-3 gap-8 w-full pt-12 border-t border-border">
             {[
               { icon: ShieldAlert, label: "Identity Verified" },
               { icon: Target, label: "Skill Assessment" },
               { icon: Zap, label: "Instant Payouts" }
             ].map((item, i) => (
               <div key={i} className="space-y-3">
-                <div className="w-12 h-12 bg-white/[0.02] border border-white/[0.05] rounded-2xl flex items-center justify-center mx-auto text-muted-foreground/60">
+                <div className="w-12 h-12 bg-card border border-border rounded-2xl flex items-center justify-center mx-auto text-muted-foreground/60">
                   <item.icon className="w-5 h-5" />
                 </div>
                 <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">{item.label}</div>
@@ -336,7 +336,7 @@ export default function Requests() {
           >
             <Card className="border-primary/20 bg-primary/5 backdrop-blur-md rounded-[2.5rem] overflow-hidden">
               <CardHeader className="p-10 pb-6">
-                <CardTitle className="text-2xl font-display font-bold text-white">New Job Specification</CardTitle>
+                <CardTitle className="text-2xl font-display font-bold text-foreground">New Job Specification</CardTitle>
                 <CardDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">Define the parameters for your distributed task.</CardDescription>
               </CardHeader>
               <CardContent className="p-10 pt-0">
@@ -349,7 +349,7 @@ export default function Requests() {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="e.g. High-Res Image Annotation"
-                        className="h-14 bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl px-6 text-sm"
+                        className="h-14 bg-card border-border focus:border-primary rounded-2xl px-6 text-sm"
                       />
                     </div>
                     <div className="space-y-3">
@@ -364,7 +364,7 @@ export default function Requests() {
                           value={offerAmount}
                           onChange={(e) => setOfferAmount(e.target.value)}
                           placeholder="0.00"
-                          className="h-14 pl-14 bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl px-6 text-sm"
+                          className="h-14 pl-14 bg-card border-border focus:border-primary rounded-2xl px-6 text-sm"
                         />
                       </div>
                     </div>
@@ -377,7 +377,7 @@ export default function Requests() {
                       onChange={(e) => setDescription(e.target.value)}
                       rows={4}
                       placeholder="Provide clear instructions and expected deliverables..."
-                      className="bg-white/[0.02] border-white/[0.08] focus:border-primary rounded-2xl p-6 text-sm resize-none"
+                      className="bg-card border-border focus:border-primary rounded-2xl p-6 text-sm resize-none"
                     />
                   </div>
                   <div className="flex justify-end">
@@ -404,8 +404,8 @@ export default function Requests() {
               <TrendingUp className="w-12 h-12" />
             </div>
             <div className="space-y-3">
-              <h3 className="text-lg font-black uppercase tracking-[0.3em] text-muted-foreground/60">Marketplace Idle</h3>
-              <p className="text-xs font-mono text-muted-foreground/30 uppercase tracking-widest italic">Awaiting network broadcast...</p>
+              <h3 className="text-lg font-black uppercase tracking-[0.3em] text-muted-foreground/60">No Jobs Available</h3>
+              <p className="text-xs font-mono text-muted-foreground/30 uppercase tracking-widest italic">Check back later for new requests.</p>
             </div>
           </div>
         ) : (
@@ -419,7 +419,7 @@ export default function Requests() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 whileHover={{ y: -4, scale: 1.005 }}
-                className="group relative rounded-[2.5rem] md:rounded-[3.5rem] glass-card hover:bg-white/[0.03] hover:border-primary/40 transition-all duration-700 overflow-hidden"
+                className="group relative rounded-[2.5rem] md:rounded-[3.5rem] glass-card hover:bg-muted/30 hover:border-primary/40 transition-all duration-700 overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 <div className="flex flex-col md:flex-row">
@@ -563,9 +563,9 @@ export default function Requests() {
 
       {/* Bids Viewer Dialog */}
       <Dialog open={!!viewingBidsFor} onOpenChange={(open) => !open && setViewingBidsFor(null)}>
-        <DialogContent className="max-w-3xl bg-background border-white/[0.1] rounded-[3rem] p-12 max-h-[85vh] overflow-y-auto hide-scrollbar">
+        <DialogContent className="max-w-3xl bg-background border-border rounded-[3rem] p-12 max-h-[85vh] overflow-y-auto hide-scrollbar">
           <DialogHeader className="space-y-4 mb-10">
-            <DialogTitle className="text-4xl font-display font-bold text-white">Active Bids</DialogTitle>
+            <DialogTitle className="text-4xl font-display font-bold text-foreground">Active Bids</DialogTitle>
             <DialogDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">
               Review proposals from verified operators.
             </DialogDescription>
@@ -578,20 +578,20 @@ export default function Requests() {
               </div>
             ) : (
               bids.map((bid) => (
-                <div key={bid.id} className="p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/[0.05] space-y-8 hover:border-primary/20 transition-all duration-500">
+                <div key={bid.id} className="p-10 rounded-[2.5rem] bg-card border border-border space-y-8 hover:border-primary/20 transition-all duration-500">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-6">
                       <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-bold border border-primary/20 text-xl">
                         {bid.workerName.charAt(0)}
                       </div>
                       <div className="space-y-2">
-                        <div className="text-xl font-bold text-white">{bid.workerName}</div>
-                        <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-[0.2em] border-white/[0.1] text-muted-foreground/60">Verified Operator</Badge>
+                        <div className="text-xl font-bold text-foreground">{bid.workerName}</div>
+                        <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-[0.2em] border-border text-muted-foreground/60">Verified Operator</Badge>
                       </div>
                     </div>
                     <div className="text-3xl font-display font-bold text-primary">${bid.amount.toFixed(2)}</div>
                   </div>
-                  <div className="p-8 rounded-[1.5rem] bg-white/[0.02] border border-white/[0.05] text-muted-foreground font-light leading-relaxed text-sm">
+                  <div className="p-8 rounded-[1.5rem] bg-card border border-border text-muted-foreground font-light leading-relaxed text-sm">
                     {bid.proposal}
                   </div>
                   <div className="flex justify-end">
@@ -619,13 +619,13 @@ export default function Requests() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-background border border-white/[0.1] rounded-[3rem] p-12 max-w-md w-full shadow-2xl space-y-8"
+              className="bg-background border border-border rounded-[3rem] p-12 max-w-md w-full shadow-2xl space-y-8"
             >
               <div className="space-y-4 text-center">
                 <div className="w-20 h-20 bg-destructive/10 rounded-[2rem] flex items-center justify-center mx-auto text-destructive mb-6">
                   <Trash2 className="w-10 h-10" />
                 </div>
-                <h3 className="text-3xl font-display font-bold text-white">Delete Request</h3>
+                <h3 className="text-3xl font-display font-bold text-foreground">Delete Request</h3>
                 <p className="text-muted-foreground font-light leading-relaxed">
                   Are you sure you want to delete this request? This action cannot be undone.
                 </p>
@@ -633,7 +633,7 @@ export default function Requests() {
               <div className="grid grid-cols-2 gap-4">
                 <Button 
                   variant="outline"
-                  className="h-14 rounded-full font-bold text-[10px] uppercase tracking-widest border-white/[0.1]"
+                  className="h-14 rounded-full font-bold text-[10px] uppercase tracking-widest border-border"
                   onClick={() => setRequestToDelete(null)}
                 >
                   Cancel

@@ -184,7 +184,7 @@ export default function Login() {
           </Link>
         </div>
 
-        <Card className="border-border/50 bg-card/50 backdrop-blur-xl shadow-2xl shadow-primary/5">
+        <Card className="glass-card shadow-2xl shadow-primary/5">
           <CardHeader className="space-y-2 text-center pb-8">
             <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center mx-auto text-primary mb-4">
               <LogIn className="w-6 h-6" />

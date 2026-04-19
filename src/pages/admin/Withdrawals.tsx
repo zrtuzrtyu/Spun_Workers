@@ -94,7 +94,7 @@ export default function Withdrawals() {
     <AdminLayout>
       <div className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
         <div>
-          <h1 className="text-4xl font-sans font-bold text-white mb-2 leading-none">
+          <h1 className="text-4xl font-sans font-bold text-foreground mb-2 leading-none">
             Financial Clearance
           </h1>
           <p className="text-zinc-400 text-lg font-sans max-w-2xl leading-relaxed">
@@ -103,8 +103,8 @@ export default function Withdrawals() {
         </div>
       </div>
 
-      <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-xl mb-16">
-        <div className="p-6 border-b border-white/5 bg-[#0F0F0F] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-xl mb-16">
+        <div className="p-6 border-b border-border bg-muted/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="relative w-full md:w-96">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
             <input
@@ -112,7 +112,7 @@ export default function Withdrawals() {
               placeholder="Search withdrawals..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#050505] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:border-purple-500/50 transition-colors text-sm"
+              className="w-full bg-muted/10 border border-border rounded-xl pl-12 pr-4 py-3 text-foreground focus:outline-none focus:border-purple-500/50 transition-colors text-sm"
             />
           </div>
         </div>
@@ -121,15 +121,15 @@ export default function Withdrawals() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr>
-                <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Worker Identity</th>
-                <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Country</th>
-                <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Volume</th>
-                <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Payout Method</th>
-                <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Destination Address</th>
-                <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Timestamp</th>
-                <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Processed At</th>
-                <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Status</th>
-                <th className="px-6 py-4 border-b border-white/5 bg-[#0A0A0A] text-xs font-medium text-zinc-500 uppercase tracking-wider text-right whitespace-nowrap">Authorization</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Worker Identity</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Country</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Volume</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Payout Method</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Destination Address</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Timestamp</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Processed At</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Status</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider text-right whitespace-nowrap">Authorization</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -143,7 +143,7 @@ export default function Withdrawals() {
                 </tr>
               ) : (
                 filteredWithdrawals.map((w) => (
-                  <tr key={w.id} className="hover:bg-white/[0.02] transition-colors group">
+                  <tr key={w.id} className="hover:bg-muted/10 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="font-sans font-medium text-zinc-200 text-base">{w.workerName}</div>
                       <div className="text-xs text-zinc-500 mt-1">UID: {w.workerId.substring(0, 12)}...</div>
@@ -159,12 +159,12 @@ export default function Withdrawals() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-3 py-1 bg-[#050505] border border-white/10 rounded-md text-xs font-medium text-zinc-300">
+                      <span className="px-3 py-1 bg-muted/10 border border-border rounded-md text-xs font-medium text-zinc-300">
                         {w.method.toUpperCase()}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-zinc-400 text-xs font-mono break-all max-w-[200px] bg-[#050505] border border-white/5 rounded-md p-2">{w.address}</div>
+                      <div className="text-zinc-400 text-xs font-mono break-all max-w-[200px] bg-muted/10 border border-border rounded-md p-2">{w.address}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-xs text-zinc-400">
@@ -192,7 +192,7 @@ export default function Withdrawals() {
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                         w.status === 'paid' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
                         w.status === 'rejected' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-                        'bg-white/5 text-zinc-300 border border-white/10'
+                        'bg-muted text-zinc-300 border border-border'
                       }`}>
                         {w.status.charAt(0).toUpperCase() + w.status.slice(1)}
                       </span>

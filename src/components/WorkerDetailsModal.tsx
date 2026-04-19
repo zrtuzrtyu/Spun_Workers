@@ -103,13 +103,13 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-5xl max-h-[90vh] bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col font-sans"
+          className="relative w-full max-w-5xl max-h-[90vh] bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col font-sans"
         >
           {/* Header */}
-          <div className="p-6 border-b border-white/10 flex justify-between items-center bg-[#050505]">
+          <div className="p-6 border-b border-border flex justify-between items-center bg-muted/10">
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-bold text-white">{worker.name}'s Performance</h2>
+                <h2 className="text-2xl font-bold text-foreground">{worker.name}'s Performance</h2>
                 <span className={`text-xs px-2 py-1 rounded-md font-bold uppercase tracking-wider ${
                   worker.trustTier === 'Premium' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
                   worker.trustTier === 'Trusted' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
@@ -122,7 +122,7 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-xl transition-colors text-zinc-400 hover:text-white"
+              className="p-2 hover:bg-muted/80 rounded-xl transition-colors text-zinc-400 hover:text-foreground"
             >
               <X className="w-6 h-6" />
             </button>
@@ -139,45 +139,45 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
                 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-[#050505] border border-white/5 p-4 rounded-xl">
+                  <div className="bg-muted/10 border border-border p-4 rounded-xl">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
                         <CheckCircle className="w-5 h-5" />
                       </div>
                       <span className="text-zinc-400 text-sm font-medium">Total Tasks</span>
                     </div>
-                    <div className="text-2xl font-bold text-white">{assignments.length}</div>
+                    <div className="text-2xl font-bold text-foreground">{assignments.length}</div>
                   </div>
-                  <div className="bg-[#050505] border border-white/5 p-4 rounded-xl">
+                  <div className="bg-muted/10 border border-border p-4 rounded-xl">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
                         <TrendingUp className="w-5 h-5" />
                       </div>
                       <span className="text-zinc-400 text-sm font-medium">Approved</span>
                     </div>
-                    <div className="text-2xl font-bold text-white">
+                    <div className="text-2xl font-bold text-foreground">
                       {assignments.filter(a => a.status === "approved").length}
                     </div>
                   </div>
-                  <div className="bg-[#050505] border border-white/5 p-4 rounded-xl">
+                  <div className="bg-muted/10 border border-border p-4 rounded-xl">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-2 bg-yellow-500/20 rounded-lg text-yellow-400">
                         <Star className="w-5 h-5" />
                       </div>
                       <span className="text-zinc-400 text-sm font-medium">Avg Rating</span>
                     </div>
-                    <div className="text-2xl font-bold text-white">
+                    <div className="text-2xl font-bold text-foreground">
                       {worker.averageRating ? worker.averageRating.toFixed(1) : 'N/A'}
                     </div>
                   </div>
-                  <div className="bg-[#050505] border border-white/5 p-4 rounded-xl">
+                  <div className="bg-muted/10 border border-border p-4 rounded-xl">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-2 bg-pink-500/20 rounded-lg text-pink-400">
                         <DollarSign className="w-5 h-5" />
                       </div>
                       <span className="text-zinc-400 text-sm font-medium">Total Earned</span>
                     </div>
-                    <div className="text-2xl font-bold text-white">
+                    <div className="text-2xl font-bold text-foreground">
                       ${(worker.earnings || 0).toFixed(2)}
                     </div>
                   </div>
@@ -186,8 +186,8 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
                 {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Completion Rate Chart */}
-                  <div className="bg-[#050505] border border-white/5 p-5 rounded-2xl">
-                    <h3 className="text-lg font-bold text-white mb-6">Task Completion Rate (Last 7 Days)</h3>
+                  <div className="bg-muted/10 border border-border p-5 rounded-2xl">
+                    <h3 className="text-lg font-bold text-foreground mb-6">Task Completion Rate (Last 7 Days)</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={chartData}>
@@ -211,8 +211,8 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
                   </div>
 
                   {/* Rating Trend Chart */}
-                  <div className="bg-[#050505] border border-white/5 p-5 rounded-2xl">
-                    <h3 className="text-lg font-bold text-white mb-6">Average Rating Trend</h3>
+                  <div className="bg-muted/10 border border-border p-5 rounded-2xl">
+                    <h3 className="text-lg font-bold text-foreground mb-6">Average Rating Trend</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={chartData}>
@@ -231,14 +231,14 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
                 </div>
 
                 {/* Payout History */}
-                <div className="bg-[#050505] border border-white/5 rounded-2xl overflow-hidden">
-                  <div className="p-5 border-b border-white/5">
-                    <h3 className="text-lg font-bold text-white">Payout History</h3>
+                <div className="bg-muted/10 border border-border rounded-2xl overflow-hidden">
+                  <div className="p-5 border-b border-border">
+                    <h3 className="text-lg font-bold text-foreground">Payout History</h3>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-white/5 text-zinc-400 text-xs uppercase tracking-wider">
+                        <tr className="bg-muted text-zinc-400 text-xs uppercase tracking-wider">
                           <th className="p-4 font-semibold">Date</th>
                           <th className="p-4 font-semibold">Amount</th>
                           <th className="p-4 font-semibold">Method</th>
@@ -252,11 +252,11 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
                           </tr>
                         ) : (
                           withdrawals.map((w) => (
-                            <tr key={w.id} className="hover:bg-white/[0.02] transition-colors">
+                            <tr key={w.id} className="hover:bg-muted/10 transition-colors">
                               <td className="p-4 text-sm text-zinc-300">
                                 {w.createdAt?.toDate ? format(w.createdAt.toDate(), "MMM d, yyyy HH:mm") : "Unknown"}
                               </td>
-                              <td className="p-4 text-sm font-bold text-white">
+                              <td className="p-4 text-sm font-bold text-foreground">
                                 ${w.amount?.toFixed(2)}
                               </td>
                               <td className="p-4 text-sm text-zinc-300 capitalize">

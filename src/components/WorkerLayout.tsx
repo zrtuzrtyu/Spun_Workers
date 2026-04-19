@@ -91,11 +91,11 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
   return (
     <div className="min-h-screen bg-background text-foreground font-sans flex flex-col md:flex-row antialiased transition-colors duration-300">
       {/* Sidebar */}
-      <aside className="w-full md:w-72 bg-background border-r border-border flex flex-col md:h-screen md:sticky top-0 relative z-20">
-        <div className="p-8 border-b border-border flex justify-between items-center md:block">
-          <div className="flex flex-col gap-1 md:mb-10">
+      <aside className="w-full md:w-64 glass border-r border-border flex flex-col md:h-screen md:sticky top-0 relative z-20">
+        <div className="p-6 border-b border-border flex justify-between items-center md:block">
+          <div className="flex flex-col gap-1 md:mb-6">
             <Logo />
-            <div className="text-[11px] text-muted-foreground uppercase tracking-[0.3em] font-black ml-14 opacity-80">Operator Portal</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black ml-10 md:ml-14 opacity-80">Worker Dashboard</div>
           </div>
           <div className="flex items-center gap-2 md:hidden">
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground">
@@ -107,23 +107,23 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
           </div>
         </div>
         
-        <div className="p-8 border-b border-border bg-muted/30">
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-[11px] text-muted-foreground uppercase tracking-[0.3em] font-black">Level {currentLevel}</div>
-            <div className="text-sm font-mono text-primary font-black">${(user?.earnings || 0).toFixed(2)}</div>
+        <div className="p-6 border-b border-border bg-muted/30">
+          <div className="flex justify-between items-center mb-3">
+            <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black">Level {currentLevel}</div>
+            <div className="text-xs font-mono text-primary font-black">${(user?.earnings || 0).toFixed(2)}</div>
           </div>
-          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
             <div 
-              className="h-full bg-primary transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(var(--primary),0.4)]" 
+              className="h-full bg-primary transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(var(--primary),0.4)]" 
               style={{ width: `${levelProgress}%` }}
             />
           </div>
-          <div className="mt-3 text-[10px] text-muted-foreground font-black uppercase tracking-widest">
+          <div className="mt-2 text-[9px] text-muted-foreground font-black uppercase tracking-widest">
             Next Tier: Level {currentLevel + 1}
           </div>
         </div>
 
-        <nav className="flex-1 p-4 md:p-6 space-y-3 flex flex-row md:flex-col overflow-x-auto md:overflow-visible hide-scrollbar">
+        <nav className="flex-1 p-4 md:p-5 space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-visible hide-scrollbar">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
@@ -133,53 +133,53 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center justify-between px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl transition-all text-xs md:text-sm font-black uppercase tracking-[0.15em] group whitespace-nowrap md:whitespace-normal",
+                  "flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 rounded-xl transition-all text-[10px] sm:text-[11px] font-black uppercase tracking-[0.1em] group whitespace-nowrap md:whitespace-normal",
                   isActive 
-                    ? "bg-primary text-primary-foreground shadow-xl shadow-primary/20" 
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <div className="flex items-center gap-4">
-                  <Icon className={cn("w-5 h-5", isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary transition-colors")} />
+                <div className="flex items-center gap-3">
+                  <Icon className={cn("w-4 h-4", isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary transition-colors")} />
                   {item.name}
                 </div>
                 {item.locked ? (
-                  <Lock className="w-4 h-4 opacity-60" />
+                  <Lock className="w-3.5 h-3.5 opacity-60" />
                 ) : (
-                  !isActive && <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-60 transition-opacity" />
+                  !isActive && <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-60 transition-opacity" />
                 )}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-6 border-t border-border hidden md:block">
+        <div className="p-5 border-t border-border hidden md:block">
           <Button 
             variant="ghost" 
             onClick={toggleTheme}
-            className="w-full justify-start gap-4 text-muted-foreground hover:text-foreground hover:bg-muted h-12 px-5 rounded-2xl font-black uppercase tracking-widest text-[11px] mb-4"
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-muted h-10 px-4 rounded-xl font-black uppercase tracking-widest text-[10px] mb-3"
           >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
           </Button>
 
-          <div className="flex items-center gap-4 px-4 py-4 mb-4 bg-muted/50 rounded-[1.5rem] border border-border">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-black border border-primary/20 shrink-0 text-lg">
+          <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-muted/50 rounded-2xl border border-border">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-black border border-primary/20 shrink-0 text-base">
               {(user?.isAnonymous ? user?.username : user?.name)?.charAt(0) || "W"}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-black text-foreground truncate flex items-center gap-1.5 uppercase tracking-wider">
+              <div className="text-xs font-black text-foreground truncate flex items-center gap-1.5 uppercase tracking-wider">
                 {user?.isAnonymous ? user?.username : user?.name}
-                {user?.trustTier === 'Premium' && <ShieldCheck className="w-4 h-4 text-primary" />}
+                {user?.trustTier === 'Premium' && <ShieldCheck className="w-3.5 h-3.5 text-primary" />}
               </div>
-              <Badge variant="outline" className="text-[9px] h-5 px-2 font-black uppercase tracking-widest border-border text-muted-foreground bg-background">
+              <Badge variant="outline" className="text-[8px] h-4 md:h-5 px-1.5 mt-0.5 font-black uppercase tracking-widest border-border text-muted-foreground bg-background">
                 {user?.trustTier || 'New'}
               </Badge>
             </div>
           </div>
           <Button 
             variant="ghost" 
-            className="w-full justify-start gap-4 text-muted-foreground hover:text-destructive hover:bg-destructive/5 h-12 px-5 rounded-2xl font-black uppercase tracking-widest text-[11px]"
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/5 h-10 px-4 rounded-xl font-black uppercase tracking-widest text-[10px]"
             onClick={handleLogout}
           >
             <LogOut className="w-4 h-4" />
@@ -194,7 +194,7 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
           <div className="bg-primary/10 border-b border-primary/20 p-4 flex items-center justify-center gap-6 text-[10px] font-bold sticky top-0 z-30 backdrop-blur-md">
             <ShieldAlert className="w-4 h-4 text-primary" />
             <span className="text-primary uppercase tracking-[0.2em]">Onboarding Incomplete: Marketplace Access Restricted</span>
-            <Link to="/worker/onboarding" className="flex items-center gap-2 text-white hover:text-primary transition-colors uppercase tracking-widest">
+            <Link to="/worker/onboarding" className="flex items-center gap-2 text-foreground hover:text-primary transition-colors uppercase tracking-widest">
               Complete Setup <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
