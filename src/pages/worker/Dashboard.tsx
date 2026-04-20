@@ -108,7 +108,7 @@ export default function WorkerDashboard() {
           payout: taskData ? taskData.payout : 0,
         };
       }));
-      setAssignments(assigns.sort((a, b) => {
+      setAssignments(assigns.sort((a: any, b: any) => {
         const order: any = { pending: 0, submitted: 1, rejected: 2, approved: 3 };
         return order[a.status] - order[b.status];
       }));
@@ -139,7 +139,11 @@ export default function WorkerDashboard() {
       toast.success("Proof submitted successfully!");
       setSelectedAssignment(null);
       setProofFile(null);
-    } catch (error: any) { toast.error("Upload failed."); } finally { setSubmitting(false); }
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.WRITE, `assignments/${selectedAssignment.id}`);
+    } finally { 
+      setSubmitting(false); 
+    }
   };
 
   const getTrackedUrl = (assign: any) => {

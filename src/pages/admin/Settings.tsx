@@ -63,6 +63,15 @@ export default function AdminSettings() {
   }, []);
 
   const handleSaveConfig = async () => {
+    if (isNaN(systemConfig.globalMultiplier) || systemConfig.globalMultiplier < 0.1 || systemConfig.globalMultiplier > 5.0) {
+      toast.error("Global Payout Multiplier must be a number between 0.1 and 5.0.");
+      return;
+    }
+    if (isNaN(systemConfig.minWithdrawal) || systemConfig.minWithdrawal < 1) {
+      toast.error("Min. Withdrawal must be at least $1.");
+      return;
+    }
+
     setSaving(true);
     try {
       await updateDoc(doc(db, "system", "config"), {

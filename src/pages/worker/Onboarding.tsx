@@ -81,6 +81,7 @@ export default function WorkerOnboarding() {
           });
         } catch (error) {
           console.error("Failed to save onboarding progress:", error);
+          toast.error("Network error while saving progress.");
         }
       }
     }
@@ -98,7 +99,7 @@ export default function WorkerOnboarding() {
             onboardingStep: prev
           });
         } catch (error) {
-          console.error("Failed to save onboarding progress:", error);
+          console.error("Failed to revert stats:", error);
         }
       }
     }

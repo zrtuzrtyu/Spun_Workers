@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, db, handleFirestoreError, OperationType } from "@/firebase";
+import { auth, db, handleFirestoreError, OperationType, extractErrorMessage } from "@/firebase";
 import { signInWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup } from "firebase/auth";
 import { googleProvider } from "@/firebase";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
@@ -40,7 +40,7 @@ export default function Login() {
       toast.success("Password reset email sent! Check your inbox.");
     } catch (error: any) {
       console.error(error);
-      toast.error(error.message || "Failed to send password reset email.");
+      toast.error(extractErrorMessage(error));
     }
   };
 
@@ -84,7 +84,6 @@ export default function Login() {
         navigate("/worker");
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to login with Google");
       handleFirestoreError(error, OperationType.GET, "users");
     } finally {
       setLoading(false);
@@ -159,7 +158,6 @@ export default function Login() {
         navigate("/worker");
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to login");
       handleFirestoreError(error, OperationType.GET, "users");
     } finally {
       setLoading(false);

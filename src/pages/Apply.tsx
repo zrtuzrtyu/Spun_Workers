@@ -147,7 +147,6 @@ export default function Apply() {
       toast.success("Account created successfully!");
       navigate("/worker/onboarding");
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign up with Google");
       handleFirestoreError(error, OperationType.WRITE, "users");
     } finally {
       setLoading(false);
@@ -194,7 +193,6 @@ export default function Apply() {
       toast.success("Account created! Please verify your email.");
       navigate("/worker/onboarding");
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign up");
       handleFirestoreError(error, OperationType.WRITE, "users");
     } finally {
       setLoading(false);

@@ -43,7 +43,12 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode,
   if (!firebaseUser) return <Navigate to="/login" state={{ from: location }} replace />;
 
   // Email Verification Check
-  if (!firebaseUser.emailVerified && location.pathname !== "/verify-email") {
+  // Allow the very first login session to bypass email verification (when creationTime equals or is very close to lastSignInTime)
+  const creationTime = firebaseUser.metadata.creationTime ? new Date(firebaseUser.metadata.creationTime).getTime() : 0;
+  const lastSignInTime = firebaseUser.metadata.lastSignInTime ? new Date(firebaseUser.metadata.lastSignInTime).getTime() : 0;
+  const isFirstLoginSession = Math.abs(lastSignInTime - creationTime) < 5000; // Within 5 seconds
+
+  if (!firebaseUser.emailVerified && !isFirstLoginSession && location.pathname !== "/verify-email") {
     return <Navigate to="/verify-email" replace />;
   }
 

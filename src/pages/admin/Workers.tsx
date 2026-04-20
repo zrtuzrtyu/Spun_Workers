@@ -5,37 +5,94 @@ import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { motion } from "motion/react";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Trash2, TrendingUp, Loader2 } from "lucide-react";
 import WorkerDetailsModal from "@/components/WorkerDetailsModal";
 
 export default function AdminWorkers() {
   const [workers, setWorkers] = useState<any[]>([]);
-  const [workerStats, setWorkerStats] = useState<Record<string, { completionRate: number, avgRating: number }>>({});
+  const [workerStats, setWorkerStats] = useState<Record<string, { completionRate: number, avgRating: number, totalCompleted: number }>>({});
   const [selectedWorker, setSelectedWorker] = useState<any | null>(null);
+  const [isPromoting, setIsPromoting] = useState(false);
 
   useEffect(() => {
     const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
-    const unsub = onSnapshot(q, (snap) => {
+    const unsub = onSnapshot(q, async (snap) => {
       const workersData: any[] = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter((w: any) => w.role === "worker");
       setWorkers(workersData);
       
-      // Use pre-calculated stats from the user document instead of fetching all assignments
-      const stats: Record<string, { completionRate: number, avgRating: number }> = {};
-      for (const worker of workersData) {
-        // We don't have a strict completion rate without fetching all assignments, 
-        // but we can use ratingCount as a proxy for completed tasks for now, 
-        // or just rely on the averageRating which is already calculated.
-        stats[worker.id] = { 
-          completionRate: worker.ratingCount ? 100 : 0, // Simplified
-          avgRating: worker.averageRating || 0 
-        };
+      try {
+        const assignmentsSnap = await getDocs(collection(db, "assignments"));
+        const allAssignments = assignmentsSnap.docs.map(d => d.data());
+        
+        const stats: Record<string, { completionRate: number, avgRating: number, totalCompleted: number }> = {};
+        
+        for (const worker of workersData) {
+          const workerAssignments = allAssignments.filter((a: any) => a.workerId === worker.id);
+          const totalCompleted = workerAssignments.filter((a: any) => a.status === 'approved' || a.status === 'completed').length;
+          const totalRejected = workerAssignments.filter((a: any) => a.status === 'rejected').length;
+          
+          const settledTasks = totalCompleted + totalRejected;
+          const completionRate = settledTasks > 0 ? Math.round((totalCompleted / settledTasks) * 100) : 0;
+          
+          stats[worker.id] = { 
+            completionRate,
+            avgRating: worker.averageRating || 0,
+            totalCompleted
+          };
+        }
+        setWorkerStats(stats);
+      } catch (error) {
+        console.error("Failed to calculate stats", error);
       }
-      setWorkerStats(stats);
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, "users");
     });
     return () => unsub();
   }, []);
+
+  const runPromotionEngine = async () => {
+    setIsPromoting(true);
+    let promotedCount = 0;
+    try {
+      for (const worker of workers) {
+        const stats = workerStats[worker.id];
+        if (!stats) continue;
+
+        const currentTier = worker.trustTier || 'New';
+        let newTier = 'New';
+        
+        // Promotion Criteria
+        if (stats.totalCompleted >= 20 && stats.completionRate >= 90 && stats.avgRating >= 4.5) {
+          newTier = 'Premium';
+        } else if (stats.totalCompleted >= 5 && stats.completionRate >= 80 && stats.avgRating >= 4.0) {
+          newTier = 'Trusted';
+        }
+
+        // Demotion Criteria (optional, but good for maintaining quality)
+        if (newTier === 'Premium' && (stats.completionRate < 85 || stats.avgRating < 4.3)) {
+           newTier = 'Trusted';
+        }
+        if (newTier === 'Trusted' && (stats.completionRate < 70 || stats.avgRating < 3.5)) {
+           newTier = 'New';
+        }
+
+        if (newTier !== currentTier) {
+          await updateDoc(doc(db, "users", worker.id), { trustTier: newTier });
+          promotedCount++;
+        }
+      }
+      if (promotedCount > 0) {
+        toast.success(`Evaluation complete! Promoted or adjusted ${promotedCount} workers.`);
+      } else {
+        toast.info("Evaluation complete. No tier adjustments needed.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to run promotion engine.");
+    } finally {
+      setIsPromoting(false);
+    }
+  };
 
   const handleStatusChange = async (workerId: string, newStatus: string) => {
     try {
@@ -63,12 +120,20 @@ export default function AdminWorkers() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8 flex justify-between items-center"
+        className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
       >
         <div>
           <h1 className="text-3xl font-bold text-foreground mb-2 font-sans">Worker Roster</h1>
           <p className="text-muted-foreground font-sans">Manage your workforce, approve applications, and track earnings.</p>
         </div>
+        <button
+          onClick={runPromotionEngine}
+          disabled={isPromoting}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
+        >
+          {isPromoting ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4" />}
+          Run Promotion Engine
+        </button>
       </motion.div>
 
       <motion.div 
