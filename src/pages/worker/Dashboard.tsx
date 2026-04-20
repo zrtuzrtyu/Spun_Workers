@@ -48,21 +48,30 @@ export default function WorkerDashboard() {
 
   const autoAssignTasks = async (workerId: string, trustTier: string, userCountry: string, isAdmin: boolean = false) => {
     try {
-      const activeQuery = query(collection(db, "assignments"), where("workerId", "==", workerId), where("status", "in", ["pending", "submitted"]));
-      const activeSnap = await getDocs(activeQuery);
-      if (!activeSnap.empty) return;
+      const assignmentsQuery = query(collection(db, "assignments"), where("workerId", "==", workerId));
+      const assignmentsSnap = await getDocs(assignmentsQuery);
+      
+      const activeAssignments = assignmentsSnap.docs.filter(d => 
+        d.data().status === "pending" || d.data().status === "submitted"
+      );
+      if (activeAssignments.length > 0) return;
+
       let allowedTiers = ['New'];
       if (trustTier === 'Trusted') allowedTiers = ['New', 'Trusted'];
       if (trustTier === 'Premium') allowedTiers = ['New', 'Trusted', 'Premium'];
-      const tasksQuery = query(collection(db, "tasks"), where("requiredTier", "in", allowedTiers), where("status", "==", "active"));
+
+      const tasksQuery = query(collection(db, "tasks"), where("status", "==", "active"));
       const tasksSnap = await getDocs(tasksQuery);
-      const assignmentsQuery = query(collection(db, "assignments"), where("workerId", "==", workerId));
-      const assignmentsSnap = await getDocs(assignmentsQuery);
+      
       const assignedTaskIds = assignmentsSnap.docs.map(d => d.data().taskId);
+      
       for (const taskDoc of tasksSnap.docs) {
         const taskData = taskDoc.data();
+        if (!allowedTiers.includes(taskData.requiredTier || 'New')) continue;
+        
         const taskGeo = taskData.targetGeo || "Global";
         const geoMatch = isAdmin ? true : isGeoMatch(taskGeo, userCountry);
+        
         if (!assignedTaskIds.includes(taskDoc.id) && geoMatch) {
           const taskAssignmentsQuery = query(collection(db, "assignments"), where("taskId", "==", taskDoc.id));
           const taskAssignmentsSnap = await getDocs(taskAssignmentsQuery);

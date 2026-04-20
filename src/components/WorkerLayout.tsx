@@ -27,8 +27,9 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
   const navigate = useNavigate();
   const [completedTasks, setCompletedTasks] = useState(0);
 
-  const currentLevel = Math.floor((user?.earnings || 0) / 15) + 1;
+  const currentLevel = user?.level || Math.floor((user?.earnings || 0) / 15) + 1;
   const isChatLocked = completedTasks < 5;
+  const isMarketplaceLocked = currentLevel < 2; // Requires level 2 to access Open Market
   const isOnboardingIncomplete = user && !user.onboardingCompleted;
   
   const nextLevelGoal = currentLevel * 15;
@@ -78,7 +79,7 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
 
   const navItems = [
     { name: "My Tasks", path: "/worker", icon: LayoutDashboard },
-    { name: "Marketplace", path: "/worker/requests", icon: Sparkles, locked: isOnboardingIncomplete },
+    { name: "Marketplace", path: "/worker/requests", icon: Sparkles, locked: isMarketplaceLocked },
     { name: "Spicy Chat", path: "/worker/chat", icon: MessageSquare, locked: isChatLocked },
     { name: "My Wallet", path: "/worker/wallet", icon: Wallet },
     { name: "My Profile", path: "/worker/profile", icon: User },
@@ -91,11 +92,11 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
   return (
     <div className="min-h-screen bg-background text-foreground font-sans flex flex-col md:flex-row antialiased transition-colors duration-300">
       {/* Sidebar */}
-      <aside className="w-full md:w-64 glass border-r border-border flex flex-col md:h-screen md:sticky top-0 relative z-20">
+      <aside className="w-full md:w-64 bg-card border-r border-border flex flex-col md:h-screen md:sticky top-0 relative z-20 shadow-sm">
         <div className="p-6 border-b border-border flex justify-between items-center md:block">
           <div className="flex flex-col gap-1 md:mb-6">
             <Logo />
-            <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black ml-10 md:ml-14 opacity-80">Worker Dashboard</div>
+            <div className="text-xs text-muted-foreground font-medium ml-10 md:ml-12 opacity-80">Worker Dashboard</div>
           </div>
           <div className="flex items-center gap-2 md:hidden">
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground">
@@ -107,23 +108,24 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
           </div>
         </div>
         
-        <div className="p-6 border-b border-border bg-muted/30">
+        <div className="p-6 border-b border-border bg-muted/40">
           <div className="flex justify-between items-center mb-3">
-            <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black">Level {currentLevel}</div>
-            <div className="text-xs font-mono text-primary font-black">${(user?.earnings || 0).toFixed(2)}</div>
+            <div className="text-sm font-semibold text-foreground">Level {currentLevel}</div>
+            <div className="text-sm font-mono text-primary font-bold">${(user?.earnings || 0).toFixed(2)}</div>
           </div>
-          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+          <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
             <div 
               className="h-full bg-primary transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(var(--primary),0.4)]" 
               style={{ width: `${levelProgress}%` }}
             />
           </div>
-          <div className="mt-2 text-[9px] text-muted-foreground font-black uppercase tracking-widest">
-            Next Tier: Level {currentLevel + 1}
+          <div className="mt-3 flex justify-between text-xs text-muted-foreground font-medium">
+            <span>{completedTasks} tasks done</span>
+            <span>Next: Lvl {currentLevel + 1}</span>
           </div>
         </div>
 
-        <nav className="flex-1 p-4 md:p-5 space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-visible hide-scrollbar">
+        <nav className="flex-1 p-4 md:p-5 space-y-1 md:space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-visible hide-scrollbar">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
@@ -131,11 +133,20 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
             return (
               <Link
                 key={item.path}
-                to={item.path}
+                to={item.locked ? "#" : item.path}
+                onClick={(e) => {
+                  if (item.locked) {
+                    e.preventDefault();
+                    if (item.name === "Spicy Chat") toast.error("Complete 5 tasks to unlock chat!");
+                    else if (item.name === "Marketplace") toast.error("Reach Level 2 to unlock Marketplace!");
+                  }
+                }}
                 className={cn(
-                  "flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 rounded-xl transition-all text-[10px] sm:text-[11px] font-black uppercase tracking-[0.1em] group whitespace-nowrap md:whitespace-normal",
+                  "flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 rounded-lg transition-all text-sm font-medium group whitespace-nowrap md:whitespace-normal",
                   isActive 
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
+                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20" 
+                    : item.locked
+                    ? "text-muted-foreground/50 hover:bg-muted/50 cursor-not-allowed"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
@@ -144,9 +155,9 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
                   {item.name}
                 </div>
                 {item.locked ? (
-                  <Lock className="w-3.5 h-3.5 opacity-60" />
+                  <Lock className="w-4 h-4 opacity-50" />
                 ) : (
-                  !isActive && <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-60 transition-opacity" />
+                  !isActive && <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-60 -translate-x-2 group-hover:translate-x-0 transition-all hidden md:block" />
                 )}
               </Link>
             );
@@ -157,7 +168,7 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
           <Button 
             variant="ghost" 
             onClick={toggleTheme}
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-muted h-10 px-4 rounded-xl font-black uppercase tracking-widest text-[10px] mb-3"
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-muted h-10 px-4 rounded-lg font-medium text-sm mb-3"
           >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>

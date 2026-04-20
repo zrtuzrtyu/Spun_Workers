@@ -47,6 +47,9 @@ export default function Requests() {
   const [viewingBidsFor, setViewingBidsFor] = useState<string | null>(null);
   const [hasActiveTask, setHasActiveTask] = useState(false);
 
+  const currentLevel = user?.level || Math.floor((user?.earnings || 0) / 15) + 1;
+  const isMarketplaceLocked = currentLevel < 2;
+
   useEffect(() => {
     if (!firebaseUser) return;
 
@@ -268,22 +271,32 @@ export default function Requests() {
     }
   };
 
-  if (user && user.role !== 'admin' && !user.onboardingCompleted) {
+  if (user && user.role !== 'admin' && (isMarketplaceLocked || !user.onboardingCompleted)) {
     return (
       <WorkerLayout>
-        <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-12 max-w-2xl mx-auto">
+        <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-10 max-w-2xl mx-auto px-4">
           <DesignerIcon icon={Lock} size="lg" className="shadow-primary/20" />
-          <div className="space-y-6">
-            <h1 className="text-5xl font-display font-bold tracking-tight text-foreground">Marketplace Locked</h1>
-            <p className="text-muted-foreground leading-relaxed text-lg font-light">
-              To maintain the integrity of the Spunn Force network, all operators must complete the 10-step precision onboarding protocol before posting or bidding on jobs.
+          <div className="space-y-4">
+            <h1 className="text-4xl md:text-5xl font-display font-bold tracking-tight text-foreground">Marketplace Locked</h1>
+            <p className="text-muted-foreground leading-relaxed text-base md:text-lg font-light">
+              {!user.onboardingCompleted 
+                ? "You must complete the onboarding protocol before posting or bidding on jobs."
+                : "You must reach Level 2 to unlock the Global Marketplace. Keep completing active assignments to level up!"}
             </p>
           </div>
-          <Link to="/worker/onboarding">
-            <Button size="lg" className="h-16 px-12 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 group">
-              Complete Onboarding <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </Link>
+          {!user.onboardingCompleted ? (
+            <Link to="/worker/onboarding">
+              <Button size="lg" className="h-14 px-8 rounded-full font-medium shadow-md shadow-primary/20 group">
+                Complete Onboarding <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/worker">
+              <Button size="lg" className="h-14 px-8 rounded-full font-medium shadow-md shadow-primary/20 group">
+                Go to My Tasks <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          )}
           
           <div className="grid grid-cols-3 gap-8 w-full pt-12 border-t border-border">
             {[
