@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { auth } from "@/firebase";
+import { auth, db } from "@/firebase";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { LayoutDashboard, Users, CheckSquare, LogOut, Activity, Sparkles, Settings, DollarSign, Menu, X, MessageSquare, Sun, Moon, Eye } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [pendingWorkers, setPendingWorkers] = useState(0);
+  const [pendingTasks, setPendingTasks] = useState(0);
+
+  useEffect(() => {
+    if (user?.role !== "admin") return;
+    
+    // Subscribe to pending workers
+    const unsubWorkers = onSnapshot(query(collection(db, "users"), where("status", "==", "pending")), (snap) => {
+      setPendingWorkers(snap.size);
+    });
+
+    // Subscribe to pending tasks
+    const unsubTasks = onSnapshot(query(collection(db, "assignments"), where("status", "==", "submitted")), (snap) => {
+      setPendingTasks(snap.size);
+    });
+
+    return () => {
+      unsubWorkers();
+      unsubTasks();
+    };
+  }, [user]);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -22,8 +44,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = [
     { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
     { name: "Worker View", path: "/worker", icon: Eye },
-    { name: "Workers", path: "/admin/workers", icon: Users },
-    { name: "Tasks", path: "/admin/tasks", icon: CheckSquare },
+    { name: "Workers", path: "/admin/workers", icon: Users, badge: pendingWorkers },
+    { name: "Tasks", path: "/admin/tasks", icon: CheckSquare, badge: pendingTasks },
     { name: "Withdrawals", path: "/admin/withdrawals", icon: DollarSign },
     { name: "Spicy Chat", path: "/worker/chat", icon: MessageSquare },
     { name: "AI Tools", path: "/admin/ai", icon: Sparkles },
@@ -55,14 +77,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-[0.8rem] transition-all whitespace-nowrap text-sm font-semibold group ${
+                className={`flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 rounded-[0.8rem] transition-all whitespace-nowrap text-sm font-semibold group ${
                   isActive 
                     ? "bg-primary text-primary-foreground shadow-sm " 
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary transition-colors"}`} />
-                {item.name}
+                <div className="flex items-center gap-3">
+                  <Icon className={`w-4 h-4 ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary transition-colors"}`} />
+                  {item.name}
+                </div>
+                {item.badge && item.badge > 0 ? (
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold ${
+                    isActive ? "bg-primary-foreground/20 text-primary-foreground" : "bg-primary text-primary-foreground"
+                  }`}>
+                    {item.badge}
+                  </span>
+                ) : null}
               </Link>
             );
           })}
