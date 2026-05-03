@@ -270,17 +270,16 @@ export default function Landing() {
               className="space-y-8"
             >
               <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] rounded-full">
-                <Sparkles className="w-4 h-4 mr-3 text-primary" /> Distributed Intelligence Network
+                <Sparkles className="w-4 h-4 mr-3 text-primary" /> The Cognitive Economy
               </Badge>
               
-              <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[140px] font-display font-semibold tracking-[-0.05em] leading-[0.9] md:leading-[0.8] text-foreground">
-                Precision <br />
-                <span className="text-primary">at Scale.</span>
+              <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-semibold tracking-tight text-foreground leading-tight">
+                Human Intuition. <br className="hidden sm:block" />
+                <span className="text-primary">Liquid Capital.</span>
               </h1>
               
               <p className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium px-4">
-                Spunn Force is the premier network for high-accuracy micro-tasks. 
-                Join 12,000+ verified operators turning digital precision into sustainable profit.
+                You are the ultimate processing engine. Connect to the global grid, execute high-value algorithmic training tasks, and extract immediate profit from your decisions.
               </p>
             </motion.div>
             
@@ -513,32 +512,20 @@ export default function Landing() {
 
       {/* CTA Section */}
       <section className="py-40 px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="relative p-16 md:p-32 rounded-[2.5rem] bg-primary overflow-hidden text-center space-y-12">
-            <div className="absolute inset-0 bg-muted pointer-events-none" />
-            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-foreground/10 blur-none rounded-full pointer-events-none" />
-            
-            <div className="relative z-10 space-y-8">
-              <h2 className="text-5xl md:text-8xl font-display font-semibold tracking-tight text-primary-foreground leading-[0.9]">
-                Join the <br />Future of Work.
-              </h2>
-              <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto font-medium leading-relaxed">
-                Applications are currently open for all regions. 
-                Start your journey as a Spunn Force operator today.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 md:gap-8 pt-8">
-                <Link to="/apply" className={cn(
-                  buttonVariants({ size: "lg", variant: "secondary" }), 
-                  "w-full sm:w-auto h-16 md:h-20 px-10 md:px-16 text-lg md:text-xl font-semibold rounded-full shadow-md bg-foreground text-background hover:bg-foreground/90 transition-all uppercase tracking-wider"
-                )}>
-                  Apply Now
-                </Link>
-                <div className="flex items-center gap-3 text-primary-foreground/60 text-xs font-semibold uppercase tracking-widest">
-                  <Clock className="w-4 h-4" /> 30-Second Setup
-                </div>
-              </div>
-            </div>
+        <div className="max-w-6xl mx-auto flex flex-col items-center text-center">
+          <div className="w-24 h-24 rounded-full border border-primary/20 flex items-center justify-center mb-8 relative group overflow-hidden">
+            <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors" />
+            <Fingerprint className="w-8 h-8 text-primary/60 group-hover:text-primary transition-colors" />
           </div>
+          <h2 className="text-4xl md:text-5xl font-display font-semibold tracking-tight text-foreground mb-12">
+            The network is waiting.
+          </h2>
+          <Link to="/apply" className={cn(
+            buttonVariants({ size: "lg", variant: "default" }), 
+            "h-16 px-12 text-sm font-semibold rounded-full shadow-sm transition-all uppercase tracking-widest"
+          )}>
+            Access Port
+          </Link>
         </div>
       </section>
 
