@@ -223,11 +223,17 @@ export default function WorkerDashboard() {
                   </div>
                   <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{assign.taskDescription}</p>
                 </div>
-                <div className="flex gap-4 pt-2">
-                  <a href={getTrackedUrl(assign)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors">
-                    Start Task <ArrowRight className="w-4 h-4" />
-                  </a>
-                  {assign.status === 'pending' && <Button size="sm" className="rounded-xl shadow-sm" onClick={() => setSelectedAssignment(assign)}>Submit Proof</Button>}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <Button asChild size="default" className="rounded-xl shadow-sm text-sm font-semibold">
+                    <a href={getTrackedUrl(assign)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                      Start Task <ArrowRight className="w-4 h-4" />
+                    </a>
+                  </Button>
+                  {assign.status === 'pending' && (
+                    <Button size="default" variant="outline" className="rounded-xl shadow-sm text-sm font-semibold" onClick={() => setSelectedAssignment(assign)}>
+                      Submit Proof
+                    </Button>
+                  )}
                 </div>
               </div>
             ))
