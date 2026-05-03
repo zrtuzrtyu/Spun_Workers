@@ -144,7 +144,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               {user?.name?.charAt(0) || "A"}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-foreground truncate">{user?.name}</div>
+              <div className="text-sm font-semibold text-foreground truncate flex items-center gap-2">
+                {user?.name}
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase tracking-wider">
+                  {user?.role}
+                </span>
+              </div>
               <div className="text-xs text-muted-foreground truncate font-medium">{user?.email}</div>
             </div>
           </div>

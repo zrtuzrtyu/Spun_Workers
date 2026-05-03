@@ -188,8 +188,11 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
               {(user?.isAnonymous ? user?.username : user?.name)?.charAt(0) || "W"}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-foreground truncate flex items-center gap-1.5 uppercase tracking-wider">
+              <div className="text-[11px] font-semibold text-foreground truncate flex items-center gap-1.5 uppercase tracking-wider">
                 {user?.isAnonymous ? user?.username : user?.name}
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-black ml-1 scale-90 origin-left">
+                  {user?.role}
+                </span>
                 {user?.trustTier === 'Premium' && <ShieldCheck className="w-3.5 h-3.5 text-primary" />}
               </div>
               <Badge variant="outline" className="text-xs h-4 md:h-5 px-1.5 mt-0.5 font-semibold uppercase tracking-widest border-border text-muted-foreground bg-background">

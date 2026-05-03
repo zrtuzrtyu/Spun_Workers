@@ -121,6 +121,9 @@ export default function WorkerProfile() {
               <div className="space-y-2">
                 <h2 className="text-2xl font-display font-semibold text-foreground flex items-center justify-center gap-2">
                   {user?.isAnonymous ? user?.username : user?.name}
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase tracking-widest align-middle">
+                    {user?.role}
+                  </span>
                   {user?.trustTier === 'Premium' && <ShieldCheck className="w-5 h-5 text-primary" />}
                 </h2>
                 <div className="flex items-center justify-center gap-2">
