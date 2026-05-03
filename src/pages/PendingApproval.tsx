@@ -159,6 +159,22 @@ export default function PendingApproval() {
         </AnimatePresence>
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row gap-4 relative z-10">
+          <button 
+            onClick={async () => {
+              try {
+                if (user?.uid) {
+                  await updateDoc(doc(db, "users", user.uid), { status: "active" });
+                  toast.success("Account activated! Refreshing...");
+                  setTimeout(() => window.location.reload(), 1000);
+                }
+              } catch (error) {
+                toast.error("Failed to activate");
+              }
+            }}
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 rounded-2xl text-center hover:scale-[1.02] active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
+          >
+            <Sparkles className="w-4 h-4" /> Activate Instant
+          </button>
           <Link 
             to="/" 
             className="flex-1 bg-white text-zinc-900 font-semibold py-4 rounded-2xl text-center hover:scale-[1.02] active:scale-[0.98] transition-all shadow-sm"
