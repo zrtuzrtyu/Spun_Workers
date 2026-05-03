@@ -54,8 +54,8 @@ export default function Wallet() {
     if (!firebaseUser || !user) return;
 
     const withdrawAmount = parseFloat(amount);
-    if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
-      toast.error("Please enter a valid amount");
+    if (isNaN(withdrawAmount) || withdrawAmount < 25) {
+      toast.error("Minimum withdrawal amount is $25.00");
       return;
     }
 
@@ -232,7 +232,7 @@ export default function Wallet() {
                   />
                 </div>
                 <div className="flex justify-between px-1">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Max: ${availableBalance.toFixed(2)}</span>
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Min: $25.00 • Max: ${availableBalance.toFixed(2)}</span>
                   <button 
                     type="button" 
                     onClick={() => setAmount(availableBalance.toString())}

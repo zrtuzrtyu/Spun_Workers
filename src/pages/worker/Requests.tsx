@@ -472,9 +472,14 @@ export default function Requests() {
                         <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Offer Amount</div>
                       </div>
                     </div>
-                    <p className="text-muted-foreground font-medium text-lg md:text-xl line-clamp-3 leading-relaxed">
-                      {req.description}
-                    </p>
+                    <div className="bg-muted/30 p-6 rounded-2xl border border-border mt-6 space-y-3">
+                      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
+                        <Target className="w-4 h-4" /> Description & Instructions
+                      </div>
+                      <p className="text-muted-foreground font-medium text-base md:text-lg line-clamp-3 leading-relaxed whitespace-pre-wrap">
+                        {req.description}
+                      </p>
+                    </div>
                   </div>
                   
                   <div className="w-full md:w-80 bg-muted/20 border-t md:border-t-0 md:border-l border-border p-8 flex flex-col justify-center gap-4">

@@ -217,7 +217,12 @@ export default function WorkerDashboard() {
                   ${Number(assign.payout || 0).toFixed(2)}
                 </div>
                 <h3 className="text-xl font-semibold pr-16 text-foreground">{assign.taskTitle}</h3>
-                <p className="text-muted-foreground leading-relaxed">{assign.taskDescription}</p>
+                <div className="bg-muted/30 p-5 rounded-xl border border-border mt-3 space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
+                    <Target className="w-4 h-4" /> Task Instructions
+                  </div>
+                  <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{assign.taskDescription}</p>
+                </div>
                 <div className="flex gap-4 pt-2">
                   <a href={getTrackedUrl(assign)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors">
                     Start Task <ArrowRight className="w-4 h-4" />
@@ -248,6 +253,15 @@ export default function WorkerDashboard() {
               <Button variant="ghost" size="icon" onClick={() => setSelectedAssignment(null)} className="h-8 w-8 rounded-full border border-border">
                 <X className="w-4 h-4" />
               </Button>
+            </div>
+            
+            <div className="bg-muted/30 p-4 rounded-xl border border-border">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary mb-2">
+                <Target className="w-3 h-3" /> Job Specifications
+              </div>
+              <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+                {selectedAssignment.taskDescription}
+              </p>
             </div>
             
             <form onSubmit={handleSubmitProof} className="space-y-6">
