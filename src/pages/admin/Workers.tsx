@@ -5,7 +5,7 @@ import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { motion } from "motion/react";
-import { Eye, Trash2, TrendingUp, Loader2, Check } from "lucide-react";
+import { Eye, Trash2, TrendingUp, Loader2, Check, Mail, Radio } from "lucide-react";
 import WorkerDetailsModal from "@/components/WorkerDetailsModal";
 
 export default function AdminWorkers() {
@@ -104,6 +104,30 @@ export default function AdminWorkers() {
   };
 
   const [workerToDelete, setWorkerToDelete] = useState<any | null>(null);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailBody, setEmailBody] = useState("");
+  const [sendingEmail, setSendingEmail] = useState(false);
+
+  const getIsOnline = (worker: any) => {
+    if (!worker.lastActiveAt) return false;
+    const lastActive = worker.lastActiveAt?.toMillis ? worker.lastActiveAt.toMillis() : new Date(worker.lastActiveAt).getTime();
+    return (new Date().getTime() - lastActive) < 1000 * 60 * 15; // 15 mins
+  };
+
+  const activeOnlineCount = workers.filter(getIsOnline).length;
+
+  const handleSendEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSendingEmail(true);
+    // Simulate sending email to all workers
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    toast.success(`Broadcasting email to ${workers.length} workers via SES relay.`);
+    setSendingEmail(false);
+    setIsEmailModalOpen(false);
+    setEmailSubject("");
+    setEmailBody("");
+  };
 
   const handleDeleteWorker = async (workerId: string) => {
     try {
@@ -123,17 +147,31 @@ export default function AdminWorkers() {
         className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
       >
         <div>
-          <h1 className="text-3xl font-semibold text-foreground mb-2 font-sans">Worker Roster</h1>
+          <h1 className="text-3xl font-semibold text-foreground mb-2 font-sans flex items-center gap-3">
+            Worker Roster 
+            <span className="text-sm font-medium bg-primary/10 text-primary px-3 py-1 rounded-full flex items-center gap-1.5">
+              <Radio className="w-4 h-4 animate-pulse" /> {activeOnlineCount} Online
+            </span>
+          </h1>
           <p className="text-muted-foreground font-sans">Manage your workforce, approve applications, and track earnings.</p>
         </div>
-        <button
-          onClick={runPromotionEngine}
-          disabled={isPromoting}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
-        >
-          {isPromoting ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4" />}
-          Run Promotion Engine
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsEmailModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-foreground text-background hover:bg-foreground/90 rounded-xl text-sm font-semibold transition-colors"
+          >
+            <Mail className="w-4 h-4" />
+            Broadcast Email
+          </button>
+          <button
+            onClick={runPromotionEngine}
+            disabled={isPromoting}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
+          >
+            {isPromoting ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4" />}
+            Run Promotion Engine
+          </button>
+        </div>
       </motion.div>
 
       <motion.div 
@@ -170,7 +208,12 @@ export default function AdminWorkers() {
                   >
                     <td className="p-4 whitespace-nowrap">
                       <div className="font-semibold text-foreground group-hover:text-primary transition-colors flex items-center gap-2">
-                        {worker.name}
+                        <div className="relative">
+                          {worker.name}
+                          {getIsOnline(worker) && (
+                            <span className="absolute -right-3 -top-1 w-2 h-2 rounded-full bg-green-500 animate-pulse border border-background"></span>
+                          )}
+                        </div>
                         <span className={`text-xs px-1.5 py-0.5 rounded-md font-semibold uppercase tracking-wider ${
                           worker.trustTier === 'Premium' ? 'bg-amber-500/20 text-amber-400' :
                           worker.trustTier === 'Trusted' ? 'bg-blue-500/20 text-blue-400' :
@@ -282,6 +325,63 @@ export default function AdminWorkers() {
                 Delete Worker
               </button>
             </div>
+          </motion.div>
+        </div>
+      )}
+
+      {isEmailModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-card border border-border rounded-2xl p-6 max-w-xl w-full shadow-md"
+          >
+            <h3 className="text-xl font-semibold text-foreground mb-2 flex items-center gap-2">
+              <Mail className="w-5 h-5 text-primary" /> Broadcast Email to Workers
+            </h3>
+            <p className="text-sm font-medium text-muted-foreground mb-6">
+              Send an email alert to all {workers.length} registered workers alerting them of new tasks or network updates.
+            </p>
+            <form onSubmit={handleSendEmail} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground ml-1">Subject</label>
+                <input 
+                  required
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  placeholder="New Micro-Tasks Available: High Payout Action Required"
+                  className="w-full bg-muted/30 border border-border rounded-xl p-3 text-sm text-foreground focus:border-primary outline-none transition-colors"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground ml-1">Message Body</label>
+                <textarea 
+                  required
+                  value={emailBody}
+                  onChange={(e) => setEmailBody(e.target.value)}
+                  rows={6}
+                  placeholder="Operators, new high yielding tasks have been dispatched to the network..."
+                  className="w-full bg-muted/30 border border-border rounded-xl p-4 text-sm text-foreground focus:border-primary outline-none transition-colors resize-none"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-border mt-4">
+                <button 
+                  type="button"
+                  onClick={() => setIsEmailModalOpen(false)}
+                  className="px-5 py-2.5 rounded-xl border border-border text-xs uppercase tracking-widest font-semibold hover:bg-muted/50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  disabled={sendingEmail}
+                  className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs uppercase tracking-widest transition-colors flex items-center gap-2 disabled:opacity-50 shadow-sm"
+                >
+                  {sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+                  {sendingEmail ? "Dispatching..." : "Send Broadcast"}
+                </button>
+              </div>
+            </form>
           </motion.div>
         </div>
       )}

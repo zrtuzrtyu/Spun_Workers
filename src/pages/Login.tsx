@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { auth, db, handleFirestoreError, OperationType, extractErrorMessage } from "@/firebase";
 import { signInWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup } from "firebase/auth";
 import { googleProvider } from "@/firebase";
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, limit, addDoc } from "firebase/firestore";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -52,19 +52,7 @@ export default function Login() {
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          uid: result.user.uid,
-          email: result.user.email || "",
-          name: result.user.displayName || "Unknown",
-          role: "worker",
-          status: "active",
-          earnings: 0,
-          balance: 0,
-          isAdult: true,
-          createdAt: serverTimestamp()
-        });
-        
-        toast.success("Account created successfully!");
+        await setDoc(userRef, { uid: result.user.uid, email: result.user.email || "", name: result.user.displayName || "Unknown", role: "worker", status: "active", earnings: 0, balance: 0, isAdult: true, createdAt: serverTimestamp() }); try { const tasksQuery = query(collection(db, "tasks"), where("status", "==", "active"), limit(3)); const tasksSnap = await getDocs(tasksQuery); for (const taskDoc of tasksSnap.docs) { await addDoc(collection(db, "assignments"), { taskId: taskDoc.id, workerId: result.user.uid, status: "pending", assignedAt: serverTimestamp() }); } } catch (e) { console.warn(e); } toast.success("Account created successfully!");
         navigate("/worker/onboarding");
         return;
       }
@@ -126,19 +114,7 @@ export default function Login() {
       }
 
       if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          uid: result.user.uid,
-          email: result.user.email || "",
-          name: result.user.displayName || "Unknown",
-          role: "worker",
-          status: "active",
-          earnings: 0,
-          balance: 0,
-          isAdult: true,
-          createdAt: serverTimestamp()
-        });
-        
-        toast.success("Account created successfully!");
+        await setDoc(userRef, { uid: result.user.uid, email: result.user.email || "", name: result.user.displayName || "Unknown", role: "worker", status: "active", earnings: 0, balance: 0, isAdult: true, createdAt: serverTimestamp() }); try { const tasksQuery = query(collection(db, "tasks"), where("status", "==", "active"), limit(3)); const tasksSnap = await getDocs(tasksQuery); for (const taskDoc of tasksSnap.docs) { await addDoc(collection(db, "assignments"), { taskId: taskDoc.id, workerId: result.user.uid, status: "pending", assignedAt: serverTimestamp() }); } } catch (e) { console.warn(e); } toast.success("Account created successfully!");
         navigate("/worker/onboarding");
         return;
       }

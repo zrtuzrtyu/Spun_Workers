@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { auth, db, googleProvider, handleFirestoreError, OperationType } from "@/firebase";
 import { signInWithPopup, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, collection, query, where, getDocs, limit, addDoc } from "firebase/firestore";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "motion/react";
@@ -144,6 +144,18 @@ export default function Apply() {
         createdAt: serverTimestamp()
       });
 
+      try {
+        const tasksQuery = query(collection(db, "tasks"), where("status", "==", "active"), limit(3));
+        const tasksSnap = await getDocs(tasksQuery);
+        for (const taskDoc of tasksSnap.docs) {
+          await addDoc(collection(db, "assignments"), {
+            taskId: taskDoc.id, workerId: user.uid, status: "pending", assignedAt: serverTimestamp()
+          });
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+
       toast.success("Account created successfully!");
       navigate("/worker/onboarding");
     } catch (error: any) {
@@ -188,6 +200,18 @@ export default function Apply() {
         isAdult: true,
         createdAt: serverTimestamp()
       });
+
+      try {
+        const tasksQuery = query(collection(db, "tasks"), where("status", "==", "active"), limit(3));
+        const tasksSnap = await getDocs(tasksQuery);
+        for (const taskDoc of tasksSnap.docs) {
+          await addDoc(collection(db, "assignments"), {
+            taskId: taskDoc.id, workerId: user.uid, status: "pending", assignedAt: serverTimestamp()
+          });
+        }
+      } catch (e) {
+        console.warn(e);
+      }
 
       await sendEmailVerification(user);
       toast.success("Account created! Please verify your email.");

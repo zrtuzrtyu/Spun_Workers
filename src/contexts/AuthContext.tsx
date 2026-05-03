@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               // Force root admin role if it's not set correctly in Firestore
               if (fbUser.email?.toLowerCase() === "tronicflamess@gmail.com" && userData.role !== "admin") {
                 try {
-                  await updateDoc(docRef, { role: "admin" });
+                  await updateDoc(docRef, { role: "admin", lastActiveAt: serverTimestamp() });
                   // The next snapshot will have the correct role, but we should still set loading to false just in case
                 } catch (err) {
                   console.error("Failed to force admin role:", err);
@@ -72,6 +72,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }
                 setLoading(false);
                 return;
+              } else {
+                 if (!userData.lastActiveAt || (new Date().getTime() - (userData.lastActiveAt?.toMillis ? userData.lastActiveAt.toMillis() : new Date(userData.lastActiveAt).getTime())) > 1000 * 60 * 5) {
+                    try {
+                        updateDoc(docRef, { lastActiveAt: serverTimestamp() });
+                    } catch (e) {}
+                 }
               }
               
               setUser(userData);

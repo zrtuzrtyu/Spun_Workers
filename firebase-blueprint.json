@@ -36,7 +36,8 @@
         "agreedToRules": { "type": "boolean" },
         "identityVerified": { "type": "boolean" },
         "quizScore": { "type": "number" },
-        "tutorialShown": { "type": "boolean" }
+        "tutorialShown": { "type": "boolean" },
+        "lastActiveAt": { "type": "string", "format": "date-time" }
       },
       "required": ["uid", "email", "name", "role", "status", "createdAt"]
     },

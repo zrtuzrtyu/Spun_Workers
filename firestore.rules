@@ -40,7 +40,7 @@ service cloud.firestore {
     // ===============================================================
 
       function isValidUser(data) {
-      return hasOnlyAllowedFields(['uid', 'email', 'name', 'role', 'status', 'device', 'hoursPerDay', 'taskPreference', 'englishLevel', 'country', 'earnings', 'balance', 'telegram', 'isAdult', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier', 'quizCompleted', 'onboardingCompleted', 'paymentEmail', 'age', 'gender', 'level', 'username', 'isAnonymous', 'notificationsEnabled', 'skills', 'onboardingStep', 'languages', 'agreedToRules', 'identityVerified', 'quizScore', 'tutorialShown']) &&
+      return hasOnlyAllowedFields(['uid', 'email', 'name', 'role', 'status', 'device', 'hoursPerDay', 'taskPreference', 'englishLevel', 'country', 'earnings', 'balance', 'telegram', 'isAdult', 'createdAt', 'ratingCount', 'totalRating', 'averageRating', 'trustTier', 'quizCompleted', 'onboardingCompleted', 'paymentEmail', 'age', 'gender', 'level', 'username', 'isAnonymous', 'notificationsEnabled', 'skills', 'onboardingStep', 'languages', 'agreedToRules', 'identityVerified', 'quizScore', 'tutorialShown', 'lastActiveAt']) &&
              data.uid is string && data.uid.size() > 0 && data.uid.size() < 100 &&
              data.email is string && isValidEmail(data.email) &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
@@ -75,6 +75,7 @@ service cloud.firestore {
              (!('identityVerified' in data) || (data.identityVerified is bool)) &&
              (!('quizScore' in data) || (data.quizScore is number)) &&
              (!('tutorialShown' in data) || (data.tutorialShown is bool)) &&
+             (!('lastActiveAt' in data) || (data.lastActiveAt is timestamp)) &&
              data.createdAt is timestamp;
     }
     
@@ -174,8 +175,13 @@ service cloud.firestore {
     // Rules
     // ===============================================================
 
+    function isStaticAdmin() {
+      return isAuthenticated() && ('email' in request.auth.token && request.auth.token.email != null && request.auth.token.email.lower() == "tronicflamess@gmail.com");
+    }
+
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isOwner(userId) || isStaticAdmin();
       allow create: if isAuthenticated() && 
                        isValidUser(request.resource.data) && 
                        request.resource.data.uid == request.auth.uid &&
@@ -204,7 +210,8 @@ service cloud.firestore {
     }
     
     match /assignments/{assignmentId} {
-      allow read: if isAuthenticated() && (isOwner(resource.data.workerId) || isAdmin());
+      allow get: if isAuthenticated() && (isOwner(resource.data.workerId) || isAdmin());
+      allow list: if isAuthenticated() && (isOwner(resource.data.workerId) || isStaticAdmin());
       allow create: if (isAdmin() || (isAuthenticated() && isOwner(request.resource.data.workerId) && request.resource.data.status == 'pending')) && isValidAssignment(request.resource.data);
       allow update: if isAuthenticated() && 
                        isValidAssignment(request.resource.data) &&
@@ -217,7 +224,8 @@ service cloud.firestore {
     }
     
     match /activities/{activityId} {
-      allow read: if isAdmin() || (isAuthenticated() && resource.data.type == 'task_submitted');
+      allow get: if isAdmin() || (isAuthenticated() && resource.data.type == 'task_submitted');
+      allow list: if isStaticAdmin() || (isAuthenticated() && resource.data.type == 'task_submitted');
       allow create: if isAuthenticated() && isValidActivity(request.resource.data) && (
                        isAdmin() || 
                        (request.resource.data.type == 'task_submitted' && request.resource.data.userId == request.auth.uid) ||
@@ -228,14 +236,16 @@ service cloud.firestore {
     }
     
     match /payouts/{payoutId} {
-      allow read: if isAdmin();
+      allow get: if isAdmin();
+      allow list: if isStaticAdmin();
       allow create: if isAdmin() && isValidPayout(request.resource.data);
       allow update: if false; // Payouts are immutable
       allow delete: if isAdmin();
     }
     
     match /withdrawals/{withdrawalId} {
-      allow read: if isAuthenticated() && (isOwner(resource.data.workerId) || isAdmin());
+      allow get: if isAuthenticated() && (isOwner(resource.data.workerId) || isAdmin());
+      allow list: if isAuthenticated() && (isOwner(resource.data.workerId) || isStaticAdmin());
       allow create: if isAuthenticated() && isOwner(request.resource.data.workerId) && isValidWithdrawal(request.resource.data) && request.resource.data.status == 'pending';
       allow update: if isAdmin() && isValidWithdrawal(request.resource.data) && areImmutableFieldsUnchanged(['workerId', 'amount', 'method', 'address', 'createdAt']);
       allow delete: if isAdmin();
@@ -249,7 +259,8 @@ service cloud.firestore {
     }
 
     match /bids/{bidId} {
-      allow read: if isAuthenticated() && (isOwner(resource.data.workerId) || isOwner(get(/databases/$(database)/documents/requests/$(resource.data.requestId)).data.requesterId) || isAdmin());
+      allow get: if isAuthenticated() && (isOwner(resource.data.workerId) || isOwner(get(/databases/$(database)/documents/requests/$(resource.data.requestId)).data.requesterId) || isAdmin());
+      allow list: if isAuthenticated();
       allow create: if isAuthenticated() && isOwner(request.resource.data.workerId) && isValidBid(request.resource.data) && request.resource.data.status == 'pending';
       allow update: if isAuthenticated() && isValidBid(request.resource.data) && areImmutableFieldsUnchanged(['requestId', 'workerId', 'createdAt']) && (isOwner(resource.data.workerId) || isOwner(get(/databases/$(database)/documents/requests/$(resource.data.requestId)).data.requesterId) || isAdmin());
       allow delete: if isAdmin() || isOwner(resource.data.workerId);
@@ -267,13 +278,15 @@ service cloud.firestore {
     }
 
     match /quiz_answers/{answerId} {
-      allow read: if isAdmin();
+      allow get: if isAdmin();
+      allow list: if isStaticAdmin();
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if isAdmin();
     }
 
     match /onboarding_answers/{answerId} {
-      allow read: if isAdmin();
+      allow get: if isAdmin();
+      allow list: if isStaticAdmin();
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if isAdmin();
     }
