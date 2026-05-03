@@ -5,7 +5,7 @@ import { db, handleFirestoreError, OperationType } from "@/firebase";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { motion } from "motion/react";
-import { Eye, Trash2, TrendingUp, Loader2 } from "lucide-react";
+import { Eye, Trash2, TrendingUp, Loader2, Check } from "lucide-react";
 import WorkerDetailsModal from "@/components/WorkerDetailsModal";
 
 export default function AdminWorkers() {
@@ -208,6 +208,15 @@ export default function AdminWorkers() {
                     </td>
                     <td className="p-4 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2">
+                        {(worker.status || 'pending') !== 'active' && (
+                          <button
+                            onClick={() => handleStatusChange(worker.id, 'active')}
+                            className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 rounded-xl flex items-center gap-1 font-semibold text-xs uppercase tracking-wider transition-colors"
+                            title="Activate Worker"
+                          >
+                            <Check className="w-3 h-3" /> Activate
+                          </button>
+                        )}
                         <button
                           onClick={() => setSelectedWorker(worker)}
                           className="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl transition-colors"
