@@ -28,6 +28,21 @@ export default function PendingApproval() {
 
   const progress = Math.round((missions.filter(m => m.completed).length / missions.length) * 100);
 
+  useEffect(() => {
+    async function autoActivate() {
+      if (user?.uid) {
+        try {
+          await updateDoc(doc(db, "users", user.uid), { status: "active" });
+          toast.success("Account automatically activated. Welcome!");
+          setTimeout(() => window.location.reload(), 1000);
+        } catch (error) {
+          console.error("Failed to auto-activate:", error);
+        }
+      }
+    }
+    autoActivate();
+  }, [user]);
+
   return (
     <div className="min-h-screen bg-muted/10 flex items-center justify-center p-6 font-sans overflow-hidden">
       {/* Background Effects */}
