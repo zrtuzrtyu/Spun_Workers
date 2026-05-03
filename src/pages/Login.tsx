@@ -167,8 +167,8 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
       {/* Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(var(--primary-rgb),0.05),transparent)] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full translate-y-1/2 translate-x-1/2 pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-full bg-muted pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-none rounded-full translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -182,12 +182,12 @@ export default function Login() {
           </Link>
         </div>
 
-        <Card className="glass-card shadow-2xl shadow-primary/5">
+        <Card className="glass-card shadow-md ">
           <CardHeader className="space-y-2 text-center pb-8">
             <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center mx-auto text-primary mb-4">
               <LogIn className="w-6 h-6" />
             </div>
-            <CardTitle className="text-2xl font-bold tracking-tight">Welcome Back</CardTitle>
+            <CardTitle className="text-2xl font-semibold tracking-tight">Welcome Back</CardTitle>
             <CardDescription className="text-sm">
               Access your Spunn Force operator dashboard.
             </CardDescription>
@@ -196,7 +196,7 @@ export default function Login() {
           <CardContent className="space-y-6">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Email Address</label>
+                <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground ml-1">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input 
@@ -212,11 +212,11 @@ export default function Login() {
               
               <div className="space-y-2">
                 <div className="flex justify-between items-center ml-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Password</label>
+                  <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Password</label>
                   <button
                     type="button"
                     onClick={handleForgotPassword}
-                    className="text-[10px] font-bold uppercase tracking-widest text-primary hover:text-primary/80 transition-colors"
+                    className="text-xs font-semibold uppercase tracking-widest text-primary hover:text-primary/80 transition-colors"
                   >
                     Forgot?
                   </button>
@@ -236,7 +236,7 @@ export default function Login() {
 
               <Button 
                 type="submit" 
-                className="w-full h-11 font-bold shadow-lg shadow-primary/20 mt-2"
+                className="w-full h-11 font-semibold shadow-sm  mt-2"
                 disabled={loading}
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In"}
@@ -247,14 +247,14 @@ export default function Login() {
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full" />
               </div>
-              <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold">
+              <div className="relative flex justify-center text-xs uppercase tracking-widest font-semibold">
                 <span className="bg-card px-3 text-muted-foreground">Or continue with</span>
               </div>
             </div>
 
             <Button 
               variant="outline" 
-              className="w-full h-11 border-border/50 bg-background/50 hover:bg-muted/50 font-bold"
+              className="w-full h-11 border-border/50 bg-background/50 hover:bg-muted/50 font-semibold"
               onClick={handleGoogleLogin}
               disabled={loading}
             >
@@ -265,7 +265,7 @@ export default function Login() {
 
           <CardFooter className="flex justify-center border-t border-border/50 pt-6 pb-8">
             <p className="text-xs text-muted-foreground">
-              Don't have an account? <Link to="/apply" className="text-primary font-bold hover:underline ml-1">Apply here</Link>
+              Don't have an account? <Link to="/apply" className="text-primary font-semibold hover:underline ml-1">Apply here</Link>
             </p>
           </CardFooter>
         </Card>

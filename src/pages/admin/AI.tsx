@@ -17,7 +17,7 @@ export default function AdminAI() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className="text-3xl font-bold text-foreground mb-2 font-sans flex items-center gap-3">
+        <h1 className="text-3xl font-semibold text-foreground mb-2 font-sans flex items-center gap-3">
           <Sparkles className="w-8 h-8 text-purple-400" /> AI Tools
         </h1>
         <p className="text-zinc-400 font-sans">Leverage artificial intelligence to optimize your workforce management.</p>
@@ -35,7 +35,7 @@ export default function AdminAI() {
             <div className={`w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
               <tool.icon className={`w-6 h-6 ${tool.color}`} />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">{tool.name}</h3>
+            <h3 className="text-xl font-semibold text-foreground mb-2">{tool.name}</h3>
             <p className="text-zinc-500 text-sm leading-relaxed">{tool.desc}</p>
             <button className="mt-6 w-full py-3 rounded-xl bg-muted border border-border text-foreground font-medium hover:bg-muted/80 transition-colors">
               Launch Tool
@@ -44,8 +44,8 @@ export default function AdminAI() {
         ))}
       </div>
 
-      <div className="mt-12 bg-gradient-to-br from-purple-500/10 to-amber-500/10 border border-border rounded-3xl p-12 text-center">
-        <h2 className="text-2xl font-bold text-foreground mb-4">More AI Features Coming Soon</h2>
+      <div className="mt-12 from-purple-500/10 to-amber-500/10 border border-border rounded-3xl p-12 text-center">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">More AI Features Coming Soon</h2>
         <p className="text-zinc-400 max-w-xl mx-auto">We are working on integrating Gemini 3.1 to provide even more powerful insights and automation for your Spunn Force team.</p>
       </div>
     </AdminLayout>

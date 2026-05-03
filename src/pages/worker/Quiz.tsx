@@ -74,7 +74,7 @@ export default function WorkerQuiz() {
   return (
     <WorkerLayout>
       <div className="max-w-2xl mx-auto bg-card border border-border p-8 rounded-3xl">
-        <h1 className="text-2xl font-bold text-foreground mb-6">Worker Qualification Quiz</h1>
+        <h1 className="text-2xl font-semibold text-foreground mb-6">Worker Qualification Quiz</h1>
         <p className="text-zinc-400 mb-8">{quizQuestions[currentQuestion].question}</p>
         <div className="grid gap-4">
           {quizQuestions[currentQuestion].options.map((option, index) => (

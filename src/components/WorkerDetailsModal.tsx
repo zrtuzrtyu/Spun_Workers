@@ -103,14 +103,14 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-5xl max-h-[90vh] bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col font-sans"
+          className="relative w-full max-w-5xl max-h-[90vh] bg-card border border-border rounded-2xl shadow-md overflow-hidden flex flex-col font-sans"
         >
           {/* Header */}
           <div className="p-6 border-b border-border flex justify-between items-center bg-muted/10">
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-bold text-foreground">{worker.name}'s Performance</h2>
-                <span className={`text-xs px-2 py-1 rounded-md font-bold uppercase tracking-wider ${
+                <h2 className="text-2xl font-semibold text-foreground">{worker.name}'s Performance</h2>
+                <span className={`text-xs px-2 py-1 rounded-md font-semibold uppercase tracking-wider ${
                   worker.trustTier === 'Premium' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
                   worker.trustTier === 'Trusted' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
                   'bg-zinc-500/20 text-zinc-400 border border-zinc-500/30'
@@ -146,7 +146,7 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
                       </div>
                       <span className="text-zinc-400 text-sm font-medium">Total Tasks</span>
                     </div>
-                    <div className="text-2xl font-bold text-foreground">{assignments.length}</div>
+                    <div className="text-2xl font-semibold text-foreground">{assignments.length}</div>
                   </div>
                   <div className="bg-muted/10 border border-border p-4 rounded-xl">
                     <div className="flex items-center gap-3 mb-2">
@@ -155,7 +155,7 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
                       </div>
                       <span className="text-zinc-400 text-sm font-medium">Approved</span>
                     </div>
-                    <div className="text-2xl font-bold text-foreground">
+                    <div className="text-2xl font-semibold text-foreground">
                       {assignments.filter(a => a.status === "approved").length}
                     </div>
                   </div>
@@ -166,7 +166,7 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
                       </div>
                       <span className="text-zinc-400 text-sm font-medium">Avg Rating</span>
                     </div>
-                    <div className="text-2xl font-bold text-foreground">
+                    <div className="text-2xl font-semibold text-foreground">
                       {worker.averageRating ? worker.averageRating.toFixed(1) : 'N/A'}
                     </div>
                   </div>
@@ -177,7 +177,7 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
                       </div>
                       <span className="text-zinc-400 text-sm font-medium">Total Earned</span>
                     </div>
-                    <div className="text-2xl font-bold text-foreground">
+                    <div className="text-2xl font-semibold text-foreground">
                       ${(worker.earnings || 0).toFixed(2)}
                     </div>
                   </div>
@@ -187,7 +187,7 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Completion Rate Chart */}
                   <div className="bg-muted/10 border border-border p-5 rounded-2xl">
-                    <h3 className="text-lg font-bold text-foreground mb-6">Task Completion Rate (Last 7 Days)</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-6">Task Completion Rate (Last 7 Days)</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={chartData}>
@@ -212,7 +212,7 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
 
                   {/* Rating Trend Chart */}
                   <div className="bg-muted/10 border border-border p-5 rounded-2xl">
-                    <h3 className="text-lg font-bold text-foreground mb-6">Average Rating Trend</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-6">Average Rating Trend</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={chartData}>
@@ -233,7 +233,7 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
                 {/* Payout History */}
                 <div className="bg-muted/10 border border-border rounded-2xl overflow-hidden">
                   <div className="p-5 border-b border-border">
-                    <h3 className="text-lg font-bold text-foreground">Payout History</h3>
+                    <h3 className="text-lg font-semibold text-foreground">Payout History</h3>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
@@ -256,14 +256,14 @@ export default function WorkerDetailsModal({ worker, onClose }: WorkerDetailsMod
                               <td className="p-4 text-sm text-zinc-300">
                                 {w.createdAt?.toDate ? format(w.createdAt.toDate(), "MMM d, yyyy HH:mm") : "Unknown"}
                               </td>
-                              <td className="p-4 text-sm font-bold text-foreground">
+                              <td className="p-4 text-sm font-semibold text-foreground">
                                 ${w.amount?.toFixed(2)}
                               </td>
                               <td className="p-4 text-sm text-zinc-300 capitalize">
                                 {w.method}
                               </td>
                               <td className="p-4">
-                                <span className={`px-2 py-1 rounded-md text-xs font-bold ${
+                                <span className={`px-2 py-1 rounded-md text-xs font-semibold ${
                                   w.status === 'approved' ? 'bg-green-500/20 text-green-400' :
                                   w.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
                                   'bg-red-500/20 text-red-400'

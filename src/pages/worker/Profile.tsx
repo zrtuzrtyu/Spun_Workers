@@ -100,41 +100,41 @@ export default function WorkerProfile() {
         <Badge variant="outline" className="bg-muted/30 border-border text-muted-foreground px-4 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full">
           <Settings className="w-3.5 h-3.5 mr-2 text-primary" /> System Configuration
         </Badge>
-        <h1 className="text-4xl md:text-5xl font-display font-bold tracking-tight text-foreground leading-none">Profile<span className="text-primary">.</span></h1>
+        <h1 className="text-4xl md:text-5xl font-display font-semibold tracking-tight text-foreground leading-none">Profile<span className="text-primary">.</span></h1>
         <p className="text-muted-foreground text-sm md:text-base font-light max-w-xl">Manage your operator identity, network privacy, and system preferences.</p>
       </div>
       
       <div className="grid lg:grid-cols-12 gap-12">
         {/* Left Column: Identity Card */}
         <div className="lg:col-span-4 space-y-8 md:space-y-10">
-          <div className="bg-card border border-border rounded-3xl p-8 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          <div className="bg-card border border-border rounded-[1.5rem] p-8 shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 blur-none rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
             
             <div className="flex flex-col items-center text-center space-y-6 relative z-10">
               <div className="relative group/avatar">
-                <div className="absolute -inset-4 bg-primary/20 rounded-3xl blur-2xl opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-500" />
-                <div className="w-24 h-24 md:w-28 md:h-28 rounded-[2rem] bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-primary-foreground font-bold text-4xl shadow-lg relative z-10">
+                <div className="absolute -inset-4 bg-primary/20 rounded-[1.5rem] blur-2xl opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-500" />
+                <div className="w-24 h-24 md:w-28 md:h-28 rounded-[1.5rem] bg-primary flex items-center justify-center text-primary-foreground font-semibold text-4xl shadow-sm relative z-10">
                   {user?.username?.charAt(0) || user?.name?.charAt(0) || "W"}
                 </div>
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-display font-bold text-foreground flex items-center justify-center gap-2">
+                <h2 className="text-2xl font-display font-semibold text-foreground flex items-center justify-center gap-2">
                   {user?.isAnonymous ? user?.username : user?.name}
                   {user?.trustTier === 'Premium' && <ShieldCheck className="w-5 h-5 text-primary" />}
                 </h2>
                 <div className="flex items-center justify-center gap-2">
-                  <Badge variant="outline" className="bg-muted/30 border-border text-muted-foreground px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full">
+                  <Badge variant="outline" className="bg-muted/30 border-border text-muted-foreground px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-md">
                     {user?.isAnonymous ? "Anonymous Operator" : "Public Profile"}
                   </Badge>
                 </div>
               </div>
               
               <div className="flex flex-wrap justify-center gap-2 max-w-[250px]">
-                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-3 py-1 text-xs font-semibold shrink-0">
-                  Level {Math.floor((user?.earnings || 0) / 15) + 1}
+                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-3 py-1 text-xs font-semibold shrink-0 rounded-md">
+                  Level {user?.level || Math.floor((user?.earnings || 0) / 15) + 1}
                 </Badge>
-                <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 px-3 py-1 text-xs font-semibold shrink-0">
+                <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 px-3 py-1 text-xs font-semibold shrink-0 rounded-md">
                   {user?.trustTier || 'New'}
                 </Badge>
               </div>
@@ -144,7 +144,7 @@ export default function WorkerProfile() {
               <div className="space-y-2">
                 <div className="flex justify-between items-end">
                   <span className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Accuracy Score</span>
-                  <span className="text-xl font-display font-bold text-foreground">{accuracy}%</span>
+                  <span className="text-xl font-display font-semibold text-foreground">{accuracy}%</span>
                 </div>
                 <div className="h-2 w-full bg-secondary rounded-full overflow-hidden border border-border">
                   <motion.div 
@@ -157,13 +157,13 @@ export default function WorkerProfile() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Tasks Completed</span>
-                <span className="text-xl font-display font-bold text-foreground">{completedTasks}</span>
+                <span className="text-xl font-display font-semibold text-foreground">{completedTasks}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-3xl p-8 space-y-6 shadow-sm">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Privacy & Alerts</h3>
+          <div className="bg-card border border-border rounded-[1.5rem] p-8 space-y-6 shadow-sm">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Privacy & Alerts</h3>
             
             <div className="space-y-4">
               <div className="flex items-center justify-between p-5 rounded-2xl bg-muted/20 border border-border hover:border-primary/20 transition-colors">
@@ -205,15 +205,15 @@ export default function WorkerProfile() {
 
         {/* Right Column: Details & Skills */}
         <div className="lg:col-span-8 space-y-8">
-          <div className="bg-card border border-border rounded-3xl p-8 shadow-sm space-y-8">
+          <div className="bg-card border border-border rounded-[1.5rem] p-8 shadow-sm space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h3 className="text-xl font-display font-bold text-foreground tracking-tight flex items-center gap-3">
+              <h3 className="text-xl font-display font-semibold text-foreground tracking-tight flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                   <Fingerprint className="w-4 h-4" />
                 </div>
                 Account Details
               </h3>
-              <Badge variant="outline" className="bg-secondary border-border text-muted-foreground font-mono font-medium text-xs">
+              <Badge variant="outline" className="bg-secondary border-border text-muted-foreground font-mono font-medium text-xs rounded-md">
                 ID_VERIF // SUCCESS
               </Badge>
             </div>
@@ -228,8 +228,8 @@ export default function WorkerProfile() {
                 { label: "Age Group", value: user?.age || "Not set", icon: Calendar },
               ].map((item, i) => (
                 <div key={i} className="space-y-2 group">
-                  <label className="text-xs font-semibold uppercase text-muted-foreground ml-1">{item.label}</label>
-                  <div className="p-4 rounded-xl bg-muted/30 border border-border text-sm font-medium text-foreground flex items-center justify-between group-hover:border-primary/30 transition-all">
+                  <label className="text-xs font-semibold uppercase text-muted-foreground ml-1 tracking-widest">{item.label}</label>
+                  <div className="p-4 rounded-[1rem] bg-muted/20 border border-border text-sm font-medium text-foreground flex items-center justify-between group-hover:border-primary/30 transition-all">
                     <span className="truncate pr-4">{item.value}</span>
                     <item.icon className="w-4 h-4 text-muted-foreground shrink-0" />
                   </div>
@@ -238,15 +238,15 @@ export default function WorkerProfile() {
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-3xl p-8 shadow-sm space-y-8">
+          <div className="bg-card border border-border rounded-[1.5rem] p-8 shadow-sm space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h3 className="text-xl font-display font-bold text-foreground tracking-tight flex items-center gap-3">
+              <h3 className="text-xl font-display font-semibold text-foreground tracking-tight flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                   <Zap className="w-4 h-4" />
                 </div>
                 Verified Skills
               </h3>
-              <Badge variant="outline" className="bg-emerald-500/10 border-emerald-500/20 text-emerald-500 text-xs font-semibold uppercase px-3 py-1 rounded-full">
+              <Badge variant="outline" className="bg-emerald-500/10 border-emerald-500/20 text-emerald-500 text-xs font-semibold uppercase px-3 py-1 rounded-md tracking-wider">
                 Active Nodes
               </Badge>
             </div>
@@ -258,12 +258,12 @@ export default function WorkerProfile() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.1 }}
-                  className="px-4 py-2 rounded-xl bg-muted/40 border border-border text-sm font-medium text-foreground flex items-center gap-2 hover:border-primary/40 hover:bg-primary/5 transition-all cursor-default"
+                  className="px-4 py-2 rounded-[1rem] bg-muted/40 border border-border text-sm font-medium text-foreground flex items-center gap-2 hover:border-primary/40 hover:bg-primary/5 transition-all cursor-default"
                 >
                   <CheckCircle2 className="w-4 h-4 text-primary" /> {skill}
                 </motion.div>
               )) || (
-                <p className="text-sm text-muted-foreground italic font-light">No skills listed yet.</p>
+                <p className="text-sm text-muted-foreground italic font-medium">No skills listed yet.</p>
               )}
             </div>
           </div>
@@ -271,16 +271,16 @@ export default function WorkerProfile() {
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <Button 
               variant="outline" 
-              className="flex-1 h-16 rounded-2xl border-border bg-card hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 font-semibold text-sm group"
+              className="flex-1 h-14 rounded-[1rem] border-border bg-card hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 font-semibold text-sm group"
               onClick={handleLogout}
             >
-              <LogOut className="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform" /> Sign Out
+              <LogOut className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" /> Sign Out
             </Button>
             <Button 
-              className="flex-1 h-16 rounded-2xl font-semibold text-sm shadow-md shadow-primary/20 group"
+              className="flex-1 h-14 rounded-[1rem] font-semibold text-sm shadow-sm  group uppercase tracking-widest"
               onClick={() => navigate("/worker/wallet")}
             >
-              <CreditCard className="w-5 h-5 mr-3" /> Manage Wallet <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
+              <CreditCard className="w-4 h-4 mr-2" /> Manage Wallet <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
         </div>

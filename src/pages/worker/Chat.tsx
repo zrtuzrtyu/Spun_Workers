@@ -104,30 +104,30 @@ export default function WorkerChat() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 className="relative z-10 w-full max-w-md"
               >
-                <Card className="border-primary/20 bg-card/50 shadow-2xl shadow-primary/10">
+                <Card className="border-primary/20 bg-card/50 shadow-md ">
                   <CardContent className="p-10 text-center space-y-6">
-                    <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto text-primary shadow-lg shadow-primary/5">
+                    <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto text-primary shadow-sm ">
                       <Lock className="w-8 h-8" />
                     </div>
                     <div className="space-y-2">
-                      <h2 className="text-2xl font-bold tracking-tight text-foreground">Communication Locked</h2>
+                      <h2 className="text-2xl font-semibold tracking-tight text-foreground">Communication Locked</h2>
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        Spicy Chat is reserved for verified operators. Complete <span className="text-primary font-bold">5 approved tasks</span> to unlock the global network.
+                        Spicy Chat is reserved for verified operators. Complete <span className="text-primary font-semibold">5 approved tasks</span> to unlock the global network.
                       </p>
                     </div>
                     
                     <div className="bg-muted/30 rounded-xl p-5 border border-border/50">
                       <div className="flex justify-between items-end mb-2.5">
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Verification Progress</div>
-                        <div className="text-xs font-mono font-bold text-primary">{completedTasks}/5</div>
+                        <div className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Verification Progress</div>
+                        <div className="text-xs font-mono font-semibold text-primary">{completedTasks}/5</div>
                       </div>
                       <Progress value={(completedTasks / 5) * 100} className="h-1.5" />
-                      <p className="text-[10px] text-muted-foreground/60 mt-3 font-medium">
+                      <p className="text-xs text-muted-foreground/60 mt-3 font-medium">
                         {5 - completedTasks} more approved tasks required
                       </p>
                     </div>
 
-                    <Link to="/worker" className={cn(buttonVariants(), "w-full font-bold shadow-lg shadow-primary/20")}>
+                    <Link to="/worker" className={cn(buttonVariants(), "w-full font-semibold shadow-sm ")}>
                       Go to Tasks <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>
                   </CardContent>
@@ -139,18 +139,18 @@ export default function WorkerChat() {
 
         <div className="mb-6 flex items-center justify-between">
           <div className="space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-3">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-3">
               <MessageSquare className="w-6 h-6 text-primary" /> Spicy Chat
             </h1>
             <p className="text-sm text-muted-foreground">Real-time collaboration with the Spunn Force network.</p>
           </div>
           <Badge variant="outline" className="hidden sm:flex items-center gap-2 bg-emerald-500/5 border-emerald-500/20 text-emerald-500 px-3 py-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Network Online</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Network Online</span>
           </Badge>
         </div>
 
-        <div className="flex-1 bg-card border border-border rounded-2xl overflow-hidden shadow-xl flex flex-col relative">
+        <div className="flex-1 bg-card border border-border rounded-2xl overflow-hidden shadow-sm flex flex-col relative">
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6 hide-scrollbar">
             {messages.length === 0 ? (
@@ -176,13 +176,13 @@ export default function WorkerChat() {
                     {showHeader && (
                       <div className={cn("flex items-center gap-2 mb-1.5 px-1", isMe ? 'flex-row-reverse' : 'flex-row')}>
                         <span className={cn(
-                          "text-[10px] font-bold uppercase tracking-wider",
+                          "text-xs font-semibold uppercase tracking-wider",
                           isAdmin ? 'text-primary' : isMe ? 'text-primary/70' : 'text-muted-foreground'
                         )}>
                           {msg.userName}
                         </span>
                         {isAdmin && <ShieldCheck className="w-3 h-3 text-primary" />}
-                        <span className="text-[9px] font-mono text-muted-foreground/50">
+                        <span className="text-xs font-mono text-muted-foreground/50">
                           {msg.createdAt?.toDate ? format(msg.createdAt.toDate(), "HH:mm") : "--:--"}
                         </span>
                       </div>
@@ -220,7 +220,7 @@ export default function WorkerChat() {
               <Button
                 type="submit"
                 disabled={!newMessage.trim() || sending || isLocked}
-                className="h-11 px-6 font-bold shadow-lg shadow-primary/20"
+                className="h-11 px-6 font-semibold shadow-sm "
               >
                 <Send className="w-4 h-4 mr-2" />
                 Send

@@ -94,9 +94,9 @@ export default function AdminTasks() {
       handleFirestoreError(error, OperationType.LIST, "tasks");
     });
 
-    const qWorkers = query(collection(db, "users"), where("role", "==", "worker"), where("status", "==", "active"));
+    const qWorkers = query(collection(db, "users"), where("role", "==", "worker"));
     const unsubWorkers = onSnapshot(qWorkers, (snap) => {
-      setWorkers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setWorkers(snap.docs.map(d => ({ id: d.id, ...d.data() })).filter((w: any) => w.status === "active"));
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, "users");
     });
@@ -210,9 +210,10 @@ export default function AdminTasks() {
           }
 
           // Check if already assigned
-          const existingQuery = query(collection(db, "assignments"), where("taskId", "==", taskId), where("workerId", "==", workerId));
+          const existingQuery = query(collection(db, "assignments"), where("taskId", "==", taskId));
           const existingSnap = await getDocs(existingQuery);
-          if (!existingSnap.empty) {
+          const alreadyAssigned = existingSnap.docs.some(doc => doc.data().workerId === workerId);
+          if (alreadyAssigned) {
             failedCount++;
             details.push(`Task "${task?.title}" already assigned to ${worker?.name}`);
             continue;
@@ -391,7 +392,7 @@ export default function AdminTasks() {
         className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2 font-outfit">Task Management</h1>
+          <h1 className="text-3xl font-semibold text-foreground mb-2 font-outfit">Task Management</h1>
           <p className="text-foreground/60 font-jakarta">Create tasks, set payouts, and assign them to workers.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -428,7 +429,7 @@ export default function AdminTasks() {
                 setCurrentStep(1);
               }
             }}
-            className="bg-purple-500 hover:bg-purple-600 text-foreground font-medium py-2 px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] flex items-center gap-2 text-sm"
+            className="bg-purple-500 hover:bg-purple-600 text-foreground font-medium py-2 px-4 rounded-xl transition-all shadow-sm flex items-center gap-2 text-sm"
           >
             {isCreating ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {isCreating ? "Cancel" : "Create Task"}
@@ -444,7 +445,7 @@ export default function AdminTasks() {
             exit={{ opacity: 0, height: 0, marginBottom: 0 }}
             className="overflow-hidden"
           >
-            <div className="bg-card border border-border p-6 rounded-2xl relative shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+            <div className="bg-card border border-border p-6 rounded-2xl relative shadow-sm">
               <h2 className="text-xl font-semibold text-foreground mb-6 font-sans">{editingTaskId ? "Edit Task" : "Create New Task"}</h2>
               
               {/* Stepper Header */}
@@ -484,7 +485,7 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
                         className="w-full bg-muted/10 border border-border rounded-lg p-3 text-foreground focus:ring-2 focus:ring-primary outline-none resize-none transition-all placeholder:text-muted-foreground/50"
                       />
                       {errors.description && <p className="text-destructive text-sm mt-1">{errors.description.message}</p>}
-                      <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 font-medium">Workers are strictly required to upload proof as a screen capture. Ensure your instructions above detail <strong className="text-foreground">exactly</strong> which page, username, or element must be visible in the image.</p>
+                      <p className="text-xs sm:text-xs text-muted-foreground mt-2 font-medium">Workers are strictly required to upload proof as a screen capture. Ensure your instructions above detail <strong className="text-foreground">exactly</strong> which page, username, or element must be visible in the image.</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-2 text-foreground/80">Category</label>
@@ -564,7 +565,7 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
                 {currentStep === 3 && (
                   <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
                     <div className="bg-muted/10 border border-border rounded-xl p-6">
-                      <h3 className="text-lg font-bold text-foreground mb-4">Review Task Details</h3>
+                      <h3 className="text-lg font-semibold text-foreground mb-4">Review Task Details</h3>
                       <div className="space-y-3 text-sm">
                         <div className="grid grid-cols-3 gap-4 border-b border-border pb-3">
                           <span className="text-foreground/60">Title</span>
@@ -604,7 +605,7 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
                     <button 
                       type="button" 
                       onClick={handlePrevStep}
-                      className="bg-muted hover:bg-muted/80 text-foreground font-bold py-2.5 px-6 rounded-xl transition-all"
+                      className="bg-muted hover:bg-muted/80 text-foreground font-semibold py-2.5 px-6 rounded-xl transition-all"
                     >
                       Back
                     </button>
@@ -616,14 +617,14 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
                     <button 
                       type="button" 
                       onClick={handleNextStep}
-                      className="bg-purple-500 hover:bg-purple-600 text-foreground font-bold py-2.5 px-6 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)]"
+                      className="bg-purple-500 hover:bg-purple-600 text-foreground font-semibold py-2.5 px-6 rounded-xl transition-all shadow-sm"
                     >
                       Next Step
                     </button>
                   ) : (
                     <button 
                       type="submit"
-                      className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-foreground font-bold py-2.5 px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)]"
+                      className="hover:hover:text-foreground font-semibold py-2.5 px-8 rounded-xl transition-all shadow-sm hover:shadow-sm"
                     >
                       {editingTaskId ? "Update Task" : "Publish Task"}
                     </button>
@@ -640,10 +641,10 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-card border border-border p-6 rounded-2xl mb-8 shadow-[0_0_30px_rgba(168,85,247,0.05)] relative"
+        className="bg-card border border-border p-6 rounded-2xl mb-8 shadow-sm relative"
       >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500/0 via-purple-500/50 to-purple-500/0"></div>
-        <h2 className="text-xl font-bold text-foreground mb-4 font-outfit">Bulk Assign Tasks</h2>
+        <div className="absolute top-0 left-0 w-full h-1 from-purple-500/0 via-purple-500/50 to-purple-500/0"></div>
+        <h2 className="text-xl font-semibold text-foreground mb-4 font-outfit">Bulk Assign Tasks</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Tasks List */}
@@ -672,7 +673,7 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-foreground truncate flex items-center gap-2">
                       {t.title}
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${
+                      <span className={`text-xs px-1.5 py-0.5 rounded-md font-semibold uppercase tracking-wider ${
                         t.requiredTier === 'Premium' ? 'bg-amber-500/20 text-amber-400' :
                         t.requiredTier === 'Trusted' ? 'bg-blue-500/20 text-blue-400' :
                         'bg-zinc-500/20 text-zinc-400'
@@ -716,7 +717,7 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-foreground truncate flex items-center gap-2">
                       {w.name}
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${
+                      <span className={`text-xs px-1.5 py-0.5 rounded-md font-semibold uppercase tracking-wider ${
                         w.trustTier === 'Premium' ? 'bg-amber-500/20 text-amber-400' :
                         w.trustTier === 'Trusted' ? 'bg-blue-500/20 text-blue-400' :
                         'bg-zinc-500/20 text-zinc-400'
@@ -751,7 +752,7 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
           <button 
             onClick={handleAssign}
             disabled={isAssigning || selectedAssignTasks.length === 0 || selectedAssignWorkers.length === 0}
-            className="bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-foreground font-bold py-3 px-8 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] flex items-center gap-2"
+            className="bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-foreground font-semibold py-3 px-8 rounded-xl transition-all shadow-sm flex items-center gap-2"
           >
             {isAssigning ? (
               <>
@@ -772,27 +773,27 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-card border border-purple-500/30 p-4 rounded-2xl mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-[0_0_20px_rgba(168,85,247,0.1)]"
+            className="bg-card border border-purple-500/30 p-4 rounded-2xl mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm"
           >
             <div className="text-foreground font-jakarta">
-              <span className="font-bold text-purple-400">{selectedTasks.length}</span> tasks selected
+              <span className="font-semibold text-purple-400">{selectedTasks.length}</span> tasks selected
             </div>
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => handleBulkStatusChange('active')}
-                className="bg-muted hover:bg-muted/80 border border-border text-foreground text-sm font-bold py-2 px-4 rounded-lg transition-colors"
+                className="bg-muted hover:bg-muted/80 border border-border text-foreground text-sm font-semibold py-2 px-4 rounded-lg transition-colors"
               >
                 Set Active
               </button>
               <button
                 onClick={() => handleBulkStatusChange('inactive')}
-                className="bg-muted hover:bg-muted/80 border border-border text-foreground text-sm font-bold py-2 px-4 rounded-lg transition-colors"
+                className="bg-muted hover:bg-muted/80 border border-border text-foreground text-sm font-semibold py-2 px-4 rounded-lg transition-colors"
               >
                 Set Inactive
               </button>
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400 text-sm font-bold py-2 px-4 rounded-lg transition-colors"
+                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400 text-sm font-semibold py-2 px-4 rounded-lg transition-colors"
               >
                 Delete Selected
               </button>
@@ -836,7 +837,7 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-card border border-border rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.2)] relative"
+        className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm relative"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse font-sans">
@@ -883,7 +884,7 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
                       />
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <div className="font-bold text-foreground group-hover:text-purple-400 transition-colors">{task.title}</div>
+                      <div className="font-semibold text-foreground group-hover:text-purple-400 transition-colors">{task.title}</div>
                       <div className="text-xs text-foreground/40 truncate max-w-xs">{task.description}</div>
                       {task.link && (
                         <a href={task.link} target="_blank" rel="noopener noreferrer" className="text-xs text-purple-400 hover:underline truncate max-w-xs block mt-1">
@@ -898,13 +899,13 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
                       </span>
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <div className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">${(task.payout || 0).toFixed(2)}</div>
+                      <div className="font-semibold text-transparent bg-clip-text to-pink-400">${(task.payout || 0).toFixed(2)}</div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
                       <div className="text-sm text-foreground/80">{task.targetGeo || "Global"}</div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <span className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-wider ${
+                      <span className={`text-xs px-2 py-1 rounded-md font-semibold uppercase tracking-wider ${
                         task.requiredTier === 'Premium' ? 'bg-amber-500/20 text-amber-400' :
                         task.requiredTier === 'Trusted' ? 'bg-blue-500/20 text-blue-400' :
                         'bg-zinc-500/20 text-zinc-400'
@@ -916,7 +917,7 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
                       <div className="text-sm text-foreground/80">{task.limit} workers</div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
                         task.status === 'active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
                         task.status === 'pending' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 
                         'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'
@@ -969,22 +970,22 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl"
+              className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-md"
             >
-              <h3 className="text-xl font-bold text-foreground mb-2 font-outfit">Confirm Deletion</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-2 font-outfit">Confirm Deletion</h3>
               <p className="text-foreground/60 font-jakarta mb-6">
                 Are you sure you want to delete {selectedTasks.length} selected task{selectedTasks.length !== 1 ? 's' : ''}? This action cannot be undone.
               </p>
               <div className="flex justify-end gap-3 font-jakarta">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="px-4 py-2 rounded-xl text-foreground font-bold hover:bg-muted transition-colors"
+                  className="px-4 py-2 rounded-xl text-foreground font-semibold hover:bg-muted transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleBulkDelete}
-                  className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-foreground font-bold transition-colors shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+                  className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-foreground font-semibold transition-colors shadow-sm"
                 >
                   Delete
                 </button>
@@ -1002,24 +1003,24 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-card border border-border rounded-2xl p-6 max-w-lg w-full shadow-2xl flex flex-col max-h-[80vh]"
+              className="bg-card border border-border rounded-2xl p-6 max-w-lg w-full shadow-md flex flex-col max-h-[80vh]"
             >
-              <h3 className="text-xl font-bold text-foreground mb-4 font-outfit">Assignment Results</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-4 font-outfit">Assignment Results</h3>
               
               <div className="flex gap-4 mb-6">
                 <div className="flex-1 bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-green-400">{assignResults.success}</div>
-                  <div className="text-xs text-green-500/70 uppercase tracking-wider font-bold mt-1">Successful</div>
+                  <div className="text-2xl font-semibold text-green-400">{assignResults.success}</div>
+                  <div className="text-xs text-green-500/70 uppercase tracking-wider font-semibold mt-1">Successful</div>
                 </div>
                 <div className="flex-1 bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-red-400">{assignResults.failed}</div>
-                  <div className="text-xs text-red-500/70 uppercase tracking-wider font-bold mt-1">Failed</div>
+                  <div className="text-2xl font-semibold text-red-400">{assignResults.failed}</div>
+                  <div className="text-xs text-red-500/70 uppercase tracking-wider font-semibold mt-1">Failed</div>
                 </div>
               </div>
 
               {assignResults.details.length > 0 && (
                 <div className="flex-1 overflow-y-auto bg-muted/10 border border-border rounded-xl p-4 mb-6 space-y-2">
-                  <h4 className="text-sm font-bold text-foreground/80 mb-3">Failure Details:</h4>
+                  <h4 className="text-sm font-semibold text-foreground/80 mb-3">Failure Details:</h4>
                   {assignResults.details.map((detail, idx) => (
                     <div key={idx} className="text-sm text-red-400/80 flex items-start gap-2">
                       <X className="w-4 h-4 mt-0.5 shrink-0" />
@@ -1032,7 +1033,7 @@ CRITICAL: Specify exactly what the worker MUST include in their screenshot (e.g.
               <div className="flex justify-end mt-auto">
                 <button
                   onClick={() => setAssignResults(null)}
-                  className="px-6 py-2.5 rounded-xl bg-muted/80 hover:bg-white/20 text-foreground font-bold transition-colors"
+                  className="px-6 py-2.5 rounded-xl bg-muted/80 hover:bg-white/20 text-foreground font-semibold transition-colors"
                 >
                   Close
                 </button>

@@ -208,14 +208,14 @@ export default function Apply() {
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 flex flex-col relative overflow-hidden">
       {/* Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(var(--primary-rgb),0.05),transparent)] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full translate-y-1/2 translate-x-1/2 pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-full bg-muted pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-none rounded-full translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
       <header className="p-6 flex justify-between items-center relative z-10">
         <Link to="/" className="flex items-center gap-2 group hover:opacity-80 transition-opacity">
           <Logo className="scale-90" />
         </Link>
-        <Link to="/login" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
+        <Link to="/login" className="text-xs font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
           Already a member? Login
         </Link>
       </header>
@@ -232,7 +232,7 @@ export default function Apply() {
                 exit={{ opacity: 0, y: -10 }}
                 className="mb-10"
               >
-                <div className="flex justify-between text-[10px] text-muted-foreground mb-3 font-bold uppercase tracking-[0.2em]">
+                <div className="flex justify-between text-xs text-muted-foreground mb-3 font-semibold uppercase tracking-widest">
                   <span>Step {step} of 3</span>
                   <span className="text-primary">{Math.round((step / 3) * 100)}%</span>
                 </div>
@@ -252,18 +252,18 @@ export default function Apply() {
                 exit="exit"
                 className="text-center space-y-10"
               >
-                <div className="w-20 h-20 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto text-primary shadow-lg shadow-primary/5">
+                <div className="w-20 h-20 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto text-primary shadow-sm ">
                   <DollarSign className="w-10 h-10" />
                 </div>
                 <div className="space-y-6">
-                  <h1 className="text-5xl md:text-6xl font-bold tracking-tighter text-foreground leading-tight">
+                  <h1 className="text-5xl md:text-6xl font-semibold tracking-tighter text-foreground leading-tight">
                     Discover Your <br />Earning Potential
                   </h1>
                   <p className="text-muted-foreground text-xl max-w-md mx-auto leading-relaxed font-medium">
                     Take our 30-second survey to see how much you could earn completing simple digital tasks.
                   </p>
                 </div>
-                <Button size="lg" onClick={handleNext} className="h-16 px-12 font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 group rounded-full">
+                <Button size="lg" onClick={handleNext} className="h-16 px-12 font-semibold text-xs uppercase tracking-widest shadow-md  group rounded-full">
                   Start Survey <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </motion.div>
@@ -283,7 +283,7 @@ export default function Apply() {
                   <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground -ml-2 hover:bg-muted/50 rounded-full px-4">
                     <ArrowLeft className="w-4 h-4 mr-2" /> Back
                   </Button>
-                  <h2 className="text-4xl font-bold tracking-tight text-foreground">What device will you use?</h2>
+                  <h2 className="text-4xl font-semibold tracking-tight text-foreground">What device will you use?</h2>
                   <p className="text-muted-foreground text-lg font-medium">This helps us match you with compatible tasks.</p>
                 </div>
                 
@@ -298,7 +298,7 @@ export default function Apply() {
                       key={item.id}
                       className={cn(
                         "cursor-pointer transition-all border-border/50 hover:bg-muted/50 rounded-3xl overflow-hidden group",
-                        device === item.id && "border-primary bg-primary/5 shadow-xl shadow-primary/5"
+                        device === item.id && "border-primary bg-primary/5 shadow-sm "
                       )}
                       onClick={() => { setDevice(item.id as Device); setTimeout(handleNext, 300); }}
                     >
@@ -306,7 +306,7 @@ export default function Apply() {
                         <div className={cn("w-16 h-16 rounded-2xl bg-muted flex items-center justify-center transition-all group-hover:scale-110", device === item.id && "bg-primary text-primary-foreground")}>
                           <item.icon className="w-8 h-8" />
                         </div>
-                        <span className="text-lg font-black tracking-tight">{item.label}</span>
+                        <span className="text-lg font-semibold tracking-tight">{item.label}</span>
                       </CardContent>
                     </Card>
                   ))}
@@ -328,7 +328,7 @@ export default function Apply() {
                   <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground -ml-2">
                     <ArrowLeft className="w-4 h-4 mr-2" /> Back
                   </Button>
-                  <h2 className="text-3xl font-bold tracking-tight text-foreground">How much time can you commit?</h2>
+                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">How much time can you commit?</h2>
                   <p className="text-muted-foreground">Consistent workers receive higher-paying tasks.</p>
                 </div>
                 
@@ -342,13 +342,13 @@ export default function Apply() {
                       key={item.id}
                       className={cn(
                         "cursor-pointer transition-all border-border/50 hover:bg-muted/50",
-                        hours === item.id && "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                        hours === item.id && "border-primary bg-primary/5 shadow-sm "
                       )}
                       onClick={() => { setHours(item.id as Hours); setTimeout(handleNext, 300); }}
                     >
                       <CardContent className="p-6 flex items-center justify-between">
                         <div className="space-y-1">
-                          <div className="font-bold text-foreground">{item.label}</div>
+                          <div className="font-semibold text-foreground">{item.label}</div>
                           <div className="text-xs text-muted-foreground">{item.desc}</div>
                         </div>
                         <div className={cn("w-5 h-5 rounded-full border-2 border-muted transition-colors flex items-center justify-center", hours === item.id && "border-primary")}>
@@ -375,14 +375,14 @@ export default function Apply() {
                   <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground -ml-2">
                     <ArrowLeft className="w-4 h-4 mr-2" /> Back
                   </Button>
-                  <h2 className="text-3xl font-bold tracking-tight text-foreground">Final Details</h2>
+                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">Final Details</h2>
                   <p className="text-muted-foreground">Where should we send your tasks and payouts?</p>
                 </div>
                 
                 <Card className="border-border/50 bg-card/50">
                   <CardContent className="p-8 space-y-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2">
+                      <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2">
                         <Globe className="w-3 h-3" /> Country of Residence
                       </label>
                       <Input 
@@ -394,7 +394,7 @@ export default function Apply() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2">
+                      <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-2">
                         <MessageCircle className="w-3 h-3" /> Telegram Username
                       </label>
                       <Input 
@@ -403,13 +403,13 @@ export default function Apply() {
                         placeholder="@username"
                         className="h-12 bg-background/50 border-border/50 focus:border-primary transition-all"
                       />
-                      <p className="text-[10px] text-muted-foreground/60 font-medium">Urgent task notifications are sent via Telegram.</p>
+                      <p className="text-xs text-muted-foreground/60 font-medium">Urgent task notifications are sent via Telegram.</p>
                     </div>
 
                     <Button 
                       onClick={handleNext}
                       disabled={!country || !telegram}
-                      className="w-full h-12 font-bold shadow-lg shadow-primary/20 group"
+                      className="w-full h-12 font-semibold shadow-sm  group"
                     >
                       Calculate My Earnings <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
@@ -435,12 +435,12 @@ export default function Apply() {
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                   />
-                  <div className="absolute inset-0 flex items-center justify-center font-mono font-bold text-xl">
+                  <div className="absolute inset-0 flex items-center justify-center font-mono font-semibold text-xl">
                     {progress}%
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <h2 className="text-2xl font-bold tracking-tight text-foreground">
+                  <h2 className="text-2xl font-semibold tracking-tight text-foreground">
                     {progress < 40 ? "Analyzing profile..." : progress < 80 ? "Checking availability..." : "Finalizing potential..."}
                   </h2>
                   <p className="text-muted-foreground text-sm">Please wait while we process your operator profile.</p>
@@ -459,19 +459,19 @@ export default function Apply() {
                 className="space-y-8"
               >
                 <div className="text-center space-y-4">
-                  <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto text-primary shadow-lg shadow-primary/5">
+                  <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto text-primary shadow-sm ">
                     <Sparkles className="w-8 h-8" />
                   </div>
-                  <h2 className="text-3xl font-bold tracking-tight text-foreground">You're a Great Fit!</h2>
+                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">You're a Great Fit!</h2>
                   <p className="text-muted-foreground text-sm">Based on your availability, here is your potential earning range:</p>
                 </div>
                 
-                <Card className="border-primary/20 bg-primary/5 shadow-2xl shadow-primary/10 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.1),transparent)] pointer-events-none" />
+                <Card className="border-primary/20 bg-primary/5 shadow-md  overflow-hidden relative">
+                  <div className="absolute inset-0 bg-muted pointer-events-none" />
                   <CardContent className="p-10 text-center space-y-6 relative z-10">
                     <div className="space-y-1">
-                      <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Estimated Monthly Earnings</div>
-                      <div className="text-5xl md:text-6xl font-bold tracking-tighter text-foreground">
+                      <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Estimated Monthly Earnings</div>
+                      <div className="text-5xl md:text-6xl font-semibold tracking-tighter text-foreground">
                         <span className="text-primary">$</span><NumberTicker value={getEarnings().min} /> <span className="text-muted-foreground/30">-</span> <span className="text-primary">$</span><NumberTicker value={getEarnings().max} />
                       </div>
                     </div>
@@ -484,26 +484,26 @@ export default function Apply() {
 
                 <Card className="border-border/50 bg-card/50">
                   <CardHeader className="pb-4">
-                    <CardTitle className="text-lg font-bold">Create Your Account</CardTitle>
+                    <CardTitle className="text-lg font-semibold">Create Your Account</CardTitle>
                     <CardDescription>Finalize your profile to start receiving tasks.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Full Name</label>
+                      <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground ml-1">Full Name</label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input value={name} onChange={e => setName(e.target.value)} placeholder="John Doe" className="pl-10 h-11 bg-background/50 border-border/50 focus:border-primary transition-all" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Email Address</label>
+                      <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground ml-1">Email Address</label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@example.com" className="pl-10 h-11 bg-background/50 border-border/50 focus:border-primary transition-all" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Password</label>
+                      <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground ml-1">Password</label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="pl-10 h-11 bg-background/50 border-border/50 focus:border-primary transition-all" />
@@ -520,7 +520,7 @@ export default function Apply() {
                     <Button 
                       onClick={onSubmitEmail}
                       disabled={loading || !isAdult}
-                      className="w-full h-11 font-bold shadow-lg shadow-primary/20 mt-2"
+                      className="w-full h-11 font-semibold shadow-sm  mt-2"
                     >
                       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Complete Application"}
                     </Button>
@@ -529,14 +529,14 @@ export default function Apply() {
                       <div className="absolute inset-0 flex items-center">
                         <Separator className="w-full" />
                       </div>
-                      <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold">
+                      <div className="relative flex justify-center text-xs uppercase tracking-widest font-semibold">
                         <span className="bg-card px-3 text-muted-foreground">Or</span>
                       </div>
                     </div>
 
                     <Button 
                       variant="outline" 
-                      className="w-full h-11 border-border/50 bg-background/50 hover:bg-muted/50 font-bold"
+                      className="w-full h-11 border-border/50 bg-background/50 hover:bg-muted/50 font-semibold"
                       onClick={onSubmitGoogle}
                       disabled={loading || !isAdult}
                     >

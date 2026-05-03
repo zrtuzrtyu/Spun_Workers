@@ -151,14 +151,14 @@ export default function WorkerOnboarding() {
         return (
           <div className="space-y-6 py-6">
             <div className="space-y-4">
-              <label className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 ml-1">
+              <label className="text-xs sm:text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-2 ml-1">
                 <UserCircle className="w-4 h-4 text-primary" /> Choose a Username
               </label>
               <Input 
                 value={formData.username}
                 onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
                 placeholder="e.g. ShadowOperator_42"
-                className="h-12 md:h-14 bg-background/50 border-border/50 text-lg font-bold rounded-xl md:rounded-2xl px-6 focus:border-primary transition-all"
+                className="h-12 md:h-14 bg-background/50 border-border/50 text-lg font-semibold rounded-xl md:rounded-2xl px-6 focus:border-primary transition-all"
               />
               <p className="text-xs text-muted-foreground italic font-medium leading-relaxed px-1">
                 This is how you will be identified in the marketplace. You don't need to use your real name.
@@ -167,7 +167,7 @@ export default function WorkerOnboarding() {
             
             <div className="flex items-center justify-between p-6 rounded-2xl md:rounded-3xl bg-primary/5 border border-primary/10 transition-all hover:bg-primary/10 group">
               <div className="space-y-1">
-                <div className="text-base md:text-lg font-black flex items-center gap-2">
+                <div className="text-base md:text-lg font-semibold flex items-center gap-2">
                   {formData.isAnonymous ? <EyeOff className="w-5 h-5 text-primary" /> : <Eye className="w-5 h-5 text-primary" />}
                   Public Anonymity
                 </div>
@@ -196,9 +196,9 @@ export default function WorkerOnboarding() {
                       : [...prev.languages, lang] 
                   }))}
                   className={cn(
-                    "px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl border text-[10px] md:text-sm font-black uppercase tracking-[0.1em] transition-all text-left group relative overflow-hidden active:scale-95",
+                    "px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl border text-xs md:text-sm font-semibold uppercase tracking-widest transition-all text-left group relative overflow-hidden active:scale-95",
                     formData.languages.includes(lang)
-                      ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
+                      ? "bg-primary text-primary-foreground border-primary shadow-md "
                       : "bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:bg-muted/50"
                   )}
                 >
@@ -220,19 +220,19 @@ export default function WorkerOnboarding() {
           <div className="space-y-8 py-8 text-center">
             <div className="relative inline-block">
               <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full animate-pulse" />
-              <div className="relative w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto text-primary border border-primary/20 shadow-lg shadow-primary/5">
+              <div className="relative w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto text-primary border border-primary/20 shadow-sm ">
                 <Bell className="w-10 h-10" />
               </div>
             </div>
             <div className="space-y-3">
-              <h3 className="text-xl font-display font-bold tracking-tight">Enable Phone Notifications</h3>
+              <h3 className="text-xl font-display font-semibold tracking-tight">Enable Phone Notifications</h3>
               <p className="text-sm text-muted-foreground font-medium leading-relaxed max-w-xs mx-auto">
                 High-value tasks often disappear in seconds. Get notified instantly when a new match is found for your profile.
               </p>
             </div>
             <Button 
               variant={formData.notificationsEnabled ? "outline" : "default"}
-              className="w-full h-12 md:h-14 rounded-xl font-black text-[10px] md:text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
+              className="w-full h-12 md:h-14 rounded-xl font-semibold text-xs md:text-xs uppercase tracking-widest shadow-sm  transition-all hover:scale-[1.02]"
               onClick={() => {
                 setFormData(prev => ({ ...prev, notificationsEnabled: true }));
                 toast.success("Notifications enabled!");
@@ -252,9 +252,9 @@ export default function WorkerOnboarding() {
                   key={skill}
                   onClick={() => toggleSkill(skill)}
                   className={cn(
-                    "px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl border text-[10px] md:text-xs font-black uppercase tracking-[0.1em] transition-all text-left group relative overflow-hidden active:scale-95",
+                    "px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl border text-xs md:text-xs font-semibold uppercase tracking-widest transition-all text-left group relative overflow-hidden active:scale-95",
                     formData.skills.includes(skill)
-                      ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
+                      ? "bg-primary text-primary-foreground border-primary shadow-md "
                       : "bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:bg-muted/50"
                   )}
                 >
@@ -276,15 +276,15 @@ export default function WorkerOnboarding() {
           <div className="space-y-6 py-6">
             <div className="bg-muted/30 p-6 md:p-8 rounded-2xl md:rounded-3xl border border-border/50 space-y-6 max-h-[300px] overflow-y-auto hide-scrollbar">
               <div className="space-y-2">
-                <h4 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary">1. Accuracy First</h4>
+                <h4 className="text-xs sm:text-xs font-semibold uppercase tracking-widest text-primary">1. Accuracy First</h4>
                 <p className="text-sm text-muted-foreground leading-relaxed font-medium">All tasks are peer-reviewed. Consistent low-quality submissions will result in account suspension.</p>
               </div>
               <div className="space-y-2">
-                <h4 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary">2. Confidentiality</h4>
+                <h4 className="text-xs sm:text-xs font-semibold uppercase tracking-widest text-primary">2. Confidentiality</h4>
                 <p className="text-sm text-muted-foreground leading-relaxed font-medium">You may be exposed to sensitive data. Sharing task details outside the platform is strictly prohibited.</p>
               </div>
               <div className="space-y-2">
-                <h4 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary">3. One Account</h4>
+                <h4 className="text-xs sm:text-xs font-semibold uppercase tracking-widest text-primary">3. One Account</h4>
                 <p className="text-sm text-muted-foreground leading-relaxed font-medium">Multiple accounts per person are not allowed and will be flagged by our sybil-detection system.</p>
               </div>
             </div>
@@ -295,7 +295,7 @@ export default function WorkerOnboarding() {
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, agreedToRules: !!checked }))}
                 className="w-5 h-5 md:w-6 md:h-6 rounded-md border-2 border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
               />
-              <label htmlFor="rules" className="text-[10px] md:text-xs font-black uppercase tracking-[0.1em] cursor-pointer text-foreground/80 group-hover:text-foreground transition-colors flex-1">
+              <label htmlFor="rules" className="text-xs md:text-xs font-semibold uppercase tracking-widest cursor-pointer text-foreground/80 group-hover:text-foreground transition-colors flex-1">
                 I have read and agree to the Spunn Force Operator Guidelines.
               </label>
             </div>
@@ -305,7 +305,7 @@ export default function WorkerOnboarding() {
         return (
           <div className="space-y-6 py-6">
             <div className="space-y-4">
-              <label className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 ml-1">
+              <label className="text-xs sm:text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-2 ml-1">
                 <Mail className="w-4 h-4 text-primary" /> PayPal Payout Email
               </label>
               <Input 
@@ -313,7 +313,7 @@ export default function WorkerOnboarding() {
                 value={formData.paymentEmail}
                 onChange={(e) => setFormData(prev => ({ ...prev, paymentEmail: e.target.value }))}
                 placeholder="payouts@example.com"
-                className="h-12 md:h-14 bg-background/50 border-border/50 text-lg font-bold rounded-xl md:rounded-2xl px-6 focus:border-primary transition-all"
+                className="h-12 md:h-14 bg-background/50 border-border/50 text-lg font-semibold rounded-xl md:rounded-2xl px-6 focus:border-primary transition-all"
               />
               <p className="text-xs text-muted-foreground italic font-medium leading-relaxed px-1">
                 Earnings are processed every 48 hours once you hit the $25 threshold.
@@ -325,14 +325,14 @@ export default function WorkerOnboarding() {
         return (
           <div className="space-y-6 py-6">
             <div className="space-y-4">
-              <label className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 ml-1">
+              <label className="text-xs sm:text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-2 ml-1">
                 <Globe className="w-4 h-4 text-primary" /> Primary Location
               </label>
               <Select onValueChange={(val) => setFormData(prev => ({ ...prev, country: val as string }))}>
-                <SelectTrigger className="h-12 md:h-14 bg-background/50 border-border text-lg font-bold rounded-xl md:rounded-2xl px-6 focus:border-primary transition-all shadow-sm">
+                <SelectTrigger className="h-12 md:h-14 bg-background/50 border-border text-lg font-semibold rounded-xl md:rounded-2xl px-6 focus:border-primary transition-all shadow-sm">
                   <SelectValue placeholder="Select your country" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl md:rounded-2xl border-border shadow-xl bg-background/95 backdrop-blur-xl">
+                <SelectContent className="rounded-xl md:rounded-2xl border-border shadow-sm bg-background/95 backdrop-blur-xl">
                   <SelectItem value="United States" className="py-2.5 md:py-3 px-4 md:px-6 text-sm font-medium">United States</SelectItem>
                   <SelectItem value="United Kingdom" className="py-2.5 md:py-3 px-4 md:px-6 text-sm font-medium">United Kingdom</SelectItem>
                   <SelectItem value="Canada" className="py-2.5 md:py-3 px-4 md:px-6 text-sm font-medium">Canada</SelectItem>
@@ -344,14 +344,14 @@ export default function WorkerOnboarding() {
               </Select>
             </div>
             <div className="space-y-4">
-              <label className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 ml-1">
+              <label className="text-xs sm:text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-2 ml-1">
                 <Calendar className="w-4 h-4 text-primary" /> Age Group
               </label>
               <Select onValueChange={(val) => setFormData(prev => ({ ...prev, age: val as string }))}>
-                <SelectTrigger className="h-12 md:h-14 bg-background/50 border-border text-lg font-bold rounded-xl md:rounded-2xl px-6 focus:border-primary transition-all shadow-sm">
+                <SelectTrigger className="h-12 md:h-14 bg-background/50 border-border text-lg font-semibold rounded-xl md:rounded-2xl px-6 focus:border-primary transition-all shadow-sm">
                   <SelectValue placeholder="Select your age group" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl md:rounded-2xl border-border shadow-xl bg-background/95 backdrop-blur-xl">
+                <SelectContent className="rounded-xl md:rounded-2xl border-border shadow-sm bg-background/95 backdrop-blur-xl">
                   <SelectItem value="18-24" className="py-2.5 md:py-3 px-4 md:px-6 text-sm font-medium">18 - 24</SelectItem>
                   <SelectItem value="25-34" className="py-2.5 md:py-3 px-4 md:px-6 text-sm font-medium">25 - 34</SelectItem>
                   <SelectItem value="35-44" className="py-2.5 md:py-3 px-4 md:px-6 text-sm font-medium">35 - 44</SelectItem>
@@ -360,7 +360,7 @@ export default function WorkerOnboarding() {
               </Select>
             </div>
             <div className="space-y-4">
-              <label className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 ml-1">
+              <label className="text-xs sm:text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-2 ml-1">
                 <UserCircle className="w-4 h-4 text-primary" /> Gender Identity
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -369,9 +369,9 @@ export default function WorkerOnboarding() {
                     key={g}
                     onClick={() => setFormData(prev => ({ ...prev, gender: g }))}
                     className={cn(
-                      "h-12 md:h-14 rounded-xl border transition-all text-[10px] md:text-xs font-black uppercase tracking-[0.1em] flex items-center justify-center px-3 active:scale-95",
+                      "h-12 md:h-14 rounded-xl border transition-all text-xs md:text-xs font-semibold uppercase tracking-widest flex items-center justify-center px-3 active:scale-95",
                       formData.gender === g 
-                        ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20 scale-[1.02]" 
+                        ? "bg-primary text-primary-foreground border-primary shadow-md  scale-[1.02]" 
                         : "bg-background/50 border-border text-muted-foreground hover:border-primary/50 hover:bg-primary/5"
                     )}
                   >
@@ -387,20 +387,20 @@ export default function WorkerOnboarding() {
           <div className="space-y-8 py-8 text-center">
             <div className="relative inline-block">
               <div className="absolute inset-0 bg-primary/30 blur-2xl rounded-full animate-pulse" />
-              <div className="relative w-24 h-24 bg-primary rounded-[2rem] flex items-center justify-center text-primary-foreground shadow-xl rotate-3 hover:rotate-0 transition-transform duration-500">
+              <div className="relative w-24 h-24 bg-primary rounded-[2rem] flex items-center justify-center text-primary-foreground shadow-sm rotate-3 hover:rotate-0 transition-transform duration-500">
                 <Zap className="w-12 h-12 fill-current" />
               </div>
             </div>
             <div className="space-y-3">
-              <h3 className="text-3xl font-display font-bold tracking-tight">System Activated<span className="text-primary">.</span></h3>
+              <h3 className="text-3xl font-display font-semibold tracking-tight">System Activated<span className="text-primary">.</span></h3>
               <p className="text-sm text-muted-foreground max-w-[280px] mx-auto font-medium leading-relaxed">
                 Your operator profile is now live. You have been granted Level 1 access to the Spunn Force network.
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-3">
-              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-full">Level 1</Badge>
-              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-full">Verified</Badge>
-              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-full">Anonymous</Badge>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest rounded-full">Level 1</Badge>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest rounded-full">Verified</Badge>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest rounded-full">Anonymous</Badge>
             </div>
           </div>
         );
@@ -424,8 +424,8 @@ export default function WorkerOnboarding() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
       {/* Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(var(--primary-rgb),0.05),transparent)] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full translate-y-1/2 translate-x-1/2 pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-full bg-muted pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-none rounded-full translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -449,18 +449,18 @@ export default function WorkerOnboarding() {
           
           <CardHeader className="space-y-1 pb-4 pt-5 px-6">
             <div className="flex justify-between items-center mb-1">
-              <Badge variant="outline" className="text-[8px] font-black uppercase tracking-[0.2em] border-primary/20 text-primary bg-primary/5">
+              <Badge variant="outline" className="text-xs font-semibold uppercase tracking-widest border-primary/20 text-primary bg-primary/5">
                 Step {currentStep} of {STEPS.length}
               </Badge>
-              <div className="text-[9px] font-mono font-bold text-muted-foreground">{Math.round(progress)}% Complete</div>
+              <div className="text-xs font-mono font-semibold text-muted-foreground">{Math.round(progress)}% Complete</div>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center text-primary shrink-0">
                 {React.createElement(STEPS[currentStep - 1].icon, { className: "w-4 h-4" })}
               </div>
               <div className="space-y-0.5">
-                <CardTitle className="text-lg font-black tracking-tight leading-none">{STEPS[currentStep - 1].title}</CardTitle>
-                <CardDescription className="text-[10px] sm:text-xs">
+                <CardTitle className="text-lg font-semibold tracking-tight leading-none">{STEPS[currentStep - 1].title}</CardTitle>
+                <CardDescription className="text-xs sm:text-xs">
                   {STEPS[currentStep - 1].description}
                 </CardDescription>
               </div>
@@ -487,7 +487,7 @@ export default function WorkerOnboarding() {
               size="sm" 
               onClick={prevStep}
               disabled={currentStep <= 2 || loading}
-              className="font-black text-[9px] uppercase tracking-widest h-9 px-3"
+              className="font-semibold text-xs uppercase tracking-widest h-9 px-3"
             >
               <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Back
             </Button>
@@ -496,7 +496,7 @@ export default function WorkerOnboarding() {
               <Button 
                 onClick={handleComplete}
                 disabled={loading}
-                className="font-black px-5 h-9 shadow-md shadow-primary/20 text-[9px] md:text-[10px] uppercase tracking-widest rounded-lg"
+                className="font-semibold px-5 h-9 shadow-md  text-xs md:text-xs uppercase tracking-widest rounded-lg"
               >
                 {loading ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" /> : "Activate"}
               </Button>
@@ -504,7 +504,7 @@ export default function WorkerOnboarding() {
               <Button 
                 onClick={nextStep}
                 disabled={!isStepValid() || loading}
-                className="font-black px-5 h-9 shadow-md shadow-primary/20 group text-[9px] md:text-[10px] uppercase tracking-widest rounded-lg"
+                className="font-semibold px-5 h-9 shadow-md  group text-xs md:text-xs uppercase tracking-widest rounded-lg"
               >
                 Continue <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
               </Button>

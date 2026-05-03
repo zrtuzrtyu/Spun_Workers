@@ -13,7 +13,7 @@ import {
 import { useTheme } from "@/contexts/ThemeContext";
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
-import { collection, query, where, onSnapshot, orderBy, limit, getCountFromServer } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy, limit, getCountFromServer, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -39,27 +39,36 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
     if (!user) return;
 
     const fetchCompletedCount = async () => {
-      const q = query(
-        collection(db, "assignments"),
-        where("workerId", "==", user.uid),
-        where("status", "==", "approved")
-      );
-      const snapshot = await getCountFromServer(q);
-      setCompletedTasks(snapshot.data().count);
+      try {
+        const q = query(
+          collection(db, "assignments"),
+          where("workerId", "==", user.uid)
+        );
+        const snapshot = await getDocs(q);
+        const approvedCount = snapshot.docs.filter(doc => doc.data().status === "approved").length;
+        setCompletedTasks(approvedCount);
+      } catch (error) {
+        console.error("Failed to fetch completed tasks count:", error);
+      }
     };
 
     fetchCompletedCount();
 
-    const q = query(
+    const qAssigns = query(
       collection(db, "assignments"),
-      where("workerId", "==", user.uid),
-      orderBy("assignedAt", "desc"),
-      limit(1)
+      where("workerId", "==", user.uid)
     );
 
-    const unsub = onSnapshot(q, (snap) => {
-      if (snap.docs.length > 0) {
-        const assignment = snap.docs[0].data();
+    const unsub = onSnapshot(qAssigns, (snap) => {
+      // Find the most recent assignment locally to avoid composite index requirement
+      const recentDocs = snap.docs.sort((a, b) => {
+        const timeA = a.data().assignedAt?.toMillis() || 0;
+        const timeB = b.data().assignedAt?.toMillis() || 0;
+        return timeB - timeA;
+      });
+      
+      if (recentDocs.length > 0) {
+        const assignment = recentDocs[0].data();
         const assignedAt = assignment.assignedAt?.toDate();
         if (assignedAt && (new Date().getTime() - assignedAt.getTime() < 5000)) {
           toast.success("New task assigned!");
@@ -93,29 +102,29 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
     <div className="min-h-screen bg-background text-foreground font-sans flex flex-col md:flex-row antialiased transition-colors duration-300">
       {/* Sidebar */}
       <aside className="w-full md:w-64 bg-card border-r border-border flex flex-col md:h-screen md:sticky top-0 relative z-20 shadow-sm">
-        <div className="p-6 border-b border-border flex justify-between items-center md:block">
+        <div className="p-6 border-b border-white/5 flex justify-between items-center md:block">
           <div className="flex flex-col gap-1 md:mb-6">
             <Logo />
-            <div className="text-xs text-muted-foreground font-medium ml-10 md:ml-12 opacity-80">Worker Dashboard</div>
+            <div className="text-xs text-muted-foreground font-medium ml-10 md:ml-12 opacity-80">Worker Panel</div>
           </div>
           <div className="flex items-center gap-2 md:hidden">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground hover:bg-white/5">
               {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="md:hidden text-destructive">
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="md:hidden text-destructive hover:bg-destructive/10">
               <LogOut className="w-5 h-5" />
             </Button>
           </div>
         </div>
         
-        <div className="p-6 border-b border-border bg-muted/40">
+        <div className="p-6 border-b border-white/5 bg-black/20">
           <div className="flex justify-between items-center mb-3">
             <div className="text-sm font-semibold text-foreground">Level {currentLevel}</div>
-            <div className="text-sm font-mono text-primary font-bold">${(user?.earnings || 0).toFixed(2)}</div>
+            <div className="text-sm font-mono text-primary font-semibold">${(user?.earnings || 0).toFixed(2)}</div>
           </div>
-          <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-primary transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(var(--primary),0.4)]" 
+              className="h-full bg-primary transition-all duration-1000 ease-out shadow-sm" 
               style={{ width: `${levelProgress}%` }}
             />
           </div>
@@ -142,12 +151,12 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
                   }
                 }}
                 className={cn(
-                  "flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 rounded-lg transition-all text-sm font-medium group whitespace-nowrap md:whitespace-normal",
+                  "flex items-center justify-between px-4 py-3 rounded-[0.8rem] transition-all text-sm font-semibold group whitespace-nowrap md:whitespace-normal",
                   isActive 
-                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20" 
+                    ? "bg-primary text-primary-foreground shadow-sm " 
                     : item.locked
-                    ? "text-muted-foreground/50 hover:bg-muted/50 cursor-not-allowed"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "text-muted-foreground/30 hover:bg-white/5 cursor-not-allowed"
+                    : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -175,22 +184,22 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
           </Button>
 
           <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-muted/50 rounded-2xl border border-border">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-black border border-primary/20 shrink-0 text-base">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold border border-primary/20 shrink-0 text-base">
               {(user?.isAnonymous ? user?.username : user?.name)?.charAt(0) || "W"}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-black text-foreground truncate flex items-center gap-1.5 uppercase tracking-wider">
+              <div className="text-xs font-semibold text-foreground truncate flex items-center gap-1.5 uppercase tracking-wider">
                 {user?.isAnonymous ? user?.username : user?.name}
                 {user?.trustTier === 'Premium' && <ShieldCheck className="w-3.5 h-3.5 text-primary" />}
               </div>
-              <Badge variant="outline" className="text-[8px] h-4 md:h-5 px-1.5 mt-0.5 font-black uppercase tracking-widest border-border text-muted-foreground bg-background">
+              <Badge variant="outline" className="text-xs h-4 md:h-5 px-1.5 mt-0.5 font-semibold uppercase tracking-widest border-border text-muted-foreground bg-background">
                 {user?.trustTier || 'New'}
               </Badge>
             </div>
           </div>
           <Button 
             variant="ghost" 
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/5 h-10 px-4 rounded-xl font-black uppercase tracking-widest text-[10px]"
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/5 h-10 px-4 rounded-xl font-semibold uppercase tracking-widest text-xs"
             onClick={handleLogout}
           >
             <LogOut className="w-4 h-4" />
@@ -202,9 +211,9 @@ export default function WorkerLayout({ children }: { children: React.ReactNode }
       {/* Main Content */}
       <main className="flex-1 overflow-auto relative bg-background">
         {isOnboardingIncomplete && location.pathname !== '/worker/onboarding' && (
-          <div className="bg-primary/10 border-b border-primary/20 p-4 flex items-center justify-center gap-6 text-[10px] font-bold sticky top-0 z-30 backdrop-blur-md">
+          <div className="bg-primary/10 border-b border-primary/20 p-4 flex items-center justify-center gap-6 text-xs font-semibold sticky top-0 z-30 backdrop-blur-md">
             <ShieldAlert className="w-4 h-4 text-primary" />
-            <span className="text-primary uppercase tracking-[0.2em]">Onboarding Incomplete: Marketplace Access Restricted</span>
+            <span className="text-primary uppercase tracking-widest">Onboarding Incomplete: Marketplace Access Restricted</span>
             <Link to="/worker/onboarding" className="flex items-center gap-2 text-foreground hover:text-primary transition-colors uppercase tracking-widest">
               Complete Setup <ArrowRight className="w-3 h-3" />
             </Link>

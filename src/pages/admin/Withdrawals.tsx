@@ -94,7 +94,7 @@ export default function Withdrawals() {
     <AdminLayout>
       <div className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
         <div>
-          <h1 className="text-4xl font-sans font-bold text-foreground mb-2 leading-none">
+          <h1 className="text-4xl font-sans font-semibold text-foreground mb-2 leading-none">
             Financial Clearance
           </h1>
           <p className="text-zinc-400 text-lg font-sans max-w-2xl leading-relaxed">
@@ -103,16 +103,16 @@ export default function Withdrawals() {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-xl mb-16">
-        <div className="p-6 border-b border-border bg-muted/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="bg-card border border-border rounded-[1.5rem] overflow-hidden shadow-sm mb-16">
+        <div className="p-6 border-b border-border bg-muted/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="relative w-full md:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
             <input
               type="text"
               placeholder="Search withdrawals..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-muted/10 border border-border rounded-xl pl-12 pr-4 py-3 text-foreground focus:outline-none focus:border-purple-500/50 transition-colors text-sm"
+              className="w-full bg-muted/30 border border-border rounded-[1rem] pl-12 pr-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors text-sm"
             />
           </div>
         </div>
@@ -121,78 +121,78 @@ export default function Withdrawals() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr>
-                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Worker Identity</th>
-                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Country</th>
-                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Volume</th>
-                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Payout Method</th>
-                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Destination Address</th>
-                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Timestamp</th>
-                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Processed At</th>
-                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">Status</th>
-                <th className="px-6 py-4 border-b border-border bg-card text-xs font-medium text-zinc-500 uppercase tracking-wider text-right whitespace-nowrap">Authorization</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Worker Identity</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Country</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Volume</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Payout Method</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Destination Address</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Timestamp</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Processed At</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Status</th>
+                <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest text-right whitespace-nowrap">Authorization</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-border">
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-12 text-center text-zinc-500 text-sm">Scanning financial records...</td>
+                  <td colSpan={9} className="px-6 py-12 text-center text-muted-foreground text-sm font-semibold">Scanning financial records...</td>
                 </tr>
               ) : filteredWithdrawals.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-12 text-center text-zinc-500 text-sm">No payout requests detected in the system.</td>
+                  <td colSpan={9} className="px-6 py-12 text-center text-muted-foreground text-sm font-semibold">No payout requests detected in the system.</td>
                 </tr>
               ) : (
                 filteredWithdrawals.map((w) => (
-                  <tr key={w.id} className="hover:bg-muted/10 transition-colors group">
+                  <tr key={w.id} className="hover:bg-muted/20 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-sans font-medium text-zinc-200 text-base">{w.workerName}</div>
-                      <div className="text-xs text-zinc-500 mt-1">UID: {w.workerId.substring(0, 12)}...</div>
+                      <div className="font-sans font-semibold text-foreground text-base">{w.workerName}</div>
+                      <div className="text-xs text-muted-foreground mt-1 font-medium">UID: {w.workerId.substring(0, 12)}...</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-zinc-400">
+                      <div className="text-sm text-foreground/80 font-medium">
                         {w.workerCountry || 'Unknown'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-sans font-medium text-purple-400 text-lg">
+                      <div className="font-sans font-semibold text-primary text-lg">
                         ${w.amount.toFixed(2)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-3 py-1 bg-muted/10 border border-border rounded-md text-xs font-medium text-zinc-300">
+                      <span className="px-3 py-1 bg-muted/30 border border-border rounded-md text-xs font-semibold text-foreground tracking-wider">
                         {w.method.toUpperCase()}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-zinc-400 text-xs font-mono break-all max-w-[200px] bg-muted/10 border border-border rounded-md p-2">{w.address}</div>
+                      <div className="text-muted-foreground text-xs font-mono break-all max-w-[200px] bg-muted/20 border border-border rounded-md p-2 font-medium">{w.address}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-xs text-zinc-400">
+                      <div className="text-xs text-foreground/80 font-medium">
                         {w.createdAt?.toDate ? format(w.createdAt.toDate(), "MMM d, yyyy") : 'Just now'}
                       </div>
-                      <div className="text-xs text-zinc-500 mt-0.5">
+                      <div className="text-xs text-muted-foreground mt-0.5 font-medium">
                         {w.createdAt?.toDate ? format(w.createdAt.toDate(), "HH:mm:ss") : ''}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {w.processedAt?.toDate ? (
                         <>
-                          <div className="text-xs text-zinc-400">
+                          <div className="text-xs text-foreground/80 font-medium">
                             {format(w.processedAt.toDate(), "MMM d, yyyy")}
                           </div>
-                          <div className="text-xs text-zinc-500 mt-0.5">
+                          <div className="text-xs text-muted-foreground mt-0.5 font-medium">
                             {format(w.processedAt.toDate(), "HH:mm:ss")}
                           </div>
                         </>
                       ) : (
-                        <div className="text-xs text-zinc-500">-</div>
+                        <div className="text-xs text-muted-foreground font-medium">-</div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        w.status === 'paid' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
-                        w.status === 'rejected' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-                        'bg-muted text-zinc-300 border border-border'
+                      <span className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wider ${
+                        w.status === 'paid' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+                        w.status === 'rejected' ? 'bg-destructive/10 text-destructive border border-destructive/20' :
+                        'bg-muted/50 text-foreground border border-border'
                       }`}>
                         {w.status.charAt(0).toUpperCase() + w.status.slice(1)}
                       </span>
@@ -202,14 +202,14 @@ export default function Withdrawals() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleApprove(w.id, w.workerId, w.amount)}
-                            className="p-2 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 rounded-lg transition-colors"
+                            className="p-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-[0.8rem] transition-colors"
                             title="Authorize Payout"
                           >
                             <CheckCircle2 size={20} />
                           </button>
                           <button
                             onClick={() => handleReject(w.id)}
-                            className="p-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                            className="p-2 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-[0.8rem] transition-colors"
                             title="Reject Request"
                           >
                             <XCircle size={20} />

@@ -50,8 +50,8 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-muted/10 flex items-center justify-center p-6 text-foreground font-sans">
-          <div className="w-full max-w-2xl bg-card p-8 rounded-2xl border border-red-500/30 shadow-[0_0_40px_rgba(239,68,68,0.15)]">
-            <h1 className="text-3xl font-bold text-red-500 mb-4">Something went wrong.</h1>
+          <div className="w-full max-w-2xl bg-card p-8 rounded-2xl border border-red-500/30 shadow-sm">
+            <h1 className="text-3xl font-semibold text-red-500 mb-4">Something went wrong.</h1>
             <p className="text-zinc-400 mb-6">
               An unexpected error occurred in the application.
             </p>
@@ -62,7 +62,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
             <button
               onClick={() => window.location.reload()}
-              className="bg-white text-black px-6 py-3 rounded-xl font-bold hover:bg-zinc-200 transition-colors"
+              className="bg-white text-black px-6 py-3 rounded-xl font-semibold hover:bg-zinc-200 transition-colors"
             >
               Reload Page
             </button>

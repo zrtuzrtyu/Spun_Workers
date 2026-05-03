@@ -9,7 +9,7 @@ export function Logo({ className = "", showText = true }: LogoProps) {
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <div className="relative flex items-center justify-center w-10 h-10 shrink-0">
-        <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-lg">
+        <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-sm">
           {/* Outer Glow */}
           <circle cx="60" cy="65" r="45" fill="#A855F7" fillOpacity="0.2" className="animate-pulse" />
 
@@ -47,7 +47,7 @@ export function Logo({ className = "", showText = true }: LogoProps) {
         </svg>
       </div>
       {showText && (
-        <span className="font-display font-bold text-xl tracking-tight">
+        <span className="font-display font-semibold text-xl tracking-tight">
           <span className="text-foreground">Spunn</span>
           <span className="text-zinc-500"> Force</span>
         </span>

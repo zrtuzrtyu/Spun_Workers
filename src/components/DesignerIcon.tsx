@@ -24,13 +24,11 @@ export function DesignerIcon({ icon: Icon, className, size = "md" }: DesignerIco
     <div className={cn(
       "relative flex items-center justify-center shrink-0",
       sizeClasses[size],
-      "bg-gradient-to-br from-foreground/5 to-transparent border border-border",
-      "shadow-[0_8px_16px_-6px_rgba(0,0,0,0.5)] overflow-hidden group-hover:border-primary/30 transition-all duration-500",
+      "bg-muted border border-border group-hover:border-primary/50 transition-all duration-300",
       className
     )}>
-      <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <Icon className={cn(
-        "text-muted-foreground group-hover:text-primary transition-colors duration-500 relative z-10",
+        "text-muted-foreground group-hover:text-primary transition-colors duration-300",
         iconSizes[size]
       )} />
     </div>

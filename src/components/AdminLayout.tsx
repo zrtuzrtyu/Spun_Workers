@@ -37,13 +37,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-6 border-b border-border flex justify-between items-center md:block">
           <div className="flex flex-col gap-1 md:mb-6">
             <Logo />
-            <div className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black font-sans ml-10 flex items-center md:ml-14 opacity-80">Admin Panel</div>
+            <div className="text-xs text-muted-foreground font-medium ml-10 md:ml-12 opacity-80">Admin Panel</div>
           </div>
           <div className="flex items-center gap-2 md:hidden">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-muted-foreground hover:bg-muted">
               {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
-            <button onClick={handleLogout} className="text-destructive p-2"><LogOut className="w-5 h-5" /></button>
+            <button onClick={handleLogout} className="text-destructive p-2 hover:bg-destructive/10 rounded-md"><LogOut className="w-5 h-5" /></button>
           </div>
         </div>
         
@@ -55,10 +55,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl transition-all whitespace-nowrap text-[10px] sm:text-[11px] font-black uppercase tracking-[0.1em] group ${
+                className={`flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-[0.8rem] transition-all whitespace-nowrap text-sm font-semibold group ${
                   isActive 
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm " 
+                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 }`}
               >
                 <Icon className={`w-4 h-4 ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary transition-colors"}`} />
@@ -72,24 +72,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Button 
             variant="ghost" 
             onClick={toggleTheme}
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-muted h-10 px-4 rounded-xl font-black uppercase tracking-widest text-[10px] mb-3"
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-muted h-10 px-4 rounded-[0.8rem] font-semibold text-sm mb-3"
           >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
           </Button>
 
-          <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-muted/50 rounded-2xl border border-border">
-            <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary font-black border border-primary/30 text-base">
+          <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-muted/50 rounded-[1rem] border border-border">
+            <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary font-semibold border border-primary/30 text-base">
               {user?.name?.charAt(0) || "A"}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-black text-foreground truncate uppercase tracking-wider">{user?.name}</div>
-              <div className="text-[9px] text-muted-foreground truncate font-medium">{user?.email}</div>
+              <div className="text-sm font-semibold text-foreground truncate">{user?.name}</div>
+              <div className="text-xs text-muted-foreground truncate font-medium">{user?.email}</div>
             </div>
           </div>
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors font-black uppercase tracking-widest text-[10px] h-10"
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-[0.8rem] text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors font-semibold text-sm h-10"
           >
             <LogOut className="w-4 h-4" />
             Logout
@@ -100,7 +100,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main Content */}
       <main className="flex-1 overflow-auto relative">
         {/* Ambient Glow */}
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-purple-500/5 blur-[150px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/3" />
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 blur-none rounded-full pointer-events-none -translate-y-1/2 translate-x-1/3" />
         
         <div className="p-4 md:p-8 max-w-7xl mx-auto relative z-10">
           {children}

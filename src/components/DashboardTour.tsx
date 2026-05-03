@@ -49,7 +49,7 @@ export const DashboardTour = ({ onComplete }: { onComplete: () => void }) => {
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-card w-full max-w-sm rounded-3xl border border-border shadow-2xl p-6 space-y-6"
+          className="bg-card w-full max-w-sm rounded-3xl border border-border shadow-md p-6 space-y-6"
         >
           <div className="flex justify-between items-center">
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -65,7 +65,7 @@ export const DashboardTour = ({ onComplete }: { onComplete: () => void }) => {
             <p className="text-sm text-muted-foreground leading-relaxed">{steps[currentStep].description}</p>
           </div>
 
-          <Button onClick={nextStep} className="w-full rounded-xl font-bold uppercase tracking-widest text-xs h-11">
+          <Button onClick={nextStep} className="w-full rounded-xl font-semibold uppercase tracking-widest text-xs h-11">
             {currentStep === steps.length - 1 ? "Finish Tutorial" : "Next"}
             <ChevronRight className="w-4 h-4 ml-2" />
           </Button>

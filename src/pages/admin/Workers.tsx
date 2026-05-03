@@ -123,7 +123,7 @@ export default function AdminWorkers() {
         className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2 font-sans">Worker Roster</h1>
+          <h1 className="text-3xl font-semibold text-foreground mb-2 font-sans">Worker Roster</h1>
           <p className="text-muted-foreground font-sans">Manage your workforce, approve applications, and track earnings.</p>
         </div>
         <button
@@ -140,7 +140,7 @@ export default function AdminWorkers() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-card border border-border rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.2)] relative"
+        className="bg-card border border-border rounded-[1.5rem] overflow-hidden shadow-sm relative"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse font-sans">
@@ -169,9 +169,9 @@ export default function AdminWorkers() {
                     className="hover:bg-muted/50 transition-colors group"
                   >
                     <td className="p-4 whitespace-nowrap">
-                      <div className="font-bold text-foreground group-hover:text-primary transition-colors flex items-center gap-2">
+                      <div className="font-semibold text-foreground group-hover:text-primary transition-colors flex items-center gap-2">
                         {worker.name}
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${
+                        <span className={`text-xs px-1.5 py-0.5 rounded-md font-semibold uppercase tracking-wider ${
                           worker.trustTier === 'Premium' ? 'bg-amber-500/20 text-amber-400' :
                           worker.trustTier === 'Trusted' ? 'bg-blue-500/20 text-blue-400' :
                           'bg-zinc-500/20 text-zinc-400'
@@ -195,22 +195,22 @@ export default function AdminWorkers() {
                       </div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <div className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-pink-400">${(worker.earnings || 0).toFixed(2)}</div>
+                      <div className="font-semibold text-transparent bg-clip-text bg-primary to-pink-400">${(worker.earnings || 0).toFixed(2)}</div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        worker.status === 'active' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
-                        worker.status === 'pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                      <span className={`px-3 py-1.5 rounded-md text-xs font-semibold tracking-wider ${
+                        (worker.status || 'pending') === 'active' ? 'bg-primary/20 text-primary border border-primary/30' :
+                        (worker.status || 'pending') === 'pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
                         'bg-red-500/20 text-red-400 border border-red-500/30'
                       }`}>
-                        {worker.status.toUpperCase()}
+                        {(worker.status || 'pending').toUpperCase()}
                       </span>
                     </td>
                     <td className="p-4 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => setSelectedWorker(worker)}
-                          className="p-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 rounded-xl transition-colors"
+                          className="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl transition-colors"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
@@ -223,7 +223,7 @@ export default function AdminWorkers() {
                           <Trash2 className="w-4 h-4" />
                         </button>
                         <select 
-                          value={worker.status}
+                          value={worker.status || 'pending'}
                           onChange={(e) => handleStatusChange(worker.id, e.target.value)}
                           className="bg-background border border-border rounded-xl p-2 text-sm text-foreground outline-none focus:border-primary transition-colors cursor-pointer hover:bg-muted/50"
                         >
@@ -253,11 +253,11 @@ export default function AdminWorkers() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl"
+            className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-md"
           >
-            <h3 className="text-xl font-bold text-foreground mb-2">Delete Worker</h3>
+            <h3 className="text-xl font-semibold text-foreground mb-2">Delete Worker</h3>
             <p className="text-muted-foreground mb-6">
-              Are you sure you want to delete worker <span className="text-foreground font-bold">{workerToDelete.name}</span>? This action is irreversible.
+              Are you sure you want to delete worker <span className="text-foreground font-semibold">{workerToDelete.name}</span>? This action is irreversible.
             </p>
             <div className="flex justify-end gap-3">
               <button 
@@ -268,7 +268,7 @@ export default function AdminWorkers() {
               </button>
               <button 
                 onClick={() => handleDeleteWorker(workerToDelete.id)}
-                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-foreground font-bold transition-colors shadow-lg shadow-red-500/20"
+                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-foreground font-semibold transition-colors shadow-sm shadow-red-500/20"
               >
                 Delete Worker
               </button>

@@ -41,23 +41,26 @@ export default function AdminDashboard() {
 
     // Stats
     const fetchStats = async () => {
-      const workersSnap = await getDocs(query(collection(db, "users"), where("role", "==", "worker"), where("status", "==", "active")));
-      const pendingAssignmentsSnap = await getDocs(query(collection(db, "assignments"), where("status", "==", "submitted")));
-      const activeTasksSnap = await getDocs(query(collection(db, "tasks"), where("status", "==", "active")));
-      const pendingWithdrawalsSnap = await getDocs(query(collection(db, "withdrawals"), where("status", "==", "pending")));
-      
-      const allAssignmentsSnap = await getDocs(collection(db, "assignments"));
-      const allWithdrawalsSnap = await getDocs(collection(db, "withdrawals"));
-      
-      const assignments = allAssignmentsSnap.docs.map(d => d.data());
-      const withdrawals = allWithdrawalsSnap.docs.map(d => d.data());
+      try {
+        const usersSnap = await getDocs(query(collection(db, "users"), where("role", "==", "worker")));
+        const activeWorkers = usersSnap.docs.filter(doc => doc.data().status === "active");
+        
+        const pendingAssignmentsSnap = await getDocs(query(collection(db, "assignments"), where("status", "==", "submitted")));
+        const activeTasksSnap = await getDocs(query(collection(db, "tasks"), where("status", "==", "active")));
+        const pendingWithdrawalsSnap = await getDocs(query(collection(db, "withdrawals"), where("status", "==", "pending")));
+        
+        const allAssignmentsSnap = await getDocs(collection(db, "assignments"));
+        const allWithdrawalsSnap = await getDocs(collection(db, "withdrawals"));
+        
+        const assignments = allAssignmentsSnap.docs.map(d => d.data());
+        const withdrawals = allWithdrawalsSnap.docs.map(d => d.data());
 
-      let totalWorkerEarnings = 0;
-      let totalUnpaidBalance = 0;
-      workersSnap.forEach(doc => {
-        totalWorkerEarnings += doc.data().earnings || 0;
-        totalUnpaidBalance += doc.data().balance || 0;
-      });
+        let totalWorkerEarnings = 0;
+        let totalUnpaidBalance = 0;
+        activeWorkers.forEach(doc => {
+          totalWorkerEarnings += doc.data().earnings || 0;
+          totalUnpaidBalance += doc.data().balance || 0;
+        });
 
       const paidWithdrawals = withdrawals.filter(w => w.status === 'paid');
       const totalPayouts = paidWithdrawals.reduce((sum, w) => sum + (w.amount || 0), 0);
@@ -80,7 +83,7 @@ export default function AdminDashboard() {
       const overallCompletionRate = totalAssignments > 0 ? (approvedAssignments / totalAssignments) * 100 : 0;
 
       setStats({
-        workers: workersSnap.size,
+        workers: activeWorkers.length,
         pendingTasks: pendingAssignmentsSnap.size,
         totalPayouts: totalPayouts,
         avgProcessingHours,
@@ -139,6 +142,7 @@ export default function AdminDashboard() {
         };
       });
       setChartData(last7Days);
+      } catch (err) { console.warn("Missing index on admin load", err) }
     };
     fetchStats();
 
@@ -410,7 +414,7 @@ export default function AdminDashboard() {
       <div className="mb-10 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
         <div>
           <div className="flex items-center gap-3 mb-3">
-            <h1 className="text-3xl font-sans font-bold text-foreground leading-none">
+            <h1 className="text-3xl font-sans font-semibold text-foreground leading-none">
               Command Center
             </h1>
             <Link to="/worker">
@@ -426,7 +430,7 @@ export default function AdminDashboard() {
         </div>
         {systemConfig && (
           <div className="flex flex-wrap gap-3">
-            <div className={`px-3 py-1.5 rounded-xl border font-sans text-[10px] uppercase font-bold tracking-widest flex items-center gap-2 ${
+            <div className={`px-3 py-1.5 rounded-xl border font-sans text-xs uppercase font-semibold tracking-widest flex items-center gap-2 ${
               systemConfig.maintenanceMode 
                 ? 'bg-destructive/20 text-destructive border-destructive/30' 
                 : 'bg-primary/10 text-primary border-primary/20'
@@ -434,7 +438,7 @@ export default function AdminDashboard() {
               <div className={`w-1.5 h-1.5 rounded-full ${systemConfig.maintenanceMode ? 'bg-destructive animate-pulse' : 'bg-primary'}`} />
               {systemConfig.maintenanceMode ? 'Maintenance Active' : 'System Operational'}
             </div>
-            <div className={`px-3 py-1.5 rounded-xl border font-sans text-[10px] uppercase font-bold tracking-widest flex items-center gap-2 ${
+            <div className={`px-3 py-1.5 rounded-xl border font-sans text-xs uppercase font-semibold tracking-widest flex items-center gap-2 ${
               systemConfig.allowNewRegistrations 
                 ? 'bg-card text-foreground border-border' 
                 : 'bg-muted/50 text-muted-foreground border-border'
@@ -448,86 +452,86 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+        <div className="bg-card border border-border rounded-[1.5rem] shadow-sm p-6 flex items-center gap-5 group hover:bg-muted/30 transition-all">
           <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-600 group-hover:scale-105 transition-transform">
             <Users className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">{stats.workers}</div>
-            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Active Workforce</div>
+            <div className="text-2xl font-display font-semibold text-foreground tracking-tight">{stats.workers}</div>
+            <div className="text-xs text-muted-foreground mt-1 font-semibold uppercase tracking-widest leading-none">Active Workforce</div>
           </div>
         </div>
-        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+        <div className="bg-card border border-border rounded-[1.5rem] shadow-sm p-6 flex items-center gap-5 group hover:bg-muted/30 transition-all">
           <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
             <Activity className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">{stats.activeTasks}</div>
-            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Active Tasks</div>
+            <div className="text-2xl font-display font-semibold text-foreground tracking-tight">{stats.activeTasks}</div>
+            <div className="text-xs text-muted-foreground mt-1 font-semibold uppercase tracking-widest leading-none">Active Tasks</div>
           </div>
         </div>
-        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+        <div className="bg-card border border-border rounded-[1.5rem] shadow-sm p-6 flex items-center gap-5 group hover:bg-muted/30 transition-all">
           <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 group-hover:scale-105 transition-transform">
             <CheckSquare className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">{stats.pendingTasks}</div>
-            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Pending Reviews</div>
+            <div className="text-2xl font-display font-semibold text-foreground tracking-tight">{stats.pendingTasks}</div>
+            <div className="text-xs text-muted-foreground mt-1 font-semibold uppercase tracking-widest leading-none">Pending Reviews</div>
           </div>
         </div>
-        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+        <div className="bg-card border border-border rounded-[1.5rem] shadow-sm p-6 flex items-center gap-5 group hover:bg-muted/30 transition-all">
           <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform">
             <Wallet className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">{stats.pendingWithdrawals}</div>
-            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Pending Withdrawals</div>
+            <div className="text-2xl font-display font-semibold text-foreground tracking-tight">{stats.pendingWithdrawals}</div>
+            <div className="text-xs text-muted-foreground mt-1 font-semibold uppercase tracking-widest leading-none">Pending Withdrawals</div>
           </div>
         </div>
-        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+        <div className="bg-card border border-border rounded-[1.5rem] shadow-sm p-6 flex items-center gap-5 group hover:bg-muted/30 transition-all">
           <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-600 group-hover:scale-105 transition-transform">
             <DollarSign className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">${stats.totalPayouts.toFixed(2)}</div>
-            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Total Payouts</div>
+            <div className="text-2xl font-display font-semibold text-foreground tracking-tight">${stats.totalPayouts.toFixed(2)}</div>
+            <div className="text-xs text-muted-foreground mt-1 font-semibold uppercase tracking-widest leading-none">Total Payouts</div>
           </div>
         </div>
-        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+        <div className="bg-card border border-border rounded-[1.5rem] shadow-sm p-6 flex items-center gap-5 group hover:bg-muted/30 transition-all">
           <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-600 group-hover:scale-105 transition-transform">
             <DollarSign className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">${stats.totalUnpaidBalance.toFixed(2)}</div>
-            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Total Unpaid Balance</div>
+            <div className="text-2xl font-display font-semibold text-foreground tracking-tight">${stats.totalUnpaidBalance.toFixed(2)}</div>
+            <div className="text-xs text-muted-foreground mt-1 font-semibold uppercase tracking-widest leading-none">Total Unpaid Balance</div>
           </div>
         </div>
-        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+        <div className="bg-card border border-border rounded-[1.5rem] shadow-sm p-6 flex items-center gap-5 group hover:bg-muted/30 transition-all">
           <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
             <Activity className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">{stats.overallCompletionRate.toFixed(1)}%</div>
-            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Completion Rate</div>
+            <div className="text-2xl font-display font-semibold text-foreground tracking-tight">{stats.overallCompletionRate.toFixed(1)}%</div>
+            <div className="text-xs text-muted-foreground mt-1 font-semibold uppercase tracking-widest leading-none">Completion Rate</div>
           </div>
         </div>
-        <div className="glass-card rounded-2xl p-5 flex items-center gap-5 group hover:bg-muted/30 transition-all">
+        <div className="bg-card border border-border rounded-[1.5rem] shadow-sm p-6 flex items-center gap-5 group hover:bg-muted/30 transition-all">
           <div className="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-600 group-hover:scale-105 transition-transform">
             <Clock className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-2xl font-sans font-bold text-foreground tracking-tight">{stats.avgProcessingHours.toFixed(1)}h</div>
-            <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-[0.2em] leading-relaxed">Avg Payout Time</div>
+            <div className="text-2xl font-display font-semibold text-foreground tracking-tight">{stats.avgProcessingHours.toFixed(1)}h</div>
+            <div className="text-xs text-muted-foreground mt-1 font-semibold uppercase tracking-widest leading-none">Avg Payout Time</div>
           </div>
         </div>
       </div>
 
       {/* Chart Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="glass-card rounded-3xl p-8 relative overflow-hidden">
+        <div className="bg-card border border-border shadow-sm rounded-[1.5rem] p-8 relative overflow-hidden">
           <div className="flex items-center justify-between mb-8 relative z-10">
-            <h2 className="text-2xl font-sans font-bold text-foreground flex items-center gap-3">
-              <BarChart3 className="w-6 h-6 text-purple-600" /> Mission Analytics
+            <h2 className="text-2xl font-display font-semibold text-foreground flex items-center gap-3">
+              <BarChart3 className="w-6 h-6 text-primary" /> Mission Analytics
             </h2>
           </div>
           <div className="h-[350px] w-full relative z-10">
@@ -551,9 +555,9 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="glass-card rounded-3xl p-8 relative overflow-hidden">
+        <div className="bg-card border border-border shadow-sm rounded-[1.5rem] p-8 relative overflow-hidden">
           <div className="flex items-center justify-between mb-8 relative z-10">
-            <h2 className="text-2xl font-sans font-bold text-foreground flex items-center gap-3">
+            <h2 className="text-2xl font-display font-semibold text-foreground flex items-center gap-3">
               <Users className="w-6 h-6 text-blue-600" /> Live Worker Activity
             </h2>
           </div>
@@ -582,9 +586,9 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
-        <div className="glass-card rounded-3xl p-8 relative overflow-hidden">
+        <div className="bg-card border border-border shadow-sm rounded-[1.5rem] p-8 relative overflow-hidden">
           <div className="flex items-center justify-between mb-8 relative z-10">
-            <h2 className="text-2xl font-sans font-bold text-foreground flex items-center gap-3">
+            <h2 className="text-2xl font-display font-semibold text-foreground flex items-center gap-3">
               <Clock className="w-6 h-6 text-pink-600" /> Payout Processing Times
             </h2>
           </div>
@@ -606,9 +610,9 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="glass-card rounded-3xl p-8 relative overflow-hidden">
+        <div className="bg-card border border-border shadow-sm rounded-[1.5rem] p-8 relative overflow-hidden">
           <div className="flex items-center justify-between mb-8 relative z-10">
-            <h2 className="text-2xl font-sans font-bold text-foreground flex items-center gap-3">
+            <h2 className="text-2xl font-display font-semibold text-foreground flex items-center gap-3">
               <Star className="w-6 h-6 text-amber-600" /> Worker Performance Trend
             </h2>
           </div>
@@ -635,10 +639,12 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Pending Submissions */}
-        <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
-          <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
-            <h2 className="text-xl font-sans font-bold text-foreground tracking-tight">Pending Reviews</h2>
-            <span className="bg-purple-500/10 text-purple-600 text-xs font-medium px-3 py-1 rounded-full border border-purple-500/20">{pendingSubmissions.length} Pending</span>
+        <div className="bg-card border border-border rounded-[1.5rem] overflow-hidden shadow-sm">
+          <div className="p-6 border-b border-border flex justify-between items-center bg-muted/20">
+            <h2 className="text-xl font-display font-semibold text-foreground tracking-tight">Pending Reviews</h2>
+            <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-md border border-primary/20 tracking-wider">
+              {pendingSubmissions.length} Pending
+            </span>
           </div>
           <div className="divide-y divide-border">
             {pendingSubmissions.length === 0 ? (
@@ -648,10 +654,10 @@ export default function AdminDashboard() {
                 <div key={sub.id} className="p-6 hover:bg-muted/10 transition-colors">
                   <div className="flex justify-between items-start mb-6">
                     <div>
-                      <div className="font-sans font-bold text-foreground text-xl tracking-tight mb-2">{sub.taskTitle}</div>
+                      <div className="font-sans font-semibold text-foreground text-xl tracking-tight mb-2">{sub.taskTitle}</div>
                       <div className="text-sm text-muted-foreground flex items-center gap-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary">
+                          <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-semibold text-primary">
                             {sub.workerName?.[0]}
                           </div>
                           {sub.workerName}
@@ -663,13 +669,13 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-primary font-sans font-bold text-xl">
+                    <div className="text-primary font-sans font-semibold text-xl">
                       ${sub.payout.toFixed(2)}
                     </div>
                   </div>
                   
                   <div className="bg-card/50 border border-border rounded-xl p-5 mb-6">
-                    <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-2">Worker Proof:</div>
+                    <div className="text-xs uppercase font-semibold tracking-widest text-muted-foreground mb-2">Worker Proof:</div>
                     <p className="text-sm text-foreground leading-relaxed mb-4">{sub.proofText || "No text provided."}</p>
                     {sub.proofImageUrl && (
                       <a href={sub.proofImageUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
@@ -702,7 +708,7 @@ export default function AdminDashboard() {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button 
                       onClick={() => handleApprove(sub.id, sub.workerId, sub.payout, sub.taskId, sub.taskTitle)}
-                      className="flex-1 bg-purple-500 hover:bg-purple-600 text-primary-foreground font-bold py-2.5 rounded-xl transition-colors"
+                      className="flex-1 bg-purple-500 hover:bg-purple-600 text-primary-foreground font-semibold py-2.5 rounded-xl transition-colors"
                     >
                       Approve
                     </button>
@@ -727,10 +733,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Activity Feed */}
-        <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
-          <div className="p-6 border-b border-border bg-muted/30">
-            <h2 className="text-xl font-sans font-bold text-foreground flex items-center gap-3 tracking-tight">
-              <Activity className="w-5 h-5 text-purple-600" /> Activity Log
+        <div className="bg-card border border-border rounded-[1.5rem] overflow-hidden shadow-sm">
+          <div className="p-6 border-b border-border bg-muted/20">
+            <h2 className="text-xl font-display font-semibold text-foreground flex items-center gap-3 tracking-tight">
+              <Activity className="w-5 h-5 text-primary" /> Activity Log
             </h2>
           </div>
           <div className="p-6">
@@ -745,24 +751,24 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex-1 glass-card rounded-xl p-4 group-hover:border-primary/30 transition-all duration-300">
                       <div className="flex items-center justify-between gap-4 mb-1">
-                        <div className="font-sans text-foreground text-xs font-bold uppercase tracking-widest leading-relaxed capitalize">{act.type?.replace('_', ' ') || 'Activity'}</div>
+                        <div className="font-sans text-foreground text-xs font-semibold uppercase tracking-widest leading-relaxed capitalize">{act.type?.replace('_', ' ') || 'Activity'}</div>
                         <time className="text-xs text-muted-foreground">{act.createdAt?.toDate ? format(act.createdAt.toDate(), "h:mm a") : ""}</time>
                       </div>
                       <div className="text-sm text-muted-foreground font-sans leading-relaxed mb-2">{act.description}</div>
                       {(act.taskId || act.userId || act.amount !== undefined) && (
                         <div className="flex flex-wrap gap-2 mt-2">
                           {act.userId && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/30 border border-border text-[10px] text-muted-foreground font-mono">
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/30 border border-border text-xs text-muted-foreground font-mono">
                               <span className="text-muted-foreground/60">USR:</span> {act.userId.slice(0, 8)}...
                             </span>
                           )}
                           {act.taskId && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 text-[10px] text-purple-400 font-mono">
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 text-xs text-purple-400 font-mono">
                               <span className="text-purple-500/50">TSK:</span> {act.taskId.slice(0, 8)}...
                             </span>
                           )}
                           {act.amount !== undefined && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-mono">
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-500/10 border border-green-500/20 text-xs text-green-400 font-mono">
                               <span className="text-green-500/50">AMT:</span> ${act.amount.toFixed(2)}
                             </span>
                           )}
@@ -777,10 +783,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Pending Member Requests */}
-        <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm lg:col-span-2">
-          <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
-            <h2 className="text-xl font-sans font-bold text-foreground tracking-tight">Pending Member Requests</h2>
-            <span className="bg-blue-500/10 text-blue-600 text-xs font-medium px-3 py-1 rounded-full border border-blue-500/20">{pendingRequests.length} Pending</span>
+        <div className="bg-card border border-border rounded-[1.5rem] overflow-hidden shadow-sm lg:col-span-2">
+          <div className="p-6 border-b border-border flex justify-between items-center bg-muted/20">
+            <h2 className="text-xl font-display font-semibold text-foreground tracking-tight">Pending Member Requests</h2>
+            <span className="bg-blue-500/10 text-blue-600 text-xs font-medium px-3 py-1 rounded-md border border-blue-500/20">{pendingRequests.length} Pending</span>
           </div>
           <div className="divide-y divide-border">
             {pendingRequests.length === 0 ? (
@@ -790,10 +796,10 @@ export default function AdminDashboard() {
                 <div key={req.id} className="p-6 hover:bg-muted/10 transition-colors">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <div className="font-sans font-bold text-foreground text-xl tracking-tight mb-2">{req.title}</div>
+                      <div className="font-sans font-semibold text-foreground text-xl tracking-tight mb-2">{req.title}</div>
                       <div className="text-sm text-muted-foreground flex items-center gap-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-xs font-bold text-blue-600">
+                          <div className="w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-xs font-semibold text-blue-600">
                             {req.requesterName?.[0]}
                           </div>
                           {req.requesterName}
@@ -805,7 +811,7 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-blue-600 font-sans font-bold text-xl">
+                    <div className="text-blue-600 font-sans font-semibold text-xl">
                       ${req.offerAmount.toFixed(2)}
                     </div>
                   </div>
@@ -817,7 +823,7 @@ export default function AdminDashboard() {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button 
                       onClick={() => handleApproveRequest(req.id)}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-foreground font-bold py-2.5 rounded-xl transition-colors"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-foreground font-semibold py-2.5 rounded-xl transition-colors"
                     >
                       Approve & Publish
                     </button>
@@ -834,10 +840,10 @@ export default function AdminDashboard() {
           </div>
         </div>
         {/* Pending Withdrawals */}
-        <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm lg:col-span-2">
-          <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
-            <h2 className="text-xl font-sans font-bold text-foreground tracking-tight">Pending Withdrawals</h2>
-            <span className="bg-pink-500/10 text-pink-600 text-xs font-medium px-3 py-1 rounded-full border border-pink-500/20">{pendingWithdrawalsList.length} Pending</span>
+        <div className="bg-card border border-border rounded-[1.5rem] overflow-hidden shadow-sm lg:col-span-2">
+          <div className="p-6 border-b border-border flex justify-between items-center bg-muted/20">
+            <h2 className="text-xl font-display font-semibold text-foreground tracking-tight">Pending Withdrawals</h2>
+            <span className="bg-pink-500/10 text-pink-600 text-xs font-medium px-3 py-1 rounded-md border border-pink-500/20">{pendingWithdrawalsList.length} Pending</span>
           </div>
           <div className="divide-y divide-border">
             {pendingWithdrawalsList.length === 0 ? (
@@ -847,10 +853,10 @@ export default function AdminDashboard() {
                 <div key={w.id} className="p-6 hover:bg-muted/10 transition-colors">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <div className="font-sans font-bold text-foreground text-xl tracking-tight mb-2">Withdrawal Request</div>
+                      <div className="font-sans font-semibold text-foreground text-xl tracking-tight mb-2">Withdrawal Request</div>
                       <div className="text-sm text-muted-foreground flex items-center gap-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-xs font-bold text-pink-600">
+                          <div className="w-6 h-6 rounded-full bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-xs font-semibold text-pink-600">
                             {w.workerName?.[0]}
                           </div>
                           {w.workerName}
@@ -862,7 +868,7 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-pink-600 font-sans font-bold text-xl">
+                    <div className="text-pink-600 font-sans font-semibold text-xl">
                       ${w.amount?.toFixed(2)}
                     </div>
                   </div>
@@ -870,15 +876,15 @@ export default function AdminDashboard() {
                   <div className="bg-card/50 border border-border rounded-xl p-5 mb-6">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Payment Method:</div>
+                        <div className="text-xs uppercase font-semibold tracking-widest text-muted-foreground mb-1">Payment Method:</div>
                         <div className="text-sm text-foreground capitalize">{w.method}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Payment Details:</div>
+                        <div className="text-xs uppercase font-semibold tracking-widest text-muted-foreground mb-1">Payment Details:</div>
                         <div className="text-sm text-foreground">{w.details}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Worker Balance:</div>
+                        <div className="text-xs uppercase font-semibold tracking-widest text-muted-foreground mb-1">Worker Balance:</div>
                         <div className="text-sm text-foreground">${w.workerBalance?.toFixed(2)}</div>
                       </div>
                     </div>
@@ -887,7 +893,7 @@ export default function AdminDashboard() {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button 
                       onClick={() => handleApproveWithdrawal(w.id, w.workerId, w.amount, w.workerName)}
-                      className="flex-1 bg-pink-600 hover:bg-pink-700 text-foreground font-bold py-2.5 rounded-xl transition-colors"
+                      className="flex-1 bg-pink-600 hover:bg-pink-700 text-foreground font-semibold py-2.5 rounded-xl transition-colors"
                     >
                       Approve & Pay
                     </button>
@@ -906,9 +912,9 @@ export default function AdminDashboard() {
       </div>
 
       {/* Payout History */}
-      <div className="mt-12 bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
-        <div className="p-6 border-b border-border bg-muted/30">
-          <h2 className="text-xl font-sans font-bold text-foreground flex items-center gap-3 tracking-tight">
+      <div className="mt-12 bg-card border border-border rounded-[1.5rem] overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-border bg-muted/20">
+          <h2 className="text-xl font-display font-semibold text-foreground flex items-center gap-3 tracking-tight">
             <DollarSign className="w-5 h-5 text-primary" /> Transaction Ledger
           </h2>
         </div>
@@ -917,10 +923,10 @@ export default function AdminDashboard() {
             <table className="w-full text-left text-sm text-foreground">
               <thead>
                 <tr>
-                  <th className="px-6 py-4 border-b border-border bg-card text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Timestamp</th>
-                  <th className="px-6 py-4 border-b border-border bg-card text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Worker</th>
-                  <th className="px-6 py-4 border-b border-border bg-card text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Task</th>
-                  <th className="px-6 py-4 border-b border-border bg-card text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Amount</th>
+                  <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Timestamp</th>
+                  <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Worker</th>
+                  <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Task</th>
+                  <th className="px-6 py-4 border-b border-border bg-card text-xs font-semibold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Amount</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -936,7 +942,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-sans text-primary text-xs font-bold">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-sans text-primary text-xs font-semibold">
                             {payout.workerName?.[0]}
                           </div>
                           <span className="font-sans font-medium text-foreground">{payout.workerName}</span>
@@ -961,10 +967,10 @@ export default function AdminDashboard() {
 
       {rejectionData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-bold text-foreground mb-2">Reject Submission</h3>
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-md">
+            <h3 className="text-xl font-semibold text-foreground mb-2">Reject Submission</h3>
             <p className="text-muted-foreground mb-4">
-              Please provide a reason for rejecting this submission from <span className="text-foreground font-bold">{rejectionData.workerName}</span>.
+              Please provide a reason for rejecting this submission from <span className="text-foreground font-semibold">{rejectionData.workerName}</span>.
             </p>
             <textarea
               value={rejectionReason}
@@ -985,7 +991,7 @@ export default function AdminDashboard() {
               <button 
                 onClick={handleReject}
                 disabled={!rejectionReason.trim()}
-                className="px-4 py-2 rounded-xl bg-destructive hover:bg-destructive/90 text-foreground font-bold transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-xl bg-destructive hover:bg-destructive/90 text-foreground font-semibold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Reject Submission
               </button>
@@ -996,8 +1002,8 @@ export default function AdminDashboard() {
 
       {submissionToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-bold text-foreground mb-2">Delete Submission</h3>
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-md">
+            <h3 className="text-xl font-semibold text-foreground mb-2">Delete Submission</h3>
             <p className="text-muted-foreground mb-6">
               Are you sure you want to delete this submission record? This action cannot be undone.
             </p>
@@ -1010,7 +1016,7 @@ export default function AdminDashboard() {
               </button>
               <button 
                 onClick={() => handleDeleteSubmission(submissionToDelete)}
-                className="px-4 py-2 rounded-xl bg-destructive hover:bg-destructive/90 text-foreground font-bold transition-colors shadow-lg shadow-destructive/20"
+                className="px-4 py-2 rounded-xl bg-destructive hover:bg-destructive/90 text-foreground font-semibold transition-colors shadow-sm shadow-destructive/20"
               >
                 Delete
               </button>

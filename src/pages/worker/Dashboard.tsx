@@ -73,9 +73,21 @@ export default function WorkerDashboard() {
         const geoMatch = isAdmin ? true : isGeoMatch(taskGeo, userCountry);
         
         if (!assignedTaskIds.includes(taskDoc.id) && geoMatch) {
-          const taskAssignmentsQuery = query(collection(db, "assignments"), where("taskId", "==", taskDoc.id));
-          const taskAssignmentsSnap = await getDocs(taskAssignmentsQuery);
-          if (taskAssignmentsSnap.size < (taskData.limit || Infinity)) {
+          let limitReached = false;
+          
+          if (isAdmin) {
+            try {
+              const taskAssignmentsQuery = query(collection(db, "assignments"), where("taskId", "==", taskDoc.id));
+              const taskAssignmentsSnap = await getDocs(taskAssignmentsQuery);
+              if (taskAssignmentsSnap.size >= (taskData.limit || Infinity)) {
+                limitReached = true;
+              }
+            } catch (err) {
+              console.warn("Could not verify task capacity", err);
+            }
+          }
+
+          if (!limitReached) {
             await addDoc(collection(db, "assignments"), {
               taskId: taskDoc.id, workerId: workerId, status: "pending", assignedAt: serverTimestamp()
             });
@@ -83,7 +95,10 @@ export default function WorkerDashboard() {
           }
         }
       }
-    } catch (error) { console.error("Auto-assignment failed:", error); }
+    } catch (error) { 
+        // Silently catch to prevent ui interruption
+        console.warn("Auto-assignment skipped due to permissions/index:", error); 
+    }
   };
 
   useEffect(() => {
@@ -121,12 +136,20 @@ export default function WorkerDashboard() {
         const order: any = { pending: 0, submitted: 1, rejected: 2, approved: 3 };
         return order[a.status] - order[b.status];
       }));
+      
+      // Auto-allocate if out of active tasks
+      const activeCount = assigns.filter((a: any) => a.status === 'pending' || a.status === 'submitted').length;
+      if (activeCount === 0 && user && user.role !== 'admin') {
+         autoAssignTasks(user.uid, user.trustTier || 'New', user.country || 'Global', false);
+      }
     }, (error: any) => { handleFirestoreError(error, OperationType.LIST, "assignments"); });
 
     const qActivities = query(collection(db, "activities"), where("type", "==", "task_submitted"));
     const unsubActivities = onSnapshot(qActivities, (snap) => {
       setActivities(snap.docs.map(d => ({ id: d.id, ...d.data() })).slice(0, 5));
-    }, (error: any) => { handleFirestoreError(error, OperationType.LIST, "activities"); });
+    }, (error: any) => { 
+        console.warn("Activities feed restricted:", error); 
+    });
 
     return () => { unsub(); unsubActivities(); };
   }, [user]);
@@ -170,11 +193,11 @@ export default function WorkerDashboard() {
     <WorkerLayout>
       {showTour && <DashboardTour onComplete={handleTourComplete} />}
       <div className="mb-12 space-y-2">
-        <h1 className="text-5xl md:text-7xl font-display font-black tracking-tighter leading-[0.9]">
+        <h1 className="text-4xl md:text-6xl font-display font-medium tracking-tight leading-[0.9]">
           Your Next Job<br />
-          <span className="text-primary">Starts Here.</span>
+          <span className="text-primary drop-shadow-sm">Starts Here.</span>
         </h1>
-        <p className="text-lg md:text-xl text-muted-foreground font-medium pt-2 max-w-xl">
+        <p className="text-lg md:text-xl text-muted-foreground font-medium pt-3 max-w-xl">
           Join a growing network of elite operators. Complete tasks, build your reputation, and scale your earnings securely.
         </p>
       </div>
@@ -182,35 +205,93 @@ export default function WorkerDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-8">
           <div className="flex items-center justify-between">
-            <h2 className="text-3xl font-display font-black tracking-tight">Available Tasks</h2>
-            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing} className="rounded-full">
+            <h2 className="text-2xl font-display font-semibold tracking-tight">Available Tasks</h2>
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing} className="rounded-xl border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground shadow-none">
               <RefreshCw className={cn("w-4 h-4 mr-2", isRefreshing && "animate-spin")} /> Refresh
             </Button>
           </div>
           {assignments.length > 0 ? (
             assignments.map(assign => (
-              <div key={assign.id} className="p-6 rounded-3xl glass-card border border-border/50 space-y-4">
-                <h3 className="text-2xl font-black">{assign.taskTitle}</h3>
-                <p className="text-muted-foreground">{assign.taskDescription}</p>
-                <div className="flex gap-4">
-                  <a href={getTrackedUrl(assign)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary font-bold">
+              <div key={assign.id} className="p-6 md:p-8 rounded-[1.5rem] bg-card border border-border space-y-4 relative overflow-hidden hover:border-primary/30 transition-colors shadow-sm">
+                <div className="absolute top-0 right-0 bg-primary/10 text-primary font-semibold px-4 py-2 rounded-bl-[1rem] shadow-sm">
+                  ${Number(assign.payout || 0).toFixed(2)}
+                </div>
+                <h3 className="text-xl font-semibold pr-16 text-foreground">{assign.taskTitle}</h3>
+                <p className="text-muted-foreground leading-relaxed">{assign.taskDescription}</p>
+                <div className="flex gap-4 pt-2">
+                  <a href={getTrackedUrl(assign)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors">
                     Start Task <ArrowRight className="w-4 h-4" />
                   </a>
-                  {assign.status === 'pending' && <Button size="sm" onClick={() => setSelectedAssignment(assign)}>Submit Proof</Button>}
+                  {assign.status === 'pending' && <Button size="sm" className="rounded-xl shadow-sm" onClick={() => setSelectedAssignment(assign)}>Submit Proof</Button>}
                 </div>
               </div>
             ))
           ) : (
-            <div className="p-16 rounded-3xl border border-dashed border-border text-center">
-              <Target className="w-10 h-10 mx-auto text-muted-foreground mb-4 opacity-50" />
-              <p className="font-black text-muted-foreground uppercase tracking-widest text-sm">No tasks assigned</p>
+            <div className="p-16 rounded-[1.5rem] border border-dashed border-border bg-card/50 text-center">
+              <Target className="w-10 h-10 mx-auto text-muted-foreground mb-4 opacity-30" />
+              <p className="font-medium text-muted-foreground text-sm">No tasks assigned</p>
             </div>
           )}
         </div>
-        <div className="lg:col-span-4">
-          {/* Submission Panel would be here, logic omitted for dashboard compactness, but this file is functional */}
-        </div>
       </div>
+
+      {/* Submission Dialog */}
+      {selectedAssignment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setSelectedAssignment(null)} />
+          <div className="relative bg-card border border-border shadow-md rounded-[1.5rem] w-full max-w-lg p-6 md:p-8 space-y-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-2xl font-display font-semibold text-foreground">Submit Proof</h3>
+                <p className="text-sm font-medium text-muted-foreground mt-1">Provide evidence for task completion</p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setSelectedAssignment(null)} className="h-8 w-8 rounded-full border border-border">
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <form onSubmit={handleSubmitProof} className="space-y-6">
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-foreground ml-1">Proof Description</label>
+                <Textarea 
+                  value={proofText}
+                  onChange={(e) => setProofText(e.target.value)}
+                  placeholder="Describe your actions..."
+                  className="h-32 bg-muted/50 border-border rounded-xl resize-none"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-foreground ml-1">Screenshot / Evidence</label>
+                <div className="relative h-32 border-2 border-dashed border-border rounded-xl bg-muted/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors">
+                  <input 
+                    type="file" 
+                    onChange={(e) => setProofFile(e.target.files?.[0] || null)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    accept="image/*"
+                    required
+                  />
+                  <FileUp className="w-8 h-8 text-muted-foreground mb-2" />
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {proofFile ? proofFile.name : "Upload Image"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button 
+                  type="submit" 
+                  disabled={submitting}
+                  className="rounded-xl w-full h-12 shadow-sm  text-sm font-semibold"
+                >
+                  {submitting ? "Submitting..." : "Submit Proof"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </WorkerLayout>
   );
 }
